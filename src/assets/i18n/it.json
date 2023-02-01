@@ -1,6 +1,17 @@
 {
     "RECIPES_PAGE": {
-        "TITLE": "Ricette"
+        "TITLE": "Ricette",
+        "TYPES": {
+            "APPETIZER": "Antipasto",
+            "FIRSTCOURSE": "Primo",
+            "SECONDCOURSE": "Secondo",
+            "SIDE": "Contorno",
+            "YEASTPRODUCTS": "Lievitati",
+            "DESSERT": "Dolce",
+            "BEVERAGE": "Bevande",
+            "OTHER": "Altro"
+        },
+        "FILTERS": "Filtri"
     },
     "STORAGE_PAGE": {
         "TITLE": "Dispensa"

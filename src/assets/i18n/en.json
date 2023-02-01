@@ -1,6 +1,17 @@
 {
     "RECIPES_PAGE": {
-        "TITLE": "Recipes"
+        "TITLE": "Recipes",
+        "TYPES": {
+            "APPETIZER": "Appetizer",
+            "FIRSTCOURSE": "First course",
+            "SECONDCOURSE": "Second course",
+            "SIDE": "Side",
+            "YEASTPRODUCTS": "Yeast products",
+            "DESSERT": "Dessert",
+            "BEVERAGE": "Beverage",
+            "OTHER": "Other"
+        },
+        "FILTERS": "Filters"
     },
     "STORAGE_PAGE": {
         "TITLE": "Food storage"
