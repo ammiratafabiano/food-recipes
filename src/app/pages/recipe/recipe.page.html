@@ -1,0 +1,60 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'RECIPES_PAGE.RECIPE.LABEL' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Title-->
+  <h1 class="ion-padding">{{ recipe?.name }}</h1>
+  <!-- Metadata -->
+  <ion-item lines="full" *ngIf="recipe?.time">
+    <ion-icon name="timer" slot="start"></ion-icon>
+    <ion-label>{{ 'RECIPES_PAGE.RECIPE.TIME' | translate }}</ion-label>
+    <ion-label>{{ recipe?.time?.value }}{{ 'COMMON.UNITS.MINUTE' | translate }}</ion-label>
+  </ion-item>
+  <ion-item lines="full" *ngIf="recipe?.difficulty">
+    <ion-icon name="podium" slot="start"></ion-icon>
+    <ion-label>{{ 'RECIPES_PAGE.RECIPE.DIFFICULTY' | translate }}</ion-label>
+    <ion-label>{{ 'RECIPES_PAGE.RECIPE.DIFFICULTY_LEVEL.' + recipe?.difficulty | translate }}</ion-label>
+  </ion-item>
+  <!-- Ingredients-->
+  <h3 class="ion-padding-horizontal">
+    {{ 'RECIPES_PAGE.RECIPE.INGREDIENTS' | translate }}
+  </h3>
+  <ion-list lines="inset" inset="true">
+    <ion-item *ngFor="let ingredient of recipe?.ingredients">
+      <ion-label *ngIf="ingredient.quantity" class="quantity-label">
+        {{ ingredient.quantity.value }}{{ 'COMMON.UNITS.' + ingredient.quantity.unit | translate }}
+      </ion-label>
+      <ion-label *ngIf="!ingredient.quantity" class="quantity-label">
+        {{ 'RECIPES_PAGE.RECIPE.MISSING_QUANTITY' | translate }}
+      </ion-label>
+      <ion-label>{{ ingredient.name }}</ion-label>
+    </ion-item>
+  </ion-list>
+  <!-- Steps-->
+  <h3 class="ion-padding-horizontal">
+    {{ 'RECIPES_PAGE.RECIPE.STEPS' | translate }}
+  </h3>
+  <ion-card *ngFor="let step of recipe?.steps; let i = index">
+    <img *ngIf="step.imageUrl" [src]="step.imageUrl" />
+    <ion-card-header>
+      <ion-card-title>{{ i+1 }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      {{ step.text }}
+    </ion-card-content>
+  </ion-card>
+</ion-content>
+
+<ion-footer class="ion-padding">
+  <ion-toolbar>
+    <ion-button expand="block" (click)="onAddToPlanningClicked()">
+      {{ 'RECIPES_PAGE.RECIPE.ADD_TO_PLANNING_BUTTON' | translate }}
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

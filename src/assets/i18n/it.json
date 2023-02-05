@@ -11,12 +11,44 @@
             "BEVERAGE": "Bevande",
             "OTHER": "Altro"
         },
-        "FILTERS": "Filtri"
-    },
-    "STORAGE_PAGE": {
-        "TITLE": "Dispensa"
+        "FILTERS": "Filtri",
+        "RECIPE": {
+            "LABEL": "Ricetta",
+            "TIME": "Tempo",
+            "DIFFICULTY": "Difficoltà",
+            "DIFFICULTY_LEVEL": {
+                "EASY": "Easy",
+                "MEDIUM": "Medium",
+                "HARD": "Hard"
+            },
+            "INGREDIENTS": "Ingredienti",
+            "STEPS": "Passaggi",
+            "MISSING_QUANTITY": "q.b.",
+            "ADD_TO_PLANNING_BUTTON": "Aggiungi al planning"
+        }
     },
     "PLANNING_PAGE": {
         "TITLE": "Planning"
+    },
+    "SHOPPING_LIST_PAGE": {
+        "TITLE": "Lista della spesa"
+    },
+    "COMMON": {
+        "UNITS": {
+            "GRAM": "g",
+            "KILO": "kg",
+            "LITER": "l",
+            "MILLILITER": "ml",
+            "MINUTE": "min"
+        },
+        "WEEK_DAYS": {
+            "MON": "Lunedì",
+            "TUE": "Martedì",
+            "WED": "Mercoledì",
+            "THU": "Giovedì",
+            "FRI": "Venerdì",
+            "SAT": "Sabato",
+            "SUN": "Domenica"
+        }
     }
 }

@@ -13,5 +13,16 @@
     </ion-toolbar>
   </ion-header>
 
+  <ion-list>
+    <ion-reorder-group [disabled]="false" (ionItemReorder)="handleReorder($any($event))">
+      <ng-container *ngFor="let planned of currentPlanning?.recipes">
+        <ion-item [lines]="planned.recipe ? 'inset' : 'none'">
+          <ion-label *ngIf="!planned.recipe" class="delimiter">{{ 'COMMON.WEEK_DAYS.' + planned.day | translate }}</ion-label>
+          <ion-label *ngIf="planned.recipe">{{ planned?.recipe?.name }}</ion-label>
+          <ion-reorder slot="end" *ngIf="planned.recipe"></ion-reorder>
+        </ion-item>
+      </ng-container>
+    </ion-reorder-group>
+  </ion-list>
 
 </ion-content>
