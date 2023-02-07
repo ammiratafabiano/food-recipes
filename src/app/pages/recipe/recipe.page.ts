@@ -29,8 +29,8 @@ export class RecipePage implements OnInit {
 
   async onAddToPlanningClicked() {
     if (this.recipe) {
-      await this.dataService.addToPlanning(this.recipe);
-      this.navCtrl.navigateRoot('tabs/tab3', {queryParams: { recipe: JSON.stringify(this.recipe) } });
+      //await this.dataService.addToPlanning(this.recipe); //TODO
+      //this.navCtrl.navigateRoot('tabs/tab3', {queryParams: { recipe: JSON.stringify(this.recipe) } }); //TODO
     }
   }
 

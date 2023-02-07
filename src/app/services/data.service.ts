@@ -1,24 +1,51 @@
 import { Injectable } from '@angular/core';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Difficulty } from '../models/difficulty.enum';
 import { PlannedRecipe, Planning } from '../models/planning.model';
 import { RecipeTypeEnum } from '../models/recipe-type.enum';
 import { Recipe } from '../models/recipe.model';
 import { Unit } from '../models/unit.enum';
 import { WeekDay } from '../models/weekDay.enum';
+import { environment } from '../../environments/environment'
+
+const RECIPES_DB = 'recipes'
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
 
+  private supabase: SupabaseClient
+
   recipes: Recipe[] = [];
   planning: Planning[] = [];
 
   constructor() {
-    this.getRecipes(); // TODO REMOVE
-    this.getPlanning(); // TODO REMOVE
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+    //this.getRecipes(); // TODO REMOVE
+    //this.getPlanning(); // TODO REMOVE
   }
 
+  async addRecipe(recipe: Recipe) {
+    const newRecipe = {
+      text: recipe.name,
+      user_id: (await this.supabase.auth.getUser()).data.user?.id,
+    }
+
+    return this.supabase.from(RECIPES_DB).insert(newRecipe)
+  }
+
+  async getRecipes(): Promise<Recipe[] | undefined> {
+    return this.supabase
+      .from(RECIPES_DB)
+      .select(`created_at, text, id`)
+      .match({ user_id: (await this.supabase.auth.getUser()).data.user?.id })
+      .then((result) => {
+        return result.data?.map(x => new Recipe());
+      })
+  }
+
+  /*
   getRecipes(): Recipe[] {
     let recipes = [
       {
@@ -139,6 +166,6 @@ export class DataService {
     let currentPlanning = this.planning[0]; // TODO
     this.planning.find(x => x.startDate == currentPlanning.startDate)?.recipes.unshift(planned);
     return true;
-  }
+  }*/
 
 }

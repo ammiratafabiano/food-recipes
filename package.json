@@ -28,6 +28,7 @@
     "@ionic/angular": "^6.1.9",
     "@ngx-translate/core": "^14.0.0",
     "@ngx-translate/http-loader": "^7.0.0",
+    "@supabase/supabase-js": "^2.7.1",
     "ionicons": "^6.0.3",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",

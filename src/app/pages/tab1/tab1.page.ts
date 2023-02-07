@@ -29,8 +29,10 @@ export class Tab1Page {
   }
 
   private getData() {
-    this.recipes = this.dataService.getRecipes();
-    this.displayRecipes = this.recipes;
+    this.dataService.getRecipes().then(response => {
+      this.recipes = response || [];
+      this.displayRecipes = this.recipes;
+    })
   }
 
   private initFilters() {
@@ -68,8 +70,8 @@ export class Tab1Page {
   }
 
   async onAddToPlanningClicked(recipe: Recipe) {
-    await this.dataService.addToPlanning(recipe);
-    this.navCtrl.navigateRoot('tabs/tab3', {queryParams: { recipe: JSON.stringify(recipe) } });
+    //await this.dataService.addToPlanning(recipe); //TODO
+    //this.navCtrl.navigateRoot('tabs/tab3', {queryParams: { recipe: JSON.stringify(recipe) } });
   }
 
 }

@@ -33,7 +33,7 @@ export class Tab3Page {
   }
 
   private getData() {
-    this.planning = this.dataService.getPlanning();
+    //this.planning = this.dataService.getPlanning(); // TODO
     this.currentPlanning = this.planning && this.planning[0];
   }
 
