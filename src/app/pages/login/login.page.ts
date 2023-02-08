@@ -3,6 +3,7 @@ import { Component } from '@angular/core'
 import { FormBuilder, Validators } from '@angular/forms'
 import { Router } from '@angular/router'
 import { LoadingController, AlertController } from '@ionic/angular'
+import { tap } from 'rxjs'
 
 @Component({
   selector: 'app-login',
@@ -22,11 +23,12 @@ export class LoginPage {
     private alertController: AlertController,
     private router: Router
   ) {
-    this.authService.getCurrentUser().subscribe((user) => {
+    // TODO workaround for multiple subscribe
+    this.authService.getCurrentUser().pipe(tap((user) => {
       if (user) {
         this.router.navigateByUrl('/tabs', { replaceUrl: true })
       }
-    })
+    })).subscribe();
   }
 
   get email() {

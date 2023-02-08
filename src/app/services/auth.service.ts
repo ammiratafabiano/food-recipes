@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { AuthResponse, createClient, OAuthResponse, SupabaseClient, User } from '@supabase/supabase-js'
-import { BehaviorSubject, Observable } from 'rxjs'
+import { BehaviorSubject, debounce, Observable, timer } from 'rxjs'
 import { environment } from '../../environments/environment'
 
 @Injectable({
@@ -42,7 +42,7 @@ export class AuthService {
   }
 
   getCurrentUser(): Observable<User | undefined> {
-    return this.currentUser.asObservable()
+    return this.currentUser.asObservable().pipe(debounce(() => timer(200))) // TODO workaround for multiple subscribe
   }
 
   getCurrentUserId(): string | null {
@@ -62,18 +62,29 @@ export class AuthService {
   }
 
   signInWithEmail(email: string): Promise<AuthResponse> {
-    return this.supabase.auth.signInWithOtp({ email })
+    return this.supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: "http://localhost:8100/login",
+      }
+    })
   }
 
   signInWithFacebook(): Promise<OAuthResponse> {
     return this.supabase.auth.signInWithOAuth({
       provider: 'facebook',
+      options: {
+        redirectTo: "http://localhost:8100/login"
+      }
     })
   }
 
   signInWithGoogle(): Promise<OAuthResponse> {
     return this.supabase.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo: "http://localhost:8100/login"
+      }
     })
   }
   
