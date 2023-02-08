@@ -52,9 +52,13 @@
             <ion-icon name="mail-outline" slot="start"></ion-icon>
             Get a Magic Link
           </ion-button>
-          <ion-button type="button" expand="block" color="warning" routerLink="groups">
-            <ion-icon name="arrow-forward" slot="start"></ion-icon>
-            Start without account
+          <ion-button type="button" expand="block" color="warning" (click)="facebookLogin()">
+            <ion-icon name="logo-facebook" slot="start"></ion-icon>
+            Facebook Login
+          </ion-button>
+          <ion-button type="button" expand="block" color="warning" (click)="googleLogin()">
+            <ion-icon name="logo-google" slot="start"></ion-icon>
+            Google Login
           </ion-button>
         </div>
       </form>

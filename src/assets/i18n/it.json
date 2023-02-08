@@ -33,6 +33,10 @@
     "SHOPPING_LIST_PAGE": {
         "TITLE": "Lista della spesa"
     },
+    "SETTINGS_PAGE": {
+        "TITLE": "Impostazioni",
+        "LOGOUT_BUTTON": "Logout"
+    },
     "COMMON": {
         "UNITS": {
             "GRAM": "g",

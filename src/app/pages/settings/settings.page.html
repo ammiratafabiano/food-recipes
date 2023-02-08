@@ -1,0 +1,25 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      {{ 'SETTINGS_PAGE.TITLE' | translate }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{ 'SETTINGS_PAGE.TITLE' | translate }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar class="ion-padding">
+    <ion-button (click)="onLogoutClicked()">
+      {{ 'SETTINGS_PAGE.LOGOUT_BUTTON' | translate }}
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

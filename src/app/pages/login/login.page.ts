@@ -138,4 +138,30 @@ export class LoginPage {
     });
     await alert.present();
   }
+
+  async facebookLogin() {
+    const loading = await this.loadingController.create()
+    await loading.present()
+
+    this.authService.signInWithFacebook().then(async (data) => {
+      await loading.dismiss()
+
+      if (data.error) {
+        this.showAlert('Login failed', data.error.message)
+      }
+    })
+  }
+
+  async googleLogin() {
+    const loading = await this.loadingController.create()
+    await loading.present()
+
+    this.authService.signInWithGoogle().then(async (data) => {
+      await loading.dismiss()
+
+      if (data.error) {
+        this.showAlert('Login failed', data.error.message)
+      }
+    })
+  }
 }

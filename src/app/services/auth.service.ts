@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core'
-import { Router } from '@angular/router'
-import { createClient, SupabaseClient, User } from '@supabase/supabase-js'
+import { AuthResponse, createClient, OAuthResponse, SupabaseClient, User } from '@supabase/supabase-js'
 import { BehaviorSubject, Observable } from 'rxjs'
 import { environment } from '../../environments/environment'
 
@@ -11,7 +10,7 @@ export class AuthService {
   private supabase: SupabaseClient
   private currentUser = new BehaviorSubject<User | undefined>(undefined)
 
-  constructor(private router: Router) {
+  constructor() {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey)
 
     this.supabase.auth.onAuthStateChange((event, sess) => {
@@ -42,23 +41,6 @@ export class AuthService {
     }
   }
 
-  signUp(credentials: { email: string, password: string }) {
-    return this.supabase.auth.signUp(credentials)
-  }
-
-  signIn(credentials: { email: string, password: string }) {
-    return this.supabase.auth.signInWithPassword(credentials)
-  }
-
-  sendPwReset(email: string) {
-    return this.supabase.auth.resetPasswordForEmail(email)
-  }
-
-  async signOut() {
-    await this.supabase.auth.signOut()
-    this.router.navigateByUrl('/', { replaceUrl: true })
-  }
-
   getCurrentUser(): Observable<User | undefined> {
     return this.currentUser.asObservable()
   }
@@ -71,7 +53,35 @@ export class AuthService {
     }
   }
 
-  signInWithEmail(email: string) {
+  signUp(credentials: { email: string, password: string }) {
+    return this.supabase.auth.signUp(credentials)
+  }
+
+  signIn(credentials: { email: string, password: string }): Promise<AuthResponse> {
+    return this.supabase.auth.signInWithPassword(credentials)
+  }
+
+  signInWithEmail(email: string): Promise<AuthResponse> {
     return this.supabase.auth.signInWithOtp({ email })
+  }
+
+  signInWithFacebook(): Promise<OAuthResponse> {
+    return this.supabase.auth.signInWithOAuth({
+      provider: 'facebook',
+    })
+  }
+
+  signInWithGoogle(): Promise<OAuthResponse> {
+    return this.supabase.auth.signInWithOAuth({
+      provider: 'google',
+    })
+  }
+  
+  sendPwReset(email: string): Promise<any> {
+    return this.supabase.auth.resetPasswordForEmail(email)
+  }
+
+  signOut(): Promise<any> {
+    return this.supabase.auth.signOut()
   }
 }

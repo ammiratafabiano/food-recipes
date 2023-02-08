@@ -7,6 +7,7 @@ import { Recipe } from '../models/recipe.model';
 import { Unit } from '../models/unit.enum';
 import { WeekDay } from '../models/weekDay.enum';
 import { environment } from '../../environments/environment'
+import { AuthService } from './auth.service';
 
 const RECIPES_DB = 'recipes'
 
@@ -20,7 +21,7 @@ export class DataService {
   recipes: Recipe[] = [];
   planning: Planning[] = [];
 
-  constructor() {
+  constructor(private authService: AuthService) {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
     //this.getRecipes(); // TODO REMOVE
     //this.getPlanning(); // TODO REMOVE
@@ -29,7 +30,7 @@ export class DataService {
   async addRecipe(recipe: Recipe) {
     const newRecipe = {
       text: recipe.name,
-      user_id: (await this.supabase.auth.getUser()).data.user?.id,
+      user_id: this.authService.getCurrentUserId(),
     }
 
     return this.supabase.from(RECIPES_DB).insert(newRecipe)
@@ -38,8 +39,8 @@ export class DataService {
   async getRecipes(): Promise<Recipe[] | undefined> {
     return this.supabase
       .from(RECIPES_DB)
-      .select(`created_at, text, id`)
-      .match({ user_id: (await this.supabase.auth.getUser()).data.user?.id })
+      .select(`created_at, name, id`)
+      .match({ user_id: this.authService.getCurrentUserId() })
       .then((result) => {
         return result.data?.map(x => new Recipe());
       })
