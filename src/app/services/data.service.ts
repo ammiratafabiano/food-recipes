@@ -1,15 +1,18 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Difficulty } from '../models/difficulty.enum';
-import { PlannedRecipe, Planning } from '../models/planning.model';
-import { RecipeTypeEnum } from '../models/recipe-type.enum';
+import { Planning } from '../models/planning.model';
 import { Recipe } from '../models/recipe.model';
-import { Unit } from '../models/unit.enum';
-import { WeekDay } from '../models/weekDay.enum';
 import { environment } from '../../environments/environment'
 import { AuthService } from './auth.service';
+import { Ingredient } from '../models/ingredient.model';
+import { Food } from '../models/food.model';
+import { RecipeType } from '../models/recipe-type.enum';
 
-const RECIPES_DB = 'recipes'
+const RECIPES_TABLE = 'recipes'
+const INGREDIENTS_TABLE = 'ingredients'
+const FOODS_TABLE = 'foods'
+
+const NAMED_INGREDIENTS_VIEW = 'named_ingredients'
 
 @Injectable({
   providedIn: 'root'
@@ -23,150 +26,99 @@ export class DataService {
 
   constructor(private authService: AuthService) {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
-    //this.getRecipes(); // TODO REMOVE
-    //this.getPlanning(); // TODO REMOVE
   }
 
   async addRecipe(recipe: Recipe) {
-    const newRecipe = {
-      text: recipe.name,
-      user_id: this.authService.getCurrentUserId(),
-    }
-
-    return this.supabase.from(RECIPES_DB).insert(newRecipe)
+    const ingredients = recipe.ingredients.map(x => {
+      return {
+        food_id: x.id,
+        quantity_value: x.quantity.value,
+        quantity_unit: x.quantity.unit
+      }
+    });
+    return this.supabase.from(INGREDIENTS_TABLE).insert(ingredients).select('*').then((returning) => {
+      const user_id = this.authService.getCurrentUserId();
+      const ingredients_ids = returning.data?.map(x => x.id);
+      if (ingredients_ids) {
+        this.supabase
+        .from(RECIPES_TABLE)
+        .insert([
+          {
+            user_id: user_id,
+            name: recipe.name,
+            description: recipe.description,
+            type: recipe.type,
+            difficulty: recipe.difficulty,
+            ingredients: ingredients_ids,
+            steps: recipe.steps,
+            tags: recipe.tags
+          }
+        ]).then((response) => {
+          console.log(response);
+        })
+      }
+    });
   }
 
-  async getRecipes(): Promise<Recipe[] | undefined> {
+  async getRecipe(id: number): Promise<Recipe | undefined> {
     return this.supabase
-      .from(RECIPES_DB)
-      .select(`created_at, name, id`)
-      .match({ user_id: this.authService.getCurrentUserId() })
-      .then((result) => {
-        return result.data?.map(x => new Recipe());
+      .from(RECIPES_TABLE)
+      .select()
+      .match({ user_id: this.authService.getCurrentUserId(), id: id })
+      .then(x => {
+        const recipeResult = x?.data && x?.data[0];
+        return this.supabase.from(NAMED_INGREDIENTS_VIEW)
+            .select(`ingredient_id, food_name, quantity_value, quantity_unit`)
+            .match({ ingredient_id: recipeResult.ingredients })
+            .then((ingredientsResult) => {
+              let recipe = new Recipe();
+              recipe.id = recipeResult.id;
+              recipe.name = recipeResult.name;
+              recipe.description = recipeResult.description;
+              recipe.type = recipeResult.type || RecipeType.Other;
+              recipe.difficulty = recipeResult.difficulty;
+              recipe.ingredients = ingredientsResult.data?.map(y => {
+                let ingredient = new Ingredient();
+                ingredient.id = y.ingredient_id;
+                ingredient.name = y.food_name;
+                ingredient.quantity.value = y.quantity_value;
+                ingredient.quantity.unit = y.quantity_unit;
+                return ingredient;
+              }) || [];
+              recipe.steps = recipeResult.steps;
+              recipe.tags = recipeResult.tags;
+              return recipe;
+            });
       })
   }
 
-  /*
-  getRecipes(): Recipe[] {
-    let recipes = [
-      {
-        name: "Red Velvet",
-        type: RecipeTypeEnum.Dessert,
-        time: {
-          value: 180,
-          unit: Unit.Minute
-        },
-        difficulty: Difficulty.Medium,
-        ingredients: [
-          {
-            name: "Farina 00",
-            quantity: {
-              value: 300,
-              unit: Unit.Gram
-            }
-          },
-          {
-            name: "Latte",
-            quantity: {
-              value: 100,
-              unit: Unit.Gram
-            }
-          }
-        ],
-        steps: [
-          {
-            text: "Fare il laticello.",
-            imageUrl: "https://ionicframework.com/docs/img/demos/card-media.png"
-          },
-          {
-            text: "Mescolare gli ingredienti."
-          },
-          {
-            text: "Infornare a 170° per 20min."
-          }
-        ]
-      },
-      {
-        name: "Canestrelli",
-        type: RecipeTypeEnum.Dessert,
-        ingredients: [],
-        steps: []
-      },
-      {
-        name: "Cinnamon Roll",
-        type: RecipeTypeEnum.Dessert,
-        ingredients: [],
-        steps: []
-      },
-      {
-        name: "Pistacchiosa",
-        type: RecipeTypeEnum.FirstCourse,
-        ingredients: [],
-        steps: []
-      },
-      {
-        name: "Pollo al curry",
-        type: RecipeTypeEnum.SecondCourse,
-        ingredients: [],
-        steps: []
-      },
-      {
-        name: "Rosticceria",
-        type: RecipeTypeEnum.YeastProducts,
-        ingredients: [],
-        steps: []
-      },
-      {
-        name: "Grissini sfiziosi",
-        type: RecipeTypeEnum.Appetizer,
-        ingredients: [],
-        steps: []
-      }
-    ]
-    recipes.sort((a, b) => a.name.localeCompare(b.name));
-    this.recipes = recipes;
-    return this.recipes;
+  async getRecipeList(): Promise<Recipe[] | undefined> {
+    return this.supabase
+      .from(RECIPES_TABLE)
+      .select(`id, name, type`)
+      .match({ user_id: this.authService.getCurrentUserId() })
+      .then((result) => {
+        return result.data?.map(x => {
+          let recipe = new Recipe();
+          recipe.id = x.id;
+          recipe.name = x.name;
+          recipe.type = x.type || RecipeType.Other;
+          return recipe;
+        })
+      })    
   }
 
-  getPlanning(): Planning[] {
-    let planning = [
-      {
-        startDate: "2023-02-06",
-        recipes: [
-          {
-            day: WeekDay.Monday
-          },
-          {
-            day: WeekDay.Tuesday
-          },
-          {
-            day: WeekDay.Wednesday
-          },
-          {
-            day: WeekDay.Thursday
-          },
-          {
-            day: WeekDay.Friday
-          },
-          {
-            day: WeekDay.Saturday
-          },
-          {
-            day: WeekDay.Sunday
-          }
-        ]
-      }
-    ]
-    this.planning = planning;
-    return this.planning;
+  async getFoodList(): Promise<Food[] | undefined> {
+    return this.supabase
+      .from(FOODS_TABLE)
+      .select(`name, id`)
+      .then((result) => {
+        return result.data?.map(x => {
+          let ingredient = new Ingredient();
+          ingredient.id = x.id;
+          ingredient.name = x.name;
+          return ingredient;
+        });
+      })
   }
-
-  async addToPlanning(recipe: Recipe): Promise<boolean> {
-    let planned = new PlannedRecipe();
-    planned.recipe = recipe;
-    let currentPlanning = this.planning[0]; // TODO
-    this.planning.find(x => x.startDate == currentPlanning.startDate)?.recipes.unshift(planned);
-    return true;
-  }*/
-
 }

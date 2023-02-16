@@ -1,0 +1,12 @@
+
+.step-container-no-padding {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    --background: transparent;
+}
+
+ion-footer {
+    ion-toolbar {
+        --background: transparent;
+    }
+}

@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { NavController } from '@ionic/angular';
+import { LoadingController, ModalController, NavController } from '@ionic/angular';
 import { RecipeTagFilter } from 'src/app/models/recipe-tag-filter.model';
 import { RecipeTypeFilter } from 'src/app/models/recipe-type-filter.model';
-import { RecipeTypeEnum } from 'src/app/models/recipe-type.enum';
+import { RecipeType } from 'src/app/models/recipe-type.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { DataService } from 'src/app/services/data.service';
+import { AddRecipePage } from '../add-recipe/add-recipe.page';
 
 @Component({
   selector: 'app-tab1',
@@ -22,22 +23,29 @@ export class Tab1Page {
 
   constructor(
     private readonly navCtrl: NavController,
-    private readonly dataService: DataService
+    private readonly dataService: DataService,
+    private readonly modalController: ModalController,
+    private readonly loadingController: LoadingController
   ) {
     this.getData();
-    this.initFilters();
   }
 
-  private getData() {
-    this.dataService.getRecipes().then(response => {
+  private async getData() {
+    const loading = await this.loadingController.create()
+    await loading.present()
+    this.dataService.getRecipeList().then(response => {
       this.recipes = response || [];
       this.displayRecipes = this.recipes;
-    })
+    }).finally(async () => {
+      await loading.dismiss();
+      this.initFilters();
+    });
   }
 
   private initFilters() {
     // Init types
-    Object.values(RecipeTypeEnum).forEach(x => {
+    this.recipeTypeFilters = [];
+    Object.values(RecipeType).forEach(x => {
       if (this.recipes.find(y => y.type == x)) {
         let recipeTypeFilter = new RecipeTypeFilter();
         recipeTypeFilter.type = x;
@@ -45,6 +53,7 @@ export class Tab1Page {
       }
     });
     // Init tags
+    this.recipeTagFilters = [];
     this.recipes.forEach(x => {
       x?.tags?.forEach(y => {
         if (!this.recipeTagFilters.find(z => z.tag == y)) {
@@ -66,7 +75,18 @@ export class Tab1Page {
   }
 
   onRecipeClicked(recipe: Recipe) {
-    this.navCtrl.navigateForward('recipe', {queryParams: { recipe: JSON.stringify(recipe) } });
+    this.navCtrl.navigateForward('recipe', {queryParams: { id: recipe.id } });
+  }
+
+  async onAddClicked() {
+    const modal = await this.modalController.create({
+      component: AddRecipePage,
+      componentProps: {
+        isEdit: true
+      }
+    });
+    modal.onDidDismiss().then((params) => params?.data?.needToUpdate && this.getData());
+    await modal.present();
   }
 
   async onAddToPlanningClicked(recipe: Recipe) {

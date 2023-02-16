@@ -1,31 +1,7 @@
 {
     "RECIPES_PAGE": {
         "TITLE": "Recipes",
-        "TYPES": {
-            "APPETIZER": "Appetizer",
-            "FIRSTCOURSE": "First course",
-            "SECONDCOURSE": "Second course",
-            "SIDE": "Side",
-            "YEASTPRODUCTS": "Yeast products",
-            "DESSERT": "Dessert",
-            "BEVERAGE": "Beverage",
-            "OTHER": "Other"
-        },
-        "FILTERS": "Filters",
-        "RECIPE": {
-            "LABEL": "Recipe",
-            "TIME": "Time",
-            "DIFFICULTY": "Difficulty",
-            "DIFFICULTY_LEVEL": {
-                "EASY": "Easy",
-                "MEDIUM": "Medium",
-                "HARD": "Hard"
-            },
-            "INGREDIENTS": "Ingredients",
-            "STEPS": "Steps",
-            "MISSING_QUANTITY": "q.s.",
-            "ADD_TO_PLANNING_BUTTON": "Add to planning"
-        }
+        "FILTERS": "Filters"
     },
     "PLANNING_PAGE": {
         "TITLE": "Planning"
@@ -35,15 +11,54 @@
     },
     "SETTINGS_PAGE": {
         "TITLE": "Settings",
+        "RECIPES": "Recipes",
         "LOGOUT_BUTTON": "Logout"
     },
+    "RECIPE_PAGE": {
+        "TITLE": "Recipe",
+        "ADD_TO_PLANNING_BUTTON": "Add to planning",
+        "ERROR_TITLE": "Error",
+        "ERROR_DESCRIPTION": "An error occurred retrieveing the recipe. Please, try again later."
+    },
+    "ADD_RECIPE_PAGE": {
+        "TITLE": "New recipe",
+        "CANCEL_BUTTON": "Cancel",
+        "CONFIRM_BUTTON": "Add",
+        "NAME_PLACEHOLDER": "Name",
+        "DESCRIPTION_PLACEHOLDER": "Description",
+        "RECIPE_TYPE_PLACEHOLDER": "Category",
+        "TIME_QUANTITY_PLACEHOLDER": "Duration",
+        "DIFFICULTY_PLACEHOLDER": "Difficulty",
+        "INGREDIENTS_PLACEHOLDER": "Ingredient",
+        "INGREDIENTS_QUANTITY_PLACEHOLDER": "q.s.",
+        "UNIT_PLACEHOLDER": "Unit"
+    },
+    "INGREDIENT_SELECTION_PAGE": {
+        "TITLE": "Seleziona ingrediente"
+    },
     "COMMON": {
-        "UNITS": {
+        "RECIPE": "Recipe",
+        "DESCRIPTION": "Description",
+        "TIME": "Time",
+        "DIFFICULTY": "Difficulty",
+        "DIFFICULTY_LEVEL": {
+            "EASY": "Easy",
+            "MEDIUM": "Medium",
+            "HARD": "Hard"
+        },
+        "INGREDIENTS": "Ingredients",
+        "STEPS": "Steps",
+        "STEP_INDEX": "#{{i}}",
+        "MISSING_QUANTITY": "q.s.",
+        "WEIGHT_UNITS": {
             "GRAM": "g",
             "KILO": "kg",
             "LITER": "l",
-            "MILLILITER": "ml",
-            "MINUTE": "min"
+            "MILLILITER": "ml"
+        },
+        "TIME_UNITS": {
+            "MINUTE": "min",
+            "HOUR": "hrs"
         },
         "WEEK_DAYS": {
             "MON": "Monday",
@@ -53,6 +68,17 @@
             "FRI": "Friday",
             "SAT": "Saturday",
             "SUN": "Sunday"
+        },
+        "RECIPE_TYPE": "Cateogory",
+        "RECIPE_TYPES": {
+            "APPETIZER": "Appetizer",
+            "FIRSTCOURSE": "First course",
+            "SECONDCOURSE": "Second course",
+            "SIDE": "Side",
+            "YEASTPRODUCTS": "Yeast products",
+            "DESSERT": "Dessert",
+            "BEVERAGE": "Beverage",
+            "OTHER": "Other"
         }
     }
 }

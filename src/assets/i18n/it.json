@@ -1,31 +1,7 @@
 {
     "RECIPES_PAGE": {
         "TITLE": "Ricette",
-        "TYPES": {
-            "APPETIZER": "Antipasto",
-            "FIRSTCOURSE": "Primo",
-            "SECONDCOURSE": "Secondo",
-            "SIDE": "Contorno",
-            "YEASTPRODUCTS": "Lievitati",
-            "DESSERT": "Dolce",
-            "BEVERAGE": "Bevande",
-            "OTHER": "Altro"
-        },
-        "FILTERS": "Filtri",
-        "RECIPE": {
-            "LABEL": "Ricetta",
-            "TIME": "Tempo",
-            "DIFFICULTY": "Difficoltà",
-            "DIFFICULTY_LEVEL": {
-                "EASY": "Easy",
-                "MEDIUM": "Medium",
-                "HARD": "Hard"
-            },
-            "INGREDIENTS": "Ingredienti",
-            "STEPS": "Passaggi",
-            "MISSING_QUANTITY": "q.b.",
-            "ADD_TO_PLANNING_BUTTON": "Aggiungi al planning"
-        }
+        "FILTERS": "Filtri"
     },
     "PLANNING_PAGE": {
         "TITLE": "Planning"
@@ -35,15 +11,54 @@
     },
     "SETTINGS_PAGE": {
         "TITLE": "Impostazioni",
+        "RECIPES": "Ricette",
         "LOGOUT_BUTTON": "Esci"
     },
+    "RECIPE_PAGE": {
+        "TITLE": "Ricetta",
+        "ADD_TO_PLANNING_BUTTON": "Aggiungi al planning",
+        "ERROR_TITLE": "Errore",
+        "ERROR_DESCRIPTION": "Qualcosa è andato storto scaricando la ricetta. Prova più tardi."
+    },
+    "ADD_RECIPE_PAGE": {
+        "TITLE": "Nuova ricetta",
+        "CANCEL_BUTTON": "Annulla",
+        "CONFIRM_BUTTON": "Aggiungi",
+        "NAME_PLACEHOLDER": "Nome",
+        "DESCRIPTION_PLACEHOLDER": "Descrizione",
+        "RECIPE_TYPE_PLACEHOLDER": "Categoria",
+        "TIME_QUANTITY_PLACEHOLDER": "Durata",
+        "DIFFICULTY_PLACEHOLDER": "Difficoltà",
+        "INGREDIENTS_PLACEHOLDER": "Ingrediente",
+        "INGREDIENTS_QUANTITY_PLACEHOLDER": "q.b.",
+        "UNIT_PLACEHOLDER": "Unità"
+    },
+    "INGREDIENT_SELECTION_PAGE": {
+        "TITLE": "Seleziona ingrediente"
+    },
     "COMMON": {
-        "UNITS": {
+        "RECIPE": "Ricetta",
+        "DESCRIPTION": "Descrizione",
+        "TIME": "Tempo",
+        "DIFFICULTY": "Difficoltà",
+        "DIFFICULTY_LEVEL": {
+            "EASY": "Easy",
+            "MEDIUM": "Medium",
+            "HARD": "Hard"
+        },
+        "INGREDIENTS": "Ingredienti",
+        "STEPS": "Passaggi",
+        "STEP_INDEX": "#{{i}}",
+        "MISSING_QUANTITY": "q.b.",
+        "WEIGHT_UNITS": {
             "GRAM": "g",
             "KILO": "kg",
             "LITER": "l",
-            "MILLILITER": "ml",
-            "MINUTE": "min"
+            "MILLILITER": "ml"
+        },
+        "TIME_UNITS": {
+            "MINUTE": "min",
+            "HOUR": "hrs"
         },
         "WEEK_DAYS": {
             "MON": "Lunedì",
@@ -53,6 +68,17 @@
             "FRI": "Venerdì",
             "SAT": "Sabato",
             "SUN": "Domenica"
+        },
+        "RECIPE_TYPE": "Categoria",
+        "RECIPE_TYPES": {
+            "APPETIZER": "Antipasto",
+            "FIRSTCOURSE": "Primo",
+            "SECONDCOURSE": "Secondo",
+            "SIDE": "Contorno",
+            "YEASTPRODUCTS": "Lievitati",
+            "DESSERT": "Dolce",
+            "BEVERAGE": "Bevande",
+            "OTHER": "Altro"
         }
     }
 }

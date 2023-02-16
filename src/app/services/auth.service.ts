@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core'
 import { AuthResponse, createClient, OAuthResponse, SupabaseClient, User } from '@supabase/supabase-js'
 import { BehaviorSubject, debounce, Observable, timer } from 'rxjs'
 import { environment } from '../../environments/environment'
+import { SessionService } from './session.service'
 
 @Injectable({
   providedIn: 'root',
@@ -10,17 +11,17 @@ export class AuthService {
   private supabase: SupabaseClient
   private currentUser = new BehaviorSubject<User | undefined>(undefined)
 
-  constructor() {
+  constructor(
+    private readonly sessionService: SessionService
+  ) {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey)
 
     this.supabase.auth.onAuthStateChange((event, sess) => {
+      let user;
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        console.log('SET USER')
-
-        this.currentUser.next(sess?.user)
-      } else {
-        this.currentUser.next(undefined)
+        user = sess?.user;
       }
+      this.setCurrentUser(user);
     })
 
     // Trigger initial session load
@@ -34,10 +35,20 @@ export class AuthService {
     }
     const user = await this.supabase.auth.getUser()
 
-    if (user.data.user) {
-      this.currentUser.next(user.data.user)
+    this.setCurrentUser(user.data.user || undefined);
+  }
+
+  private setCurrentUser(user: User | undefined) {
+    if (user) {
+      this.currentUser.next(user)
+      this.sessionService.userData = {
+        name: user.user_metadata.full_name,
+        email: user.user_metadata.email,
+        avatar_url: user.user_metadata.avatar_url
+      }
     } else {
-      this.currentUser.next(undefined)
+      this.currentUser.next(undefined);
+      this.sessionService.userData = undefined;
     }
   }
 
@@ -65,7 +76,7 @@ export class AuthService {
     return this.supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: "http://localhost:8100/login",
+        emailRedirectTo: environment.siteUrl,
       }
     })
   }
@@ -74,7 +85,7 @@ export class AuthService {
     return this.supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {
-        redirectTo: "http://localhost:8100/login"
+        redirectTo: environment.siteUrl
       }
     })
   }
@@ -83,7 +94,7 @@ export class AuthService {
     return this.supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: "http://localhost:8100/login"
+        redirectTo: environment.siteUrl
       }
     })
   }

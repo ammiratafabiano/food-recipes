@@ -16,7 +16,7 @@
   <ng-container *ngFor="let recipeTypeFilter of recipeTypeFilters">
     <ng-container *ngIf="recipeTypeFilter.enabled">
       <p class="ion-padding">
-        {{ 'RECIPES_PAGE.TYPES.' + recipeTypeFilter.type | translate }}
+        {{ 'COMMON.RECIPE_TYPES.' + recipeTypeFilter.type | translate }}
       </p>
       <ion-list lines="inset" inset="true">
         <ng-container *ngFor="let recipe of displayRecipes">
@@ -26,7 +26,7 @@
             </ion-item>
             <ion-item-options side="end">
               <ion-item-option (click)="onAddToPlanningClicked(recipe)">
-                {{ 'RECIPES_PAGE.RECIPE.ADD_TO_PLANNING_BUTTON' | translate }}
+                {{ 'RECIPE_PAGE.ADD_TO_PLANNING_BUTTON' | translate }}
               </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
@@ -38,35 +38,34 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar class="ion-padding-top">
-    <ion-row class="ion-no-padding">
-      <ion-col size="10" class="ion-no-padding">
-        <ion-searchbar (ionChange)="onSearchChange($event)"></ion-searchbar>
-      </ion-col>
-      <ion-col size="2" class="ion-no-padding">
-        <ion-button id="click-trigger" class="filter-button">
-          <ion-icon slot="icon-only" name="options"></ion-icon>
-        </ion-button>
-        <ion-popover trigger="click-trigger" triggerAction="click">
-          <ng-template>
-            <ion-header>
-              <ion-toolbar>
-                <p class="ion-padding-horizontal">
-                  {{ 'RECIPES_PAGE.FILTERS' | translate }}
-                </p>
-              </ion-toolbar>
-            </ion-header>
-            <ion-content class="ion-padding">
-              <div>
-                <ion-chip *ngFor="let recipeTypeFilter of recipeTypeFilters" (click)="onTypeClicked(recipeTypeFilter)"
-                [ngClass]="{'disabled': !recipeTypeFilter.enabled}">
-                  {{ 'RECIPES_PAGE.TYPES.' + recipeTypeFilter.type | translate }}
-                </ion-chip>
-              </div>
-            </ion-content>
-          </ng-template>
-        </ion-popover>
-      </ion-col>
-    </ion-row>
+  <ion-toolbar>
+    <div class="bar-container">
+      <ion-searchbar (ionChange)="onSearchChange($event)"></ion-searchbar>
+      <ion-button id="click-trigger" fill="clear" class="filter-button">
+        <ion-icon slot="icon-only" name="options"></ion-icon>
+      </ion-button>
+      <ion-popover trigger="click-trigger" triggerAction="click">
+        <ng-template>
+          <ion-header>
+            <ion-toolbar>
+              <p class="ion-padding-horizontal">
+                {{ 'RECIPES_PAGE.FILTERS' | translate }}
+              </p>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content class="ion-padding">
+            <div>
+              <ion-chip *ngFor="let recipeTypeFilter of recipeTypeFilters" (click)="onTypeClicked(recipeTypeFilter)"
+              [ngClass]="{'disabled': !recipeTypeFilter.enabled}">
+                {{ 'COMMON.RECIPE_TYPES.' + recipeTypeFilter.type | translate }}
+              </ion-chip>
+            </div>
+          </ion-content>
+        </ng-template>
+      </ion-popover>
+      <ion-button fill="clear" (click)="onAddClicked()">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+    </div>
   </ion-toolbar>
 </ion-footer>

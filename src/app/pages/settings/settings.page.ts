@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
+import { UserData } from 'src/app/models/user-data.model';
 import { AuthService } from 'src/app/services/auth.service';
+import { SessionService } from 'src/app/services/session.service';
 
 @Component({
   selector: 'app-settings',
@@ -10,13 +11,16 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class SettingsPage implements OnInit {
 
+  userData: UserData | undefined;
+
   constructor(
-    private authService: AuthService,
-    private router: Router,
-    private navCtrl: NavController
+    private readonly authService: AuthService,
+    private readonly navCtrl: NavController,
+    private readonly sessionService: SessionService
   ) { }
 
   ngOnInit() {
+    this.userData = this.sessionService.userData;
   }
 
   async onLogoutClicked() {

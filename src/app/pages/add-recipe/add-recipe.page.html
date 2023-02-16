@@ -1,0 +1,107 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="onCancelClicked()">
+        {{ 'ADD_RECIPE_PAGE.CANCEL_BUTTON' | translate }}
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'ADD_RECIPE_PAGE.TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list lines="inset" inset="true">
+    <ion-item>
+      <ion-label>{{ 'COMMON.RECIPE' | translate }}</ion-label>
+      <ion-input [(ngModel)]="selectedRecipe.name" [placeholder]="'ADD_RECIPE_PAGE.NAME_PLACEHOLDER' | translate" slot="end"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
+      <ion-textarea [(ngModel)]="selectedRecipe.description" [autoGrow]="true" [placeholder]="'ADD_RECIPE_PAGE.DESCRIPTION_PLACEHOLDER' | translate" slot="end"></ion-textarea>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'COMMON.RECIPE_TYPE' | translate }}</ion-label>
+      <ion-select [(ngModel)]="selectedRecipe.type" interface="action-sheet" [placeholder]="'ADD_RECIPE_PAGE.RECIPE_TYPE_PLACEHOLDER' | translate">
+        <ion-select-option *ngFor="let option of typeList" [value]="option">
+          {{ 'COMMON.RECIPE_TYPES.' + option | translate }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>
+      <ion-input [(ngModel)]="selectedRecipe.time.value" type="number" [placeholder]="'ADD_RECIPE_PAGE.TIME_QUANTITY_PLACEHOLDER' | translate" slot="end"></ion-input>
+      <ion-select [(ngModel)]="selectedRecipe.time.unit" interface="action-sheet" [placeholder]="'ADD_RECIPE_PAGE.UNIT_PLACEHOLDER' | translate" slot="end">
+        <ion-select-option *ngFor="let option of timeUnitList" [value]="option">
+          {{ 'COMMON.TIME_UNITS.' + option | translate }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'COMMON.DIFFICULTY' | translate }}</ion-label>
+      <ion-select [(ngModel)]="selectedRecipe.difficulty" interface="action-sheet" [placeholder]="'ADD_RECIPE_PAGE.DIFFICULTY_PLACEHOLDER' | translate">
+        <ion-select-option *ngFor="let option of difficultyList" [value]="option">
+          {{ 'COMMON.DIFFICULTY_LEVEL.' + option | translate }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-list>
+
+  <p class="ion-padding">
+    {{ 'COMMON.INGREDIENTS' | translate }}
+  </p>
+  <ion-list lines="inset" inset="true">
+    <ion-item-sliding *ngFor="let selected of selectedRecipe.ingredients; let i = index">
+      <ion-item>
+        <ion-input [(ngModel)]="selected.name" [placeholder]="'ADD_RECIPE_PAGE.INGREDIENTS_PLACEHOLDER' | translate"></ion-input>
+        <ion-input [(ngModel)]="selected.quantity.value" type="number" [placeholder]="'ADD_RECIPE_PAGE.INGREDIENTS_QUANTITY_PLACEHOLDER' | translate"></ion-input>
+        <ion-select [(ngModel)]="selected.quantity.unit" interface="action-sheet" [placeholder]="'ADD_RECIPE_PAGE.UNIT_PLACEHOLDER' | translate">
+          <ion-select-option *ngFor="let option of weightUnitList" [value]="option">
+            {{ 'COMMON.WEIGHT_UNITS.' + option | translate }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item-options side="end" class="step-container-no-padding">
+        <ion-item-option color="danger" (click)="onRemoveIngredientClicked(i)">Rimuovi</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+    <ion-button fill="clear" (click)="onAddIngredientClicked()">
+      <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+    </ion-button>
+  </ion-list>
+
+  <p class="ion-padding">
+    {{ 'COMMON.STEPS' | translate }}
+  </p>
+  <ion-item-sliding *ngFor="let selected of selectedRecipe.steps; let i = index">
+    <ion-item class="step-container-no-padding">
+      <ion-list lines="inset" inset="true">
+        <ion-item>
+          <ion-label>{{ 'COMMON.STEP_INDEX' | translate : { i: i+1 } }}</ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-label>{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
+          <ion-textarea [(ngModel)]="selected.text" [autoGrow]="true" [placeholder]="'ADD_RECIPE_PAGE.DESCRIPTION_PLACEHOLDER' | translate" slot="end"></ion-textarea>
+        </ion-item>
+        <ion-item>
+          <input type="file" (change)="onStepImageChange($event, selected)" accept="image/*">
+        </ion-item>
+      </ion-list>
+    </ion-item>
+    <ion-item-options side="end" class="step-container-no-padding">
+      <ion-item-option color="danger" (click)="onRemoveStepClicked(i)">Rimuovi</ion-item-option>
+    </ion-item-options>
+  </ion-item-sliding>
+  <ion-list lines="inset" inset="true">
+    <ion-button fill="clear" (click)="onAddStepClicked()">
+      <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+    </ion-button>
+  </ion-list>
+</ion-content>
+
+<ion-footer class="ion-padding ion-no-border">
+  <ion-toolbar>
+    <ion-button expand="block" (click)="onConfirmClicked()" [disabled]="!selectedRecipe.name || !selectedRecipe.ingredients">
+      {{ 'ADD_RECIPE_PAGE.CONFIRM_BUTTON' | translate }}
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

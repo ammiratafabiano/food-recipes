@@ -2,7 +2,7 @@ import { Recipe } from "./recipe.model";
 import { WeekDay } from "./weekDay.enum";
 
 export class Planning {
-    startDate: string = "NA";
+    startDate: string = "";
     recipes: PlannedRecipe[] = [];
 }
 

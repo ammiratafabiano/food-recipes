@@ -21,6 +21,14 @@ const routes: Routes = [
     path: 'recipe',
     loadChildren: () => import('./pages/recipe/recipe.module').then( m => m.RecipePageModule),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'add-recipe',
+    loadChildren: () => import('./pages/add-recipe/add-recipe.module').then( m => m.AddRecipePageModule)
+  },
+  {
+    path: 'ingredient-selection',
+    loadChildren: () => import('./pages/ingredient-selection/ingredient-selection.module').then( m => m.IngredientSelectionPageModule)
   }
 ];
 @NgModule({

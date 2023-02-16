@@ -13,13 +13,17 @@
     </ion-toolbar>
   </ion-header>
 
-
-</ion-content>
-
-<ion-footer>
-  <ion-toolbar class="ion-padding">
-    <ion-button (click)="onLogoutClicked()">
+  <ion-card *ngIf="userData">
+    <ion-card-header>
+      <ion-avatar>
+        <img [src]="userData.avatar_url" />
+      </ion-avatar>
+      <ion-card-title>{{ userData.name }}</ion-card-title>
+      <ion-card-subtitle>{{ userData.email }}</ion-card-subtitle>
+    </ion-card-header> 
+    <ion-button fill="clear" (click)="onLogoutClicked()">
       {{ 'SETTINGS_PAGE.LOGOUT_BUTTON' | translate }}
     </ion-button>
-  </ion-toolbar>
-</ion-footer>
+  </ion-card>
+
+</ion-content>

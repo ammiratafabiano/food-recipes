@@ -1,8 +1,8 @@
-export enum RecipeTypeEnum {
+export enum RecipeType {
     Appetizer = "APPETIZER",
     FirstCourse = "FIRSTCOURSE",
     SecondCourse = "SECONDCOURSE",
-    Sides = "SIDES",
+    Side = "SIDE",
     YeastProducts = "YEASTPRODUCTS",
     Dessert = "DESSERT",
     Beverage = "BEVERAGE",

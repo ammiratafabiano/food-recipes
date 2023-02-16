@@ -1,6 +1,6 @@
-import { Unit } from "./unit.enum";
+import { TimetUnit, WeightUnit } from "./unit.enum";
 
 export class Quantity {
-    value: number = 0;
-    unit?: Unit;
+    value!: number;
+    unit?: WeightUnit | TimetUnit;
 }

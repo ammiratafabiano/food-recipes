@@ -1,4 +1,4 @@
 export class Step {
-    text: string = "NA";
+    text: string = "";
     imageUrl?: string;
 }
