@@ -15,7 +15,7 @@
 
   <ion-list>
     <ion-reorder-group [disabled]="false" (ionItemReorder)="handleReorder($any($event))">
-      <ng-container *ngFor="let planned of currentPlanning?.recipes">
+      <ng-container *ngFor="let planned of planning?.recipes">
         <ion-item [lines]="planned.recipe ? 'inset' : 'none'">
           <ion-label *ngIf="!planned.recipe" class="delimiter">{{ 'COMMON.WEEK_DAYS.' + planned.day | translate }}</ion-label>
           <ion-label *ngIf="planned.recipe">{{ planned?.recipe?.name }}</ion-label>

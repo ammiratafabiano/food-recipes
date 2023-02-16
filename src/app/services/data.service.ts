@@ -7,10 +7,13 @@ import { AuthService } from './auth.service';
 import { Ingredient } from '../models/ingredient.model';
 import { Food } from '../models/food.model';
 import { RecipeType } from '../models/recipe-type.enum';
+import { Meal } from '../models/meal.model';
+import { WeekDay } from '../models/weekDay.enum';
 
 const RECIPES_TABLE = 'recipes'
 const INGREDIENTS_TABLE = 'ingredients'
 const FOODS_TABLE = 'foods'
+const PLANNINGS_TABLE = 'plannings'
 
 const NAMED_INGREDIENTS_VIEW = 'named_ingredients'
 
@@ -40,7 +43,7 @@ export class DataService {
       const user_id = this.authService.getCurrentUserId();
       const ingredients_ids = returning.data?.map(x => x.id);
       if (ingredients_ids) {
-        this.supabase
+        return this.supabase
         .from(RECIPES_TABLE)
         .insert([
           {
@@ -56,6 +59,8 @@ export class DataService {
         ]).then((response) => {
           console.log(response);
         })
+      } else {
+        return
       }
     });
   }
@@ -120,5 +125,28 @@ export class DataService {
           return ingredient;
         });
       })
+  }
+
+  async getPlanning(week: string): Promise<Planning | undefined> {
+    return this.supabase
+    .from(PLANNINGS_TABLE)
+    .select(`recipe_id, recipe_name, week, day, meal`)
+    .match({ user_id: this.authService.getCurrentUserId(), week: week })
+    .then((result) => {
+      return new Planning();
+    })  
+  }
+
+  async addToPlanning(recipe: Recipe, week: string, day?: WeekDay, meal?: Meal) {
+    const element = {
+      recipe_id: recipe.id,
+      recipe_name: recipe.name,
+      week: week,
+      day: day,
+      meal: meal
+    }
+    return this.supabase
+        .from(PLANNINGS_TABLE)
+        .insert(element);
   }
 }

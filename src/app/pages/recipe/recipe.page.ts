@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AlertController, LoadingController } from '@ionic/angular';
+import { AlertController, LoadingController, NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import * as moment from 'moment';
 import { Recipe } from 'src/app/models/recipe.model';
 import { DataService } from 'src/app/services/data.service';
 import { SessionService } from 'src/app/services/session.service';
@@ -23,7 +24,8 @@ export class RecipePage implements OnInit {
     private readonly loadingController: LoadingController,
     private readonly alertController: AlertController,
     private readonly translateService: TranslateService,
-    private readonly sessionService: SessionService
+    private readonly sessionService: SessionService,
+    private readonly navCtrl: NavController
   ) { }
 
   ngOnInit() {
@@ -57,8 +59,8 @@ export class RecipePage implements OnInit {
 
   async onAddToPlanningClicked() {
     if (this.recipe) {
-      //await this.dataService.addToPlanning(this.recipe); //TODO
-      //this.navCtrl.navigateRoot('tabs/tab3', {queryParams: { recipe: JSON.stringify(this.recipe) } }); //TODO
+      await this.dataService.addToPlanning(this.recipe, moment().toLocaleString());
+      this.navCtrl.navigateRoot('tabs/tab3');
     }
   }
 
