@@ -61,7 +61,7 @@ export class LoginPage {
     await alert.present()
   }
 
-  async forgotPw() {
+  async onForgotPasswordCLicked() {
     const alert = await this.alertController.create({
       header: "Receive a new password",
       message: "Please insert your email",
@@ -141,7 +141,7 @@ export class LoginPage {
     await alert.present();
   }
 
-  async facebookLogin() {
+  async onFacebookLoginClicked() {
     const loading = await this.loadingController.create()
     await loading.present()
 
@@ -154,7 +154,7 @@ export class LoginPage {
     })
   }
 
-  async googleLogin() {
+  async onGoogleLoginClicked() {
     const loading = await this.loadingController.create()
     await loading.present()
 

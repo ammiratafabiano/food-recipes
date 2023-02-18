@@ -30,7 +30,7 @@ export class RegisterPage {
     return this.credentials.controls.password
   }
 
-  async createAccount() {
+  async onSubmitClicked() {
     const loading = await this.loadingController.create()
     await loading.present()
 

@@ -3,43 +3,53 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/"></ion-back-button>
     </ion-buttons>
-    <ion-title>Register</ion-title>
+    <ion-title>
+      {{ 'REGISTER_PAGE.TITLE' | translate }}
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content scrollY="false">
   <ion-card>
     <ion-card-content>
-      <form (ngSubmit)="createAccount()" [formGroup]="credentials">
+      <form (ngSubmit)="onSubmitClicked()" [formGroup]="credentials">
         <ion-item>
-          <ion-label position="stacked">Your Email</ion-label>
+          <ion-label position="stacked">
+            {{ 'REGISTER_PAGE.EMAIL' | translate }}
+          </ion-label>
           <ion-input
             type="email"
             inputmode="email"
-            placeholder="Email"
-            formControlName="email"
-          ></ion-input>
-          <ion-note slot="error" *ngIf="(email.dirty || email.touched) && email.errors"
-            >Please insert a valid email</ion-note
-          >
+            [placeholder]="'REGISTER_PAGE.EMAIL' | translate"
+            formControlName="email">
+          </ion-input>
+          <ion-note slot="error" *ngIf="(email.dirty || email.touched) && email.errors">
+            {{ 'REGISTER_PAGE.EMAIL_ERROR' | translate }}
+          </ion-note>
         </ion-item>
         <ion-item>
-          <ion-label position="stacked">Password</ion-label>
-          <ion-input type="password" placeholder="Password" formControlName="password"></ion-input>
+          <ion-label position="stacked">
+            {{ 'REGISTER_PAGE.PASSWORD' | translate }}
+          </ion-label>
+          <ion-input
+            type="password"
+            [placeholder]="'REGISTER_PAGE.PASSWORD' | translate"
+            formControlName="password">
+          </ion-input>
           <ion-note
             slot="error"
-            *ngIf="(password.dirty || password.touched) && password.errors?.required"
-            >Please insert a password</ion-note
-          >
+            *ngIf="(password.dirty || password.touched) && password.errors?.required">
+            {{ 'REGISTER_PAGE.PASSWORD_GENERIC_ERROR' | translate }}
+          </ion-note>
           <ion-note
             slot="error"
-            *ngIf="(password.dirty || password.touched) && password.errors?.minlength"
-            >Minlength 6 characters</ion-note
-          >
+            *ngIf="(password.dirty || password.touched) && password.errors?.minlength">
+            {{ 'REGISTER_PAGE.PASSWORD_LENGTH_ERROR' | translate }}
+          </ion-note>
         </ion-item>
-        <ion-button type="submit" expand="block" strong="true" [disabled]="!credentials.valid"
-          >Create my account</ion-button
-        >
+        <ion-button type="submit" expand="block" strong="true" [disabled]="!credentials.valid">
+          {{ 'REGISTER_PAGE.SUBMIT_BUTTON' | translate }}
+        </ion-button>
       </form>
     </ion-card-content>
   </ion-card>

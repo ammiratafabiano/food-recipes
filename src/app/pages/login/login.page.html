@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Login</ion-title>
+    <ion-title>{{ 'LOGIN_PAGE.TITLE' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -9,27 +9,33 @@
     <ion-card-content>
       <form (ngSubmit)="login()" [formGroup]="credentials">
         <ion-item>
-          <ion-label position="stacked">Your Email</ion-label>
+          <ion-label position="stacked">{{ 'LOGIN_PAGE.EMAIL' | translate }}</ion-label>
           <ion-input
             type="email"
             inputmode="email"
-            placeholder="Email"
-            formControlName="email"
-          ></ion-input>
-          <ion-note slot="error" *ngIf="(email.dirty || email.touched) && email.errors"
-            >Please insert your email</ion-note
-          >
+            [placeholder]="'LOGIN_PAGE.EMAIL' | translate"
+            formControlName="email">
+          </ion-input>
+          <ion-note slot="error" *ngIf="(email.dirty || email.touched) && email.errors">
+            {{ 'LOGIN_PAGE.EMAIL_ERROR' | translate }}
+          </ion-note>
         </ion-item>
         <ion-item>
-          <ion-label position="stacked">Password</ion-label>
-          <ion-input type="password" placeholder="Password" formControlName="password"></ion-input>
-          <ion-note slot="error" *ngIf="(password.dirty || password.touched) && password.errors"
-            >Please insert your password</ion-note
-          >
+          <ion-label position="stacked">
+            {{ 'LOGIN_PAGE.PASSWORD' | translate }}
+          </ion-label>
+          <ion-input
+            type="password"
+            [placeholder]="'LOGIN_PAGE.PASSWORD' | translate"
+            formControlName="password">
+          </ion-input>
+          <ion-note slot="error" *ngIf="(password.dirty || password.touched) && password.errors">
+            {{ 'LOGIN_PAGE.PASSWORD' | translate }}
+          </ion-note>
         </ion-item>
-        <ion-button type="submit" expand="block" strong="true" [disabled]="!credentials.valid"
-          >Sign in</ion-button
-        >
+        <ion-button type="submit" expand="block" strong="true" [disabled]="!credentials.valid">
+          {{ 'LOGIN_PAGE.LOGIN_BUTTON' | translate }}
+        </ion-button>
 
         <div class="ion-margin-top">
           <ion-button
@@ -37,22 +43,21 @@
             expand="block"
             color="primary"
             fill="outline"
-            routerLink="register"
-          >
+            routerLink="register">
             <ion-icon name="person-outline" slot="start"></ion-icon>
-            Create Account
+            {{ 'LOGIN_PAGE.REGISTER_BUTTON' | translate }}
           </ion-button>
-          <ion-button type="button" expand="block" color="secondary" (click)="forgotPw()">
+          <ion-button type="button" expand="block" color="secondary" (click)="onForgotPasswordCLicked()">
             <ion-icon name="key-outline" slot="start"></ion-icon>
-            Forgot password?
+            {{ 'LOGIN_PAGE.FORGOT_PASSWORD_BUTTON' | translate }}
           </ion-button>
-          <ion-button type="button" expand="block" color="primary" (click)="facebookLogin()">
+          <ion-button type="button" expand="block" color="primary" (click)="onFacebookLoginClicked()">
             <ion-icon name="logo-facebook" slot="start"></ion-icon>
-            Facebook Login
+            {{ 'LOGIN_PAGE.FACEBOOK_LOGIN_BUTTON' | translate }}
           </ion-button>
-          <ion-button type="button" expand="block" color="warning" (click)="googleLogin()">
+          <ion-button type="button" expand="block" color="warning" (click)="onGoogleLoginClicked()">
             <ion-icon name="logo-google" slot="start"></ion-icon>
-            Google Login
+            {{ 'LOGIN_PAGE.GOOGLE_LOGIN_BUTTON' | translate }}
           </ion-button>
         </div>
       </form>

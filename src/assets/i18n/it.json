@@ -1,4 +1,25 @@
 {
+    "LOGIN_PAGE": {
+        "TITLE": "Login",
+        "EMAIL": "Email",
+        "EMAIL_ERROR": "Inserisci l'email",
+        "PASSWORD": "Password",
+        "PASSWORD_ERROR": "Inserisci la password",
+        "LOGIN_BUTTON": "Entra",
+        "REGISTER_BUTTON": "Crea account",
+        "FORGOT_PASSWORD_BUTTON": "Password dimenticata?",
+        "FACEBOOK_LOGIN_BUTTON": "Entra con Facebook",
+        "GOOGLE_LOGIN_BUTTON": "Entra con Google"
+    },
+    "REGISTER_PAGE": {
+        "TITLE": "Registrazione",
+        "EMAIL": "Email",
+        "EMAIL_ERROR": "Inserisci una email valida",
+        "PASSWORD": "Password",
+        "PASSWORD_GENERIC_ERROR": "Inserisci una password",
+        "PASSWORD_LENGTH_ERROR": "Lunghezza minima 6 caratteri",
+        "SUBMIT_BUTTON": "Registrati"
+    },
     "RECIPES_PAGE": {
         "TITLE": "Ricette",
         "FILTERS": "Filtri"

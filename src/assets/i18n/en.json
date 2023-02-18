@@ -1,4 +1,25 @@
 {
+    "LOGIN_PAGE": {
+        "TITLE": "Login",
+        "EMAIL": "Email",
+        "EMAIL_ERROR": "Please insert your email",
+        "PASSWORD": "Password",
+        "PASSWORD_ERROR": "Please insert your password",
+        "LOGIN_BUTTON": "Sign in",
+        "REGISTER_BUTTON": "Create account",
+        "FORGOT_PASSWORD_BUTTON": "Forgot password?",
+        "FACEBOOK_LOGIN_BUTTON": "Facebook login",
+        "GOOGLE_LOGIN_BUTTON": "Google login"
+    },
+    "REGISTER_PAGE": {
+        "TITLE": "Registration",
+        "EMAIL": "Email",
+        "EMAIL_ERROR": "Please insert a valid email",
+        "PASSWORD": "Password",
+        "PASSWORD_GENERIC_ERROR": "Please insert a password",
+        "PASSWORD_LENGTH_ERROR": "Minlength 6 characters",
+        "SUBMIT_BUTTON": "Create my account"
+    },
     "RECIPES_PAGE": {
         "TITLE": "Recipes",
         "FILTERS": "Filters"
