@@ -31,8 +31,8 @@ export class Tab1Page {
   }
 
   private async getData() {
-    const loading = await this.loadingController.create()
-    await loading.present()
+    const loading = await this.loadingController.create();
+    await loading.present();
     this.dataService.getRecipeList().then(response => {
       this.recipes = response || [];
       this.displayRecipes = this.recipes;

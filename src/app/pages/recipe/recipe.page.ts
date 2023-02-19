@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AlertController, LoadingController, NavController } from '@ionic/angular';
+import { ActionSheetController, AlertController, LoadingController, NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 import { Recipe } from 'src/app/models/recipe.model';
@@ -25,7 +25,8 @@ export class RecipePage implements OnInit {
     private readonly alertController: AlertController,
     private readonly translateService: TranslateService,
     private readonly sessionService: SessionService,
-    private readonly navCtrl: NavController
+    private readonly navCtrl: NavController,
+    private readonly actionSheetCtrl: ActionSheetController
   ) { }
 
   ngOnInit() {
@@ -58,9 +59,40 @@ export class RecipePage implements OnInit {
   }
 
   async onAddToPlanningClicked() {
-    if (this.recipe) {
-      await this.dataService.addToPlanning(this.recipe, moment().toLocaleString());
-      this.navCtrl.navigateRoot('tabs/tab3');
+    // TODO check valid recipe
+    if (!this.recipe) return;
+  
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_CHOICE"),
+      buttons: [
+        {
+          text: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_THIS_WEEK"),
+          data: {
+            action: moment().startOf('week').format("YYYY-MM-DD"),
+          }
+        },
+        {
+          text: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_NEXT_WEEK"),
+          data: {
+            action: moment().startOf('week').add(1,'week').format("YYYY-MM-DD"),
+          }
+        },
+        {
+          text: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_CANCEL"),
+          role: 'cancel'
+        },
+      ],
+    });
+
+    await actionSheet.present();
+    const result = await actionSheet.onDidDismiss();
+    if (result?.data?.action) {
+      await this.dataService.addToPlanning(this.recipe, result.data.action);
+      this.navCtrl.navigateRoot('tabs/tab3', {
+        queryParams: {
+          refresh: true
+        }
+      });
     }
   }
 

@@ -7,6 +7,7 @@ export class Planning {
 }
 
 export class PlannedRecipe {
+    id?: string;
     recipe?: Recipe;
     day?: WeekDay;
 }

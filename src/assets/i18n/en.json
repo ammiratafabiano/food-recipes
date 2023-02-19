@@ -25,7 +25,8 @@
         "FILTERS": "Filters"
     },
     "PLANNING_PAGE": {
-        "TITLE": "Planning"
+        "TITLE": "Planning",
+        "DELETE_RECIPE_BUTTON": "Delete"
     },
     "SHOPPING_LIST_PAGE": {
         "TITLE": "Shopping list"
@@ -38,6 +39,10 @@
     "RECIPE_PAGE": {
         "TITLE": "Recipe",
         "ADD_TO_PLANNING_BUTTON": "Add to planning",
+        "ADD_TO_PLANNING_CHOICE": "Which week?",
+        "ADD_TO_PLANNING_THIS_WEEK": "This week",
+        "ADD_TO_PLANNING_NEXT_WEEK": "Next week",
+        "ADD_TO_PLANNING_CANCEL": "Cancel",
         "ERROR_TITLE": "Error",
         "ERROR_DESCRIPTION": "An error occurred retrieveing the recipe. Please, try again later."
     },

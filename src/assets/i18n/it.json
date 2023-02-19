@@ -25,7 +25,8 @@
         "FILTERS": "Filtri"
     },
     "PLANNING_PAGE": {
-        "TITLE": "Planning"
+        "TITLE": "Planning",
+        "DELETE_RECIPE_BUTTON": "Elimina"
     },
     "SHOPPING_LIST_PAGE": {
         "TITLE": "Lista della spesa"
@@ -38,6 +39,10 @@
     "RECIPE_PAGE": {
         "TITLE": "Ricetta",
         "ADD_TO_PLANNING_BUTTON": "Aggiungi al planning",
+        "ADD_TO_PLANNING_CHOICE": "Quale settimana?",
+        "ADD_TO_PLANNING_THIS_WEEK": "Questa settimana",
+        "ADD_TO_PLANNING_NEXT_WEEK": "Prossima settimana",
+        "ADD_TO_PLANNING_CANCEL": "Annulla",
         "ERROR_TITLE": "Errore",
         "ERROR_DESCRIPTION": "Qualcosa è andato storto scaricando la ricetta. Prova più tardi."
     },

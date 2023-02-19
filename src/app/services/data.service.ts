@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Planning } from '../models/planning.model';
+import { PlannedRecipe, Planning } from '../models/planning.model';
 import { Recipe } from '../models/recipe.model';
 import { environment } from '../../environments/environment'
 import { AuthService } from './auth.service';
@@ -65,15 +65,15 @@ export class DataService {
     });
   }
 
-  async getRecipe(id: number): Promise<Recipe | undefined> {
+  async getRecipe(recipe_id: number): Promise<Recipe | undefined> {
     return this.supabase
       .from(RECIPES_TABLE)
       .select()
-      .match({ user_id: this.authService.getCurrentUserId(), id: id })
+      .match({ user_id: this.authService.getCurrentUserId(), id: recipe_id })
       .then(x => {
         const recipeResult = x?.data && x?.data[0];
         return this.supabase.from(NAMED_INGREDIENTS_VIEW)
-            .select(`ingredient_id, food_name, quantity_value, quantity_unit`)
+            .select('ingredient_id, food_name, quantity_value, quantity_unit')
             .match({ ingredient_id: recipeResult.ingredients })
             .then((ingredientsResult) => {
               let recipe = new Recipe();
@@ -97,10 +97,17 @@ export class DataService {
       })
   }
 
+  async deleteRecipe(recipe_id: string) {
+    this.supabase
+      .from(RECIPES_TABLE)
+      .delete()
+      .eq('id', recipe_id)
+  }
+
   async getRecipeList(): Promise<Recipe[] | undefined> {
     return this.supabase
       .from(RECIPES_TABLE)
-      .select(`id, name, type`)
+      .select('id, name, type')
       .match({ user_id: this.authService.getCurrentUserId() })
       .then((result) => {
         return result.data?.map(x => {
@@ -116,10 +123,10 @@ export class DataService {
   async getFoodList(): Promise<Food[] | undefined> {
     return this.supabase
       .from(FOODS_TABLE)
-      .select(`name, id`)
+      .select('name, id')
       .then((result) => {
         return result.data?.map(x => {
-          let ingredient = new Ingredient();
+          let ingredient = new Food();
           ingredient.id = x.id;
           ingredient.name = x.name;
           return ingredient;
@@ -130,15 +137,30 @@ export class DataService {
   async getPlanning(week: string): Promise<Planning | undefined> {
     return this.supabase
     .from(PLANNINGS_TABLE)
-    .select(`recipe_id, recipe_name, week, day, meal`)
-    .match({ user_id: this.authService.getCurrentUserId(), week: week })
+    .select('id, recipe_id, recipe_name, week, day, meal')
+    .eq('week', week)
+    .match({ user_id: this.authService.getCurrentUserId() })
     .then((result) => {
-      return new Planning();
+      let planning = new Planning();
+      planning.startDate = week;
+      planning.recipes = result.data?.map(x => {
+        let plannedRecipe = new PlannedRecipe();
+        plannedRecipe.id = x.id;
+        plannedRecipe.day = x.day;
+        let recipe = new Recipe();
+        recipe.id = x.recipe_id;
+        recipe.name = x.recipe_name;
+        plannedRecipe.recipe = recipe;
+        return plannedRecipe;
+      }) || [];
+      return planning;
     })  
   }
 
   async addToPlanning(recipe: Recipe, week: string, day?: WeekDay, meal?: Meal) {
+    const user_id = this.authService.getCurrentUserId();
     const element = {
+      user_id: user_id,
       recipe_id: recipe.id,
       recipe_name: recipe.name,
       week: week,
@@ -148,5 +170,12 @@ export class DataService {
     return this.supabase
         .from(PLANNINGS_TABLE)
         .insert(element);
+  }
+
+  async removeFromPlanning(planning_id: string) {
+    return this.supabase
+      .from(PLANNINGS_TABLE)
+      .delete()
+      .eq('id', planning_id)
   }
 }
