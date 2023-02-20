@@ -9,11 +9,11 @@ import { DataService } from 'src/app/services/data.service';
 import { WeekDay } from "src/app/models/weekDay.enum";
 
 @Component({
-  selector: 'app-tab3',
-  templateUrl: 'tab3.page.html',
-  styleUrls: ['tab3.page.scss']
+  selector: 'app-planning',
+  templateUrl: 'planning.page.html',
+  styleUrls: ['planning.page.scss']
 })
-export class Tab3Page implements OnInit {
+export class PlanningPage implements OnInit {
 
   planning?: Planning;
 

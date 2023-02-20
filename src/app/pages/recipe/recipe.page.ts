@@ -88,7 +88,7 @@ export class RecipePage implements OnInit {
     const result = await actionSheet.onDidDismiss();
     if (result?.data?.action) {
       await this.dataService.addToPlanning(this.recipe, result.data.action);
-      this.navCtrl.navigateRoot('tabs/tab3', {
+      this.navCtrl.navigateRoot('tabs/planning', {
         queryParams: {
           refresh: true
         }

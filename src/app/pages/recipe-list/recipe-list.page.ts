@@ -91,7 +91,7 @@ export class RecipeListPage {
 
   async onAddToPlanningClicked(recipe: Recipe) {
     //await this.dataService.addToPlanning(recipe); //TODO
-    //this.navCtrl.navigateRoot('tabs/tab3', {queryParams: { recipe: JSON.stringify(recipe) } });
+    //this.navCtrl.navigateRoot('tabs/planning', {queryParams: { recipe: JSON.stringify(recipe) } });
   }
 
 }

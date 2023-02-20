@@ -20,7 +20,7 @@
         "PASSWORD_LENGTH_ERROR": "Minlength 6 characters",
         "SUBMIT_BUTTON": "Create my account"
     },
-    "RECIPES_PAGE": {
+    "RECIPE_LIST_PAGE": {
         "TITLE": "Recipes",
         "FILTERS": "Filters"
     },

@@ -20,7 +20,7 @@
         "PASSWORD_LENGTH_ERROR": "Lunghezza minima 6 caratteri",
         "SUBMIT_BUTTON": "Registrati"
     },
-    "RECIPES_PAGE": {
+    "RECIPE_LIST_PAGE": {
         "TITLE": "Ricette",
         "FILTERS": "Filtri"
     },

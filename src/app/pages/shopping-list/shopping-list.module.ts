@@ -2,9 +2,9 @@ import { IonicModule } from '@ionic/angular';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Tab3Page } from './tab3.page';
+import { ShoppingList } from './shopping-list.page';
 
-import { Tab3PageRoutingModule } from './tab3-routing.module';
+import { ShoppingListRoutingModule } from './shopping-list-routing.module';
 import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
@@ -12,9 +12,9 @@ import { TranslateModule } from '@ngx-translate/core';
     IonicModule,
     CommonModule,
     FormsModule,
-    Tab3PageRoutingModule,
+    ShoppingListRoutingModule,
     TranslateModule
   ],
-  declarations: [Tab3Page]
+  declarations: [ShoppingList]
 })
-export class Tab3PageModule {}
+export class ShoppingListModule {}
