@@ -8,11 +8,11 @@ import { DataService } from 'src/app/services/data.service';
 import { AddRecipePage } from '../add-recipe/add-recipe.page';
 
 @Component({
-  selector: 'app-tab1',
-  templateUrl: 'tab1.page.html',
-  styleUrls: ['tab1.page.scss']
+  selector: 'app-recipe-list',
+  templateUrl: 'recipe-list.page.html',
+  styleUrls: ['recipe-list.page.scss']
 })
-export class Tab1Page {
+export class RecipeListPage {
 
   recipes: Recipe[] = [];
   displayRecipes: Recipe[] = [];
