@@ -42,20 +42,9 @@ export class RecipePage implements OnInit {
   private async getRecipe(id: number) {
     const loading = await this.loadingController.create()
     await loading.present()
-    this.dataService.getRecipe(id).then(
-      response => {
-        if (response) {
-          this.recipe = response;
-        } else {
-          this.showRecipeError();
-        }
-      },
-      error => {
-        this.showRecipeError();
-      }
-    ).finally(async () => {
-      await loading.dismiss();
-    });
+    this.recipe = await this.dataService.getRecipe(id);
+    await loading.dismiss();
+    if (!this.recipe) this.navCtrl.navigateRoot('not-found');
   }
 
   async onAddToPlanningClicked() {
@@ -107,6 +96,25 @@ export class RecipePage implements OnInit {
       header: title,
       message: msg,
       buttons: ['OK']
+    })
+    await alert.present()
+  }
+
+  async onDeleteClicked() {
+    const alert = await this.alertController.create({
+      header: "Attenzione",
+      message: "Vuoi davvero cancellare la ricetta?",
+      buttons: [
+        {
+          text: "Cancel"
+        },
+        {
+          text: "Ok",
+          handler: () => {
+            this.recipe && this.dataService.deleteRecipe(this.recipe.id);
+          }
+        }
+      ],
     })
     await alert.present()
   }

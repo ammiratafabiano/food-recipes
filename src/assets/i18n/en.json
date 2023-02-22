@@ -22,7 +22,8 @@
     },
     "RECIPE_LIST_PAGE": {
         "TITLE": "Recipes",
-        "FILTERS": "Filters"
+        "FILTERS": "Filters",
+        "NO_DATA": "You have no recipe yet."
     },
     "PLANNING_PAGE": {
         "TITLE": "Planning",
@@ -34,7 +35,8 @@
     "SETTINGS_PAGE": {
         "TITLE": "Settings",
         "RECIPES": "Recipes",
-        "LOGOUT_BUTTON": "Logout"
+        "LOGOUT_BUTTON": "Logout",
+        "DELETE_USER_BUTTON": "Delete account"
     },
     "RECIPE_PAGE": {
         "TITLE": "Recipe",
@@ -44,7 +46,8 @@
         "ADD_TO_PLANNING_NEXT_WEEK": "Next week",
         "ADD_TO_PLANNING_CANCEL": "Cancel",
         "ERROR_TITLE": "Error",
-        "ERROR_DESCRIPTION": "An error occurred retrieveing the recipe. Please, try again later."
+        "ERROR_DESCRIPTION": "An error occurred retrieveing the recipe. Please, try again later.",
+        "DELETE_BUTTON": "Delete recipe"
     },
     "ADD_RECIPE_PAGE": {
         "TITLE": "New recipe",
@@ -61,6 +64,18 @@
     },
     "INGREDIENT_SELECTION_PAGE": {
         "TITLE": "Seleziona ingrediente"
+    },
+    "NOT_FOUND_PAGE": {
+        "TITLE": "Not found",
+        "SUBTITLE": "Uh oh!",
+        "CONTENT": "What you are looking for is no longer available or nonexistent 🥲.",
+        "HOME_PAGE_BUTTON": "Back to the main page"
+    },
+    "DELETE_USER_PAGE": {
+        "TITLE": "Delete account",
+        "SUBTITLE": "Privacy matters",
+        "CONTENT": "If you wish to delete your personal data from our system, you can do so at any time by clicking the 'Delete' button below. We will ask you to confirm your choice before proceeding with the deletion. Please note that the deletion of data may take a few days to complete, and once deleted, your data cannot be retrieved. If you decide to proceed with the deletion, please click the button below.",
+        "DELETE_BUTTON": "Delete"
     },
     "COMMON": {
         "RECIPE": "Recipe",

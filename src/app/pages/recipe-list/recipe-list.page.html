@@ -13,6 +13,10 @@
     </ion-toolbar>
   </ion-header>
 
+  <ion-label class="ion-padding" *ngIf="!displayRecipes">
+    {{ 'RECIPE_LIST_PAGE.NO_DATA' | translate }}
+  </ion-label>
+
   <ng-container *ngFor="let recipeTypeFilter of recipeTypeFilters">
     <ng-container *ngIf="recipeTypeFilter.enabled">
       <p class="ion-padding">

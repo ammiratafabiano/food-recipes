@@ -1,3 +1,12 @@
 ion-avatar {
     float: right;
 }
+
+.content {
+    display: flex;
+    flex-direction: column;
+    height: 90%;
+    .settings-list {
+        margin-top: auto;
+    }
+}

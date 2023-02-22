@@ -94,7 +94,7 @@ export class PlanningPage implements OnInit {
     if (!plannedRecipe.id) return;
     const loading = await this.loadingController.create();
     await loading.present();
-    await this.dataService.removeFromPlanning(plannedRecipe.id);
+    await this.dataService.deletePlanning(plannedRecipe.id);
     await this.getPlanning(this.planning?.startDate)
     await loading.dismiss();
   }

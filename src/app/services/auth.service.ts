@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { AuthResponse, createClient, OAuthResponse, SupabaseClient, User } from '@supabase/supabase-js'
-import { BehaviorSubject, debounce, Observable, timer } from 'rxjs'
+import { BehaviorSubject, debounce, Observable, of, timer } from 'rxjs'
 import { environment } from '../../environments/environment'
 import { SessionService } from './session.service'
 
@@ -42,6 +42,7 @@ export class AuthService {
     if (user) {
       this.currentUser.next(user)
       this.sessionService.userData = {
+        id: user.id,
         name: user.user_metadata.full_name,
         email: user.user_metadata.email,
         avatar_url: user.user_metadata.avatar_url
@@ -103,7 +104,12 @@ export class AuthService {
     return this.supabase.auth.resetPasswordForEmail(email)
   }
 
+  resetUser() {
+    this.setCurrentUser(undefined);
+  }
+
   signOut(): Promise<any> {
+    this.resetUser();
     return this.supabase.auth.signOut()
   }
 }

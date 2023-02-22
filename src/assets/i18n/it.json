@@ -22,7 +22,8 @@
     },
     "RECIPE_LIST_PAGE": {
         "TITLE": "Ricette",
-        "FILTERS": "Filtri"
+        "FILTERS": "Filtri",
+        "NO_DATA": "Non hai ancora nessuna ricetta."
     },
     "PLANNING_PAGE": {
         "TITLE": "Planning",
@@ -34,7 +35,8 @@
     "SETTINGS_PAGE": {
         "TITLE": "Impostazioni",
         "RECIPES": "Ricette",
-        "LOGOUT_BUTTON": "Esci"
+        "LOGOUT_BUTTON": "Esci",
+        "DELETE_USER_BUTTON": "Cancella account"
     },
     "RECIPE_PAGE": {
         "TITLE": "Ricetta",
@@ -44,7 +46,8 @@
         "ADD_TO_PLANNING_NEXT_WEEK": "Prossima settimana",
         "ADD_TO_PLANNING_CANCEL": "Annulla",
         "ERROR_TITLE": "Errore",
-        "ERROR_DESCRIPTION": "Qualcosa è andato storto scaricando la ricetta. Prova più tardi."
+        "ERROR_DESCRIPTION": "Qualcosa è andato storto scaricando la ricetta. Prova più tardi.",
+        "DELETE_BUTTON": "Elimina ricetta"
     },
     "ADD_RECIPE_PAGE": {
         "TITLE": "Nuova ricetta",
@@ -61,6 +64,18 @@
     },
     "INGREDIENT_SELECTION_PAGE": {
         "TITLE": "Seleziona ingrediente"
+    },
+    "NOT_FOUND_PAGE": {
+        "TITLE": "Non trovato",
+        "SUBTITLE": "Ops!",
+        "CONTENT": "Quello che stai cercando non è più disponibile o inesistente 🥲.",
+        "HOME_PAGE_BUTTON": "Torna alla pagina principale"
+    },
+    "DELETE_USER_PAGE": {
+        "TITLE": "Cancella account",
+        "SUBTITLE": "La privacy è importante",
+        "CONTENT": "Se desideri cancellare i tuoi dati personali dal nostro sistema, puoi farlo in qualsiasi momento premendo il pulsante 'Cancella' qui sotto. Ti chiederemo di confermare la tua scelta prima di procedere alla cancellazione. Tieni presente che la cancellazione dei dati potrebbe richiedere alcuni giorni per essere completata e, una volta cancellati, i tuoi dati non potranno essere recuperati. Se decidi di procedere con la cancellazione, clicca sul pulsante qui sotto.",
+        "DELETE_BUTTON": "Cancella"
     },
     "COMMON": {
         "RECIPE": "Ricetta",

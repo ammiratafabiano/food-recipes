@@ -50,6 +50,11 @@
       {{ step.text }}
     </ion-card-content>
   </ion-card>
+
+  <ion-item class="ion-padding-top" lines="none" *ngIf="recipe" (click)="onDeleteClicked()">
+    <ion-label color="danger">{{ 'RECIPE_PAGE.DELETE_BUTTON' | translate }} </ion-label>
+  </ion-item>
+  
 </ion-content>
 
 <ion-footer class="ion-padding" *ngIf="isUserLogged && recipe">

@@ -2,7 +2,7 @@ import { AuthService } from './../services/auth.service'
 import { Injectable } from '@angular/core'
 import { CanActivate, Router, UrlTree } from '@angular/router'
 import { Observable } from 'rxjs'
-import { filter, map, take } from 'rxjs/operators'
+import { map } from 'rxjs/operators'
 import { ToastController } from '@ionic/angular'
 
 @Injectable({
@@ -17,8 +17,8 @@ export class AuthGuard implements CanActivate {
 
   canActivate(): Observable<boolean | UrlTree> {
     return this.auth.getCurrentUser().pipe(
-      filter((val) => val !== undefined),
-      take(1),
+      // filter((val) => val !== undefined), // TODO
+      // take(1), // TODO
       map((isAuthenticated) => {
         if (isAuthenticated) {
           return true

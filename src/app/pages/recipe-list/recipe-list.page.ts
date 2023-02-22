@@ -14,8 +14,8 @@ import { AddRecipePage } from '../add-recipe/add-recipe.page';
 })
 export class RecipeListPage {
 
-  recipes: Recipe[] = [];
-  displayRecipes: Recipe[] = [];
+  recipes?: Recipe[];
+  displayRecipes?: Recipe[];
 
   // Filters
   recipeTypeFilters: RecipeTypeFilter[] = [];
@@ -34,8 +34,10 @@ export class RecipeListPage {
     const loading = await this.loadingController.create();
     await loading.present();
     this.dataService.getRecipeList().then(response => {
-      this.recipes = response || [];
-      this.displayRecipes = this.recipes;
+      if (response && response.length > 0) {
+        this.recipes = response;
+        this.displayRecipes = this.recipes;
+      }
     }).finally(async () => {
       await loading.dismiss();
       this.initFilters();
@@ -46,7 +48,7 @@ export class RecipeListPage {
     // Init types
     this.recipeTypeFilters = [];
     Object.values(RecipeType).forEach(x => {
-      if (this.recipes.find(y => y.type == x)) {
+      if (this.recipes?.find(y => y.type == x)) {
         let recipeTypeFilter = new RecipeTypeFilter();
         recipeTypeFilter.type = x;
         this.recipeTypeFilters.push(recipeTypeFilter);
@@ -54,7 +56,7 @@ export class RecipeListPage {
     });
     // Init tags
     this.recipeTagFilters = [];
-    this.recipes.forEach(x => {
+    this.recipes?.forEach(x => {
       x?.tags?.forEach(y => {
         if (!this.recipeTagFilters.find(z => z.tag == y)) {
           let recipeTagFilter = new RecipeTagFilter();
@@ -71,7 +73,7 @@ export class RecipeListPage {
   
   onSearchChange(event: any) {
     const query = event.target.value.toLowerCase().trim();
-    this.displayRecipes = this.recipes.filter(x => x.name.toLowerCase().indexOf(query) > -1);
+    this.displayRecipes = this.recipes?.filter(x => x.name.toLowerCase().indexOf(query) > -1);
   }
 
   onRecipeClicked(recipe: Recipe) {

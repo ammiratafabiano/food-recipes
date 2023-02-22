@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'DELETE_USER_PAGE.TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <h2 class="ion-padding">{{ 'DELETE_USER_PAGE.SUBTITLE' | translate }}</h2>
+  <h4 class="ion-padding">{{ 'DELETE_USER_PAGE.CONTENT' | translate }}</h4>
+
+</ion-content>
+
+<ion-footer class="ion-padding ion-no-border">
+  <ion-toolbar>
+    <ion-button expand="block" color="danger" (click)="onDeleteClicked()">
+      {{ 'DELETE_USER_PAGE.DELETE_BUTTON' | translate }}
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
+

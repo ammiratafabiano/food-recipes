@@ -9,6 +9,7 @@ import { RecipeType } from '../models/recipe-type.enum';
 import { Meal } from '../models/meal.model';
 import { WeekDay } from '../models/weekDay.enum';
 
+const USERS_TABLE = 'users'
 const RECIPES_TABLE = 'recipes'
 const INGREDIENTS_TABLE = 'ingredients'
 const FOODS_TABLE = 'foods'
@@ -31,51 +32,57 @@ export class DataService {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
   }
 
+  async deleteUser() {
+    const user_id = this.authService.getCurrentUserId();
+    return this.supabase
+      .from(USERS_TABLE)
+      .delete()
+      .eq('id', user_id)
+  }
+
   async addRecipe(recipe: Recipe) {
-    const ingredients = recipe.ingredients.map(x => {
-      return {
-        food_id: x.id,
-        quantity_value: x.quantity.value,
-        quantity_unit: x.quantity.unit,
-        quantity_value_standard: x.quantity.value
-      }
-    });
-    return this.supabase.from(INGREDIENTS_TABLE).insert(ingredients).select('*').then((returning) => {
-      const user_id = this.authService.getCurrentUserId();
-      const ingredients_ids = returning.data?.map(x => x.id);
-      if (ingredients_ids) {
-        return this.supabase
-        .from(RECIPES_TABLE)
-        .insert([
-          {
-            user_id: user_id,
-            name: recipe.name,
-            description: recipe.description,
-            type: recipe.type,
-            difficulty: recipe.difficulty,
-            ingredients: ingredients_ids,
-            steps: recipe.steps,
-            tags: recipe.tags
-          }
-        ]).then((response) => {
-          console.log(response);
-        })
-      } else {
-        return
-      }
-    });
+    const user_id = this.authService.getCurrentUserId();
+    const element = {
+      user_id: user_id,
+      name: recipe.name,
+      description: recipe.description,
+      type: recipe.type,
+      difficulty: recipe.difficulty,
+      steps: recipe.steps,
+      tags: recipe.tags
+    }
+    return this.supabase
+      .from(RECIPES_TABLE)
+      .insert(element).select('*').then((returning) => {
+        if (returning.data && returning.data.length == 1 && returning.data[0].id) {
+          const ingredients = recipe.ingredients.map(x => {
+            return {
+              food_id: x.id,
+              recipe_id: returning.data[0].id,
+              quantity_value: x.quantity.value,
+              quantity_unit: x.quantity.unit
+            }
+          });
+          return this.supabase
+            .from(INGREDIENTS_TABLE)
+            .insert(ingredients);
+        } else {
+          return
+        }
+      });
   }
 
   async getRecipe(recipe_id: number): Promise<Recipe | undefined> {
     return this.supabase
       .from(RECIPES_TABLE)
       .select()
-      .match({ user_id: this.authService.getCurrentUserId(), id: recipe_id })
+      .eq('id', recipe_id)
       .then(x => {
         const recipeResult = x?.data && x?.data[0];
-        return this.supabase.from(NAMED_INGREDIENTS_VIEW)
-            .select('ingredient_id, food_name, quantity_value, quantity_unit')
-            .match({ ingredient_id: recipeResult.ingredients })
+        if (recipeResult) {
+          return this.supabase.from(NAMED_INGREDIENTS_VIEW)
+            .select('food_id, food_name, quantity_value, quantity_unit')
+            .match({ recipe_id: recipe_id })
             .then((ingredientsResult) => {
               let recipe = new Recipe();
               recipe.id = recipeResult.id;
@@ -85,7 +92,7 @@ export class DataService {
               recipe.difficulty = recipeResult.difficulty;
               recipe.ingredients = ingredientsResult.data?.map(y => {
                 let ingredient = new Ingredient();
-                ingredient.id = y.ingredient_id;
+                ingredient.id = y.food_id;
                 ingredient.name = y.food_name;
                 ingredient.quantity.value = y.quantity_value;
                 ingredient.quantity.unit = y.quantity_unit;
@@ -95,11 +102,14 @@ export class DataService {
               recipe.tags = recipeResult.tags;
               return recipe;
             });
+        } else {
+          return
+        }
       })
   }
 
   async deleteRecipe(recipe_id: string) {
-    this.supabase
+    return this.supabase
       .from(RECIPES_TABLE)
       .delete()
       .eq('id', recipe_id)
@@ -174,7 +184,7 @@ export class DataService {
         .insert(element);
   }
 
-  async removeFromPlanning(planning_id: string) {
+  async deletePlanning(planning_id: string) {
     return this.supabase
       .from(PLANNINGS_TABLE)
       .delete()

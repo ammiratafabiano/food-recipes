@@ -19,8 +19,7 @@ const routes: Routes = [
   },
   {
     path: 'recipe',
-    loadChildren: () => import('./pages/recipe/recipe.module').then( m => m.RecipePageModule),
-    canActivate: [AuthGuard]
+    loadChildren: () => import('./pages/recipe/recipe.module').then( m => m.RecipePageModule)
   },
   {
     path: 'add-recipe',
@@ -29,6 +28,14 @@ const routes: Routes = [
   {
     path: 'ingredient-selection',
     loadChildren: () => import('./pages/ingredient-selection/ingredient-selection.module').then( m => m.IngredientSelectionPageModule)
+  },
+  {
+    path: 'not-found',
+    loadChildren: () => import('./pages/not-found/not-found.module').then( m => m.NotFoundPageModule)
+  },
+  {
+    path: 'delete-user',
+    loadChildren: () => import('./pages/delete-user/delete-user.module').then( m => m.DeleteUserPageModule)
   }
 ];
 @NgModule({
