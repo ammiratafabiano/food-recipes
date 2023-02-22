@@ -5,7 +5,7 @@ import { Food } from 'src/app/models/food.model';
 import { RecipeType } from 'src/app/models/recipe-type.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { Step } from 'src/app/models/step.model';
-import { TimetUnit, WeightUnit } from 'src/app/models/unit.enum';
+import { TimeUnit, WeightUnit } from 'src/app/models/unit.enum';
 import { DataService } from 'src/app/services/data.service';
 import { IngredientSelectionPage } from '../ingredient-selection/ingredient-selection.page';
 
@@ -19,7 +19,7 @@ export class AddRecipePage implements OnInit {
   typeList: RecipeType[] = Object.values(RecipeType);
   difficultyList: Difficulty[] = Object.values(Difficulty);
   weightUnitList: WeightUnit[] = Object.values(WeightUnit);
-  timeUnitList: TimetUnit[] = Object.values(TimetUnit);
+  timeUnitList: TimeUnit[] = Object.values(TimeUnit);
   foodList?: Food[];
 
   selectedRecipe: Recipe = new Recipe();

@@ -90,7 +90,7 @@ export class RecipePage implements OnInit {
       await this.dataService.addToPlanning(this.recipe, result.data.action);
       this.navCtrl.navigateRoot('tabs/planning', {
         queryParams: {
-          refresh: true
+          week: result?.data?.action
         }
       });
     }

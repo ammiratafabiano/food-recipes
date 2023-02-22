@@ -5,7 +5,6 @@ import { Recipe } from '../models/recipe.model';
 import { environment } from '../../environments/environment'
 import { AuthService } from './auth.service';
 import { Ingredient } from '../models/ingredient.model';
-import { Food } from '../models/food.model';
 import { RecipeType } from '../models/recipe-type.enum';
 import { Meal } from '../models/meal.model';
 import { WeekDay } from '../models/weekDay.enum';
@@ -16,6 +15,7 @@ const FOODS_TABLE = 'foods'
 const PLANNINGS_TABLE = 'plannings'
 
 const NAMED_INGREDIENTS_VIEW = 'named_ingredients'
+const SHOPPING_LIST_VIEW = 'shopping_list'
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +36,8 @@ export class DataService {
       return {
         food_id: x.id,
         quantity_value: x.quantity.value,
-        quantity_unit: x.quantity.unit
+        quantity_unit: x.quantity.unit,
+        quantity_value_standard: x.quantity.value
       }
     });
     return this.supabase.from(INGREDIENTS_TABLE).insert(ingredients).select('*').then((returning) => {
@@ -120,15 +121,16 @@ export class DataService {
       })    
   }
 
-  async getFoodList(): Promise<Food[] | undefined> {
+  async getFoodList(): Promise<Ingredient[] | undefined> {
     return this.supabase
       .from(FOODS_TABLE)
-      .select('name, id')
+      .select('id, name, unit')
       .then((result) => {
         return result.data?.map(x => {
-          let ingredient = new Food();
+          let ingredient = new Ingredient();
           ingredient.id = x.id;
           ingredient.name = x.name;
+          ingredient.quantity.unit = x.unit;
           return ingredient;
         });
       })
@@ -177,5 +179,23 @@ export class DataService {
       .from(PLANNINGS_TABLE)
       .delete()
       .eq('id', planning_id)
+  }
+
+  async getShoppingList(week: string): Promise<Ingredient[] | undefined> {
+    return this.supabase
+    .from(SHOPPING_LIST_VIEW)
+    .select('food_id, food_name, food_unit, food_total_quantity')
+    .gte('planning_week', week)
+    .match({ user_id: this.authService.getCurrentUserId() })
+    .then((result) => {
+      return result.data?.map(x => {
+        let ingredient = new Ingredient();
+        ingredient.id = x.food_id;
+        ingredient.name = x.food_name;
+        ingredient.quantity.value = x.food_total_quantity;
+        ingredient.quantity.unit = x.food_unit;
+        return ingredient;
+      });
+    })  
   }
 }

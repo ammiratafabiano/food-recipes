@@ -20,4 +20,8 @@ export class IngredientSelectionPage implements OnInit {
     this.modalController.dismiss(food);
   }
 
+  onCloseClicked() {
+    this.modalController.dismiss();
+  }
+
 }

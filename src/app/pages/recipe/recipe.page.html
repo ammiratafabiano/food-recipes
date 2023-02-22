@@ -28,10 +28,10 @@
   </h3>
   <ion-list lines="inset" inset="true">
     <ion-item *ngFor="let ingredient of recipe?.ingredients">
-      <ion-label *ngIf="ingredient.quantity" class="quantity-label">
+      <ion-label *ngIf="ingredient.quantity.value" class="quantity-label">
         {{ ingredient.quantity.value }}{{ 'COMMON.WEIGHT_UNITS.' + ingredient.quantity.unit | translate }}
       </ion-label>
-      <ion-label *ngIf="!ingredient.quantity" class="quantity-label">
+      <ion-label *ngIf="!ingredient.quantity.value" class="quantity-label">
         {{ 'COMMON.MISSING_QUANTITY' | translate }}
       </ion-label>
       <ion-label>{{ ingredient.name }}</ion-label>

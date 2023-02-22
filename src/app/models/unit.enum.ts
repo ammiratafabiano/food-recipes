@@ -5,7 +5,7 @@ export enum WeightUnit {
     Milliliter = "MILLILITER"
 }
 
-export enum TimetUnit {
+export enum TimeUnit {
     Minute = "MINUTE",
     Hour = "HOUR"
 }
