@@ -34,6 +34,11 @@ export class RecipeListPage {
     this.getData();
   }
 
+  ionViewDidEnter() {
+    console.log('Eseguito quando si atterra sulla pagina 2 dopo aver fatto pop() dalla pagina precedente');
+    // qui puoi inserire il tuo codice che vuoi eseguire quando si atterra sulla pagina
+  }
+
   private async getData() {
     const loading = await this.loadingController.create();
     await loading.present();
@@ -82,6 +87,7 @@ export class RecipeListPage {
 
   onRecipeClicked(recipe: Recipe) {
     this.navCtrl.navigateForward("recipe", {queryParams: { id: recipe.id } });
+    // TODO refator for refresh on pop
   }
 
   async onAddClicked() {
@@ -91,7 +97,7 @@ export class RecipeListPage {
         isEdit: true
       }
     });
-    modal.onDidDismiss().then((params) => params?.data?.needToUpdate && this.getData());
+    modal.onDidDismiss().then((params) => params?.data?.needToRefresh && this.getData());
     await modal.present();
   }
 

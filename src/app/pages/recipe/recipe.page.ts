@@ -96,6 +96,7 @@ export class RecipePage implements OnInit {
           text: "Ok",
           handler: () => {
             this.recipe && this.dataService.deleteRecipe(this.recipe.id);
+            this.navCtrl.pop();
           }
         }
       ],
