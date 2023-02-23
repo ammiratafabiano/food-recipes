@@ -28,28 +28,11 @@ export class SettingsPage implements OnInit {
 
   async onLogoutClicked() {
     await this.authService.signOut();
-    this.navCtrl.navigateBack(['/login'])
+    this.navCtrl.navigateBack("/login");
   }
 
   async onDeleteClicked() {
-    const alert = await this.alertController.create({
-      header: "Attenzione",
-      message: "Vuoi davvero cancellare il tuo account?",
-      buttons: [
-        {
-          text: "Cancel"
-        },
-        {
-          text: "Ok",
-          handler: async () => {
-            await this.dataService.deleteUser();
-            await this.authService.resetUser();
-            this.navCtrl.navigateBack(['/login'])
-          }
-        }
-      ],
-    })
-    await alert.present();
+    this.navCtrl.navigateForward("/delete-user");
   }
 
 }

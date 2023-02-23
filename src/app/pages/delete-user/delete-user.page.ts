@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NavController, AlertController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
+import { SessionService } from 'src/app/services/session.service';
 
 @Component({
   selector: 'app-delete-user',
@@ -14,10 +15,15 @@ export class DeleteUserPage implements OnInit {
     private readonly authService: AuthService,
     private readonly navCtrl: NavController,
     private readonly dataService: DataService,
-    private readonly alertController: AlertController
+    private readonly alertController: AlertController,
+    private readonly sessionService: SessionService
   ) { }
 
   ngOnInit() {
+  }
+
+  ionViewDidEnter() {
+    this.sessionService.loginRedirect = undefined;
   }
 
   async onDeleteClicked() {
@@ -33,7 +39,7 @@ export class DeleteUserPage implements OnInit {
           handler: async () => {
             await this.dataService.deleteUser();
             await this.authService.resetUser();
-            this.navCtrl.navigateBack(['/login'])
+            this.navCtrl.navigateBack("/login");
           }
         }
       ],

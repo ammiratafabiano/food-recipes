@@ -41,7 +41,7 @@ export class RegisterPage {
         this.showAlert('Registration failed', data.error.message)
       } else {
         this.showAlert('Signup success', 'Please confirm your email now!')
-        this.navCtrl.navigateBack('login')
+        this.navCtrl.navigateBack("/login")
       }
     })
   }

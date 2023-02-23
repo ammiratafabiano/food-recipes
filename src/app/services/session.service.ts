@@ -14,5 +14,27 @@ export class SessionService {
     this._userData = v;
   }
 
+  
+  public get loginRedirect(): string | null | undefined {
+    return this.getStorage("loginRedirect");
+  }
+  public set loginRedirect(v: string | null | undefined) {
+    this.setStorage("loginRedirect", v);
+  }
+  
+
   constructor() { }
+
+  private setStorage(key: string, value: any) {
+    window.localStorage.setItem(key, value);
+  }
+
+  private getStorage(key: string) {
+    const valueToRet = window.localStorage.getItem(key);
+    if (valueToRet !== 'undefined' && valueToRet !== undefined && valueToRet !== '') {
+      return valueToRet;
+    } else {
+      return undefined;
+    }
+  }  
 }

@@ -44,7 +44,7 @@ export class RecipePage implements OnInit {
     await loading.present()
     this.recipe = await this.dataService.getRecipe(id);
     await loading.dismiss();
-    if (!this.recipe) this.navCtrl.navigateRoot('not-found');
+    if (!this.recipe) this.navCtrl.navigateRoot("/not-found");
   }
 
   async onAddToPlanningClicked() {
@@ -77,7 +77,7 @@ export class RecipePage implements OnInit {
     const result = await actionSheet.onDidDismiss();
     if (result?.data?.action) {
       await this.dataService.addToPlanning(this.recipe, result.data.action);
-      this.navCtrl.navigateRoot('tabs/planning', {
+      this.navCtrl.navigateRoot("tabs/planning", {
         queryParams: {
           week: result?.data?.action
         }

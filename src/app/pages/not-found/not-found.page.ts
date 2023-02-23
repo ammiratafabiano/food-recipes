@@ -14,6 +14,6 @@ export class NotFoundPage implements OnInit {
   }
   
   async onHomePageClicked() {
-    this.navCtrl.navigateBack('login')
+    this.navCtrl.navigateBack("/login")
   }
 }

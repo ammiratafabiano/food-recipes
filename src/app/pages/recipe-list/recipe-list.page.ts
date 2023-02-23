@@ -77,7 +77,7 @@ export class RecipeListPage {
   }
 
   onRecipeClicked(recipe: Recipe) {
-    this.navCtrl.navigateForward('recipe', {queryParams: { id: recipe.id } });
+    this.navCtrl.navigateForward("recipe", {queryParams: { id: recipe.id } });
   }
 
   async onAddClicked() {

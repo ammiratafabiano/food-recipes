@@ -4,6 +4,7 @@ import { FormBuilder, Validators } from '@angular/forms'
 import { Router } from '@angular/router'
 import { LoadingController, AlertController } from '@ionic/angular'
 import { tap } from 'rxjs'
+import { SessionService } from 'src/app/services/session.service'
 
 @Component({
   selector: 'app-login',
@@ -17,16 +18,22 @@ export class LoginPage {
   })
 
   constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private loadingController: LoadingController,
-    private alertController: AlertController,
-    private router: Router
+    private readonly fb: FormBuilder,
+    private readonly authService: AuthService,
+    private readonly loadingController: LoadingController,
+    private readonly alertController: AlertController,
+    private readonly router: Router,
+    private readonly sessionService: SessionService
   ) {
     // TODO workaround for multiple subscribe
     this.authService.getCurrentUser().pipe(tap((user) => {
       if (user) {
-        this.router.navigateByUrl('/tabs', { replaceUrl: true })
+        const loginRedirect = this.sessionService.loginRedirect;
+        if (loginRedirect) {
+          this.router.navigateByUrl(loginRedirect, { replaceUrl: true });
+        } else {
+          this.router.navigateByUrl("/tabs", { replaceUrl: true });
+        }
       }
     })).subscribe();
   }

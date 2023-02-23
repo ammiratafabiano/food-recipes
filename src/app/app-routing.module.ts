@@ -35,7 +35,12 @@ const routes: Routes = [
   },
   {
     path: 'delete-user',
-    loadChildren: () => import('./pages/delete-user/delete-user.module').then( m => m.DeleteUserPageModule)
+    loadChildren: () => import('./pages/delete-user/delete-user.module').then( m => m.DeleteUserPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: '**',
+    redirectTo: '/not-found'
   }
 ];
 @NgModule({
