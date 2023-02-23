@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { LoadingController, ModalController, NavController } from '@ionic/angular';
+import { ActionSheetController, LoadingController, ModalController, NavController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
+import * as moment from 'moment';
 import { RecipeTagFilter } from 'src/app/models/recipe-tag-filter.model';
 import { RecipeTypeFilter } from 'src/app/models/recipe-type-filter.model';
 import { RecipeType } from 'src/app/models/recipe-type.enum';
@@ -25,7 +27,9 @@ export class RecipeListPage {
     private readonly navCtrl: NavController,
     private readonly dataService: DataService,
     private readonly modalController: ModalController,
-    private readonly loadingController: LoadingController
+    private readonly loadingController: LoadingController,
+    private readonly translateService: TranslateService,
+    private readonly actionSheetCtrl: ActionSheetController
   ) {
     this.getData();
   }
@@ -92,8 +96,40 @@ export class RecipeListPage {
   }
 
   async onAddToPlanningClicked(recipe: Recipe) {
-    //await this.dataService.addToPlanning(recipe); //TODO
-    //this.navCtrl.navigateRoot('tabs/planning', {queryParams: { recipe: JSON.stringify(recipe) } });
+    if (!recipe) return;
+  
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_CHOICE"),
+      buttons: [
+        {
+          text: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_THIS_WEEK"),
+          data: {
+            action: moment().startOf('week').format("YYYY-MM-DD"),
+          }
+        },
+        {
+          text: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_NEXT_WEEK"),
+          data: {
+            action: moment().startOf('week').add(1,'week').format("YYYY-MM-DD"),
+          }
+        },
+        {
+          text: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_CANCEL"),
+          role: 'cancel'
+        },
+      ],
+    });
+
+    await actionSheet.present();
+    const result = await actionSheet.onDidDismiss();
+    if (result?.data?.action) {
+      await this.dataService.addToPlanning(recipe, result.data.action);
+      this.navCtrl.navigateRoot("tabs/planning", {
+        queryParams: {
+          week: result?.data?.action
+        }
+      });
+    }
   }
 
 }

@@ -48,7 +48,6 @@ export class RecipePage implements OnInit {
   }
 
   async onAddToPlanningClicked() {
-    // TODO check valid recipe
     if (!this.recipe) return;
   
     const actionSheet = await this.actionSheetCtrl.create({
@@ -83,21 +82,6 @@ export class RecipePage implements OnInit {
         }
       });
     }
-  }
-
-  private async showRecipeError() {
-    const title = this.translateService.instant("RECIPE_PAGE.ERROR_TITLE");
-    const description = this.translateService.instant("RECIPE_PAGE.ERROR_DESCRIPTION");
-    return this.showAlert(title, description);
-  }
-
-  private async showAlert(title: string, msg: string) {
-    const alert = await this.alertController.create({
-      header: title,
-      message: msg,
-      buttons: ['OK']
-    })
-    await alert.present()
   }
 
   async onDeleteClicked() {
