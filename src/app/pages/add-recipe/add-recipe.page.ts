@@ -92,7 +92,7 @@ export class AddRecipePage implements OnInit {
     await loading.present()
     this.dataService.addRecipe(this.selectedRecipe).then(
       () => { // Success
-        this.modalController.dismiss({neeToRefresh: true});
+        this.modalController.dismiss({needToRefresh: true});
       },
       () => { // Error
         this.modalController.dismiss();
