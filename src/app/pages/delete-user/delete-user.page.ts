@@ -16,7 +16,7 @@ export class DeleteUserPage implements OnInit {
     private readonly navCtrl: NavController,
     private readonly dataService: DataService,
     private readonly alertController: AlertController,
-    private readonly sessionService: SessionService
+    public readonly sessionService: SessionService
   ) { }
 
   ngOnInit() {
