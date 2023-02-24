@@ -31,18 +31,20 @@ export class NavigationService {
    * @param navigationData The navigation data (optional)
    * @returns void
    */
-  push(path: string, navigationData?: NavigationData) {
+  push(path: string, navigationData?: NavigationData): Promise<void> {
     this.logService.Info("NavigationService", "push", "page=" + JSON.stringify(path));
     const from = this.currentUrl.split("/");
     const to = [...from, path];
-    this.navController.navigateForward(to, { queryParams: navigationData?.queryParams }).then(success => {
-      if (success && navigationData) {
-        navigationData.presentCallback && navigationData.presentCallback();
-        let navigationStackElement = new NavigationStackElement();
-        navigationStackElement.to = to.join("/");
-        navigationStackElement.from = from.join("/");
-        navigationStackElement.data = navigationData;
-        this.stack.push(navigationStackElement);
+    if (navigationData) {
+      let navigationStackElement = new NavigationStackElement();
+      navigationStackElement.to = to.join("/");
+      navigationStackElement.from = from.join("/");
+      navigationStackElement.data = navigationData;
+      this.stack.push(navigationStackElement);
+    }
+    return this.navController.navigateForward(to, { queryParams: navigationData?.queryParams }).then(success => {
+      if (success) {
+        navigationData?.presentCallback && navigationData.presentCallback();
       }
       this.logService.Info("NavigationService", "stack", "values=" + JSON.stringify(this.stack.map(x=>x.to)));
     });
@@ -53,49 +55,52 @@ export class NavigationService {
    * @param params The params from previous page (optional)
    * @returns void
    */
-  pop(params?: any) {
+  pop(params?: any): Promise<void> {
     this.logService.Info("NavigationService", "pop", "");
     const from = this.currentUrl.split("/");
     const to = from.slice(0, from.length - 1);
-    this.navController.navigateBack(to).then(() => {
-      const toRemoveIndex = this.stack.findIndex(x => x.from == to.join("/"));
-      if (toRemoveIndex > -1) {
-        const removedList = this.stack.splice(toRemoveIndex);
-        const previous = removedList ? removedList[0] : undefined;
-        previous?.data?.dismissCallback && previous.data.dismissCallback(params);
-      }
+    const toRemoveIndex = this.stack.findIndex(x => x.from == to.join("/"));
+    let navigationData: NavigationData | undefined;
+    if (toRemoveIndex > -1) {
+      const removedList = this.stack.splice(toRemoveIndex);
+      navigationData = removedList && removedList[0] ? removedList[0].data : undefined;
+    }
+    return this.navController.navigateBack(to).then(() => {
+      navigationData?.dismissCallback && navigationData.dismissCallback(params);
       this.logService.Info("NavigationService", "stack", "values=" + JSON.stringify(this.stack.map(x=>x.to)));
     });
   }
 
   /**
    * @description Set the root for the current navigation stack.
-   * @param path The relative url page.
+   * @param path The page url.
    * @param navigationData The navigation data (optional)
    * @returns void
    */
-  setRoot(path: string | any[] | UrlTree, navigationData?: NavigationData) {
+  setRoot(path: string | string[], navigationData?: NavigationData): Promise<void> {
     this.logService.Info("NavigationService", "setRoot", "page=" + JSON.stringify(path));
     const from = this.currentUrl.split("/");
-    const to = [path];
+    const to = Array.isArray(path) ? path : [path];
     const options = {replaceUrl: true, queryParams: navigationData?.queryParams};
+    if (navigationData) {
+      let navigationStackElement = new NavigationStackElement();
+      navigationStackElement.to = to.join("/");
+      navigationStackElement.from = from.join("/");
+      navigationStackElement.data = navigationData;
+      this.stack = [navigationStackElement];
+    }
     const successCallback = (success: boolean) => {
-      if (success && navigationData) {
-        navigationData.presentCallback && navigationData.presentCallback();
-        let navigationStackElement = new NavigationStackElement();
-        navigationStackElement.to = to.join("/");
-        navigationStackElement.from = from.join("/");
-        navigationStackElement.data = navigationData;
-        this.stack = [navigationStackElement];
+      if (success) {
+        navigationData?.presentCallback && navigationData.presentCallback();
       }
       this.logService.Info("NavigationService", "stack", "values=" + JSON.stringify(this.stack.map(x=>x.to)));
     }
     if (navigationData?.animationDirection == 'forward') {
-      this.navController.navigateForward(to, options).then(successCallback);
+      return this.navController.navigateForward(to, options).then(successCallback);
     } else if (navigationData?.animationDirection == 'back') {
-      this.navController.navigateBack(to, options).then(successCallback);
+      return this.navController.navigateBack(to, options).then(successCallback);
     } else {
-      this.navController.navigateRoot(to, options).then(successCallback);
+      return this.navController.navigateRoot(to, options).then(successCallback);
     }
   }
 

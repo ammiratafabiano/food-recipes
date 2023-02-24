@@ -49,6 +49,10 @@ export class RecipePage implements OnInit {
     if (!this.recipe) this.navigationService.setRoot("/not-found");
   }
 
+  async onBackClicked() {
+    return this.navigationService.pop();
+  }
+
   async onAddToPlanningClicked() {
     if (!this.recipe) return;
   

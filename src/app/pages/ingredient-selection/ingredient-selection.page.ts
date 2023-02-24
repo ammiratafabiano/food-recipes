@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Food } from 'src/app/models/food.model';
+import { NavigationPath } from 'src/app/models/navigation-path.enum';
 import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
@@ -9,19 +10,19 @@ import { NavigationService } from 'src/app/services/navigation.service';
 })
 export class IngredientSelectionPage implements OnInit {
 
-  @Input() foodList: Food[] = [];
+  foodList: Food[] = [];
 
   constructor(private readonly navigationService: NavigationService) { }
 
   ngOnInit() {
+    this.foodList = this.navigationService.getParams<{foodList:Food[]}>()?.foodList;
   }
 
-  onFoodClicked(food: Food) {
-    this.navigationService.pop(food);
+  async onFoodClicked(food: Food) {
+    return this.navigationService.pop(food);
   }
 
-  onCloseClicked() {
-    this.navigationService.pop();
+  async onBackClicked() {
+    return this.navigationService.pop();
   }
-
 }

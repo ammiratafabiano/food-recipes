@@ -45,8 +45,8 @@ export class AddRecipePage implements OnInit {
     }).finally(() => loading.dismiss());
   }
 
-  onCancelClicked() {
-    this.navigationService.pop();
+  async onBackClicked() {
+    return this.navigationService.pop();
   }
 
   async onAddIngredientClicked() {
