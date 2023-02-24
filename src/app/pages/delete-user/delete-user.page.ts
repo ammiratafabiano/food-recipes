@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController, AlertController } from '@ionic/angular';
+import { NavigationPath } from 'src/app/models/navigation-path.enum';
 import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
+import { NavigationService } from 'src/app/services/navigation.service';
 import { SessionService } from 'src/app/services/session.service';
 
 @Component({
@@ -13,10 +15,10 @@ export class DeleteUserPage implements OnInit {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly navCtrl: NavController,
     private readonly dataService: DataService,
     private readonly alertController: AlertController,
-    public readonly sessionService: SessionService
+    public readonly sessionService: SessionService,
+    private readonly navigationService: NavigationService
   ) { }
 
   ngOnInit() {
@@ -39,7 +41,7 @@ export class DeleteUserPage implements OnInit {
           handler: async () => {
             await this.dataService.deleteUser();
             await this.authService.resetUser();
-            this.navCtrl.navigateBack("/login");
+            this.navigationService.setRoot(NavigationPath.Login);
           }
         }
       ],

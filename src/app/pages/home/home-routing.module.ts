@@ -1,23 +1,23 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { TabsPage } from './tabs.page';
+import { HomePage } from './home.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: TabsPage,
+    component: HomePage,
     children: [
       {
         path: 'recipe-list',
         loadChildren: () => import('../recipe-list/recipe-list.module').then(m => m.RecipeListPageModule)
       },
       {
-        path: 'shopping-list',
-        loadChildren: () => import('../shopping-list/shopping-list.module').then(m => m.ShoppingListModule)
-      },
-      {
         path: 'planning',
         loadChildren: () => import('../planning/planning.module').then(m => m.PlanningPageModule)
+      },
+      {
+        path: 'shopping-list',
+        loadChildren: () => import('../shopping-list/shopping-list.module').then(m => m.ShoppingListModule)
       },
       {
         path: 'settings',
@@ -25,14 +25,14 @@ const routes: Routes = [
       },
       {
         path: '',
-        redirectTo: '/tabs/recipe-list',
+        redirectTo: '/home/recipe-list',
         pathMatch: 'full'
       }
     ]
   },
   {
     path: '',
-    redirectTo: '/tabs/recipe-list',
+    redirectTo: '/home/recipe-list',
     pathMatch: 'full'
   }
 ];
@@ -40,4 +40,4 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forChild(routes)],
 })
-export class TabsPageRoutingModule {}
+export class HomePageRoutingModule {}

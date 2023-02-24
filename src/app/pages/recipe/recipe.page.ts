@@ -3,8 +3,10 @@ import { ActivatedRoute } from '@angular/router';
 import { ActionSheetController, AlertController, LoadingController, NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
+import { HomeNavigationPath, NavigationPath } from 'src/app/models/navigation-path.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { DataService } from 'src/app/services/data.service';
+import { NavigationService } from 'src/app/services/navigation.service';
 import { SessionService } from 'src/app/services/session.service';
 
 @Component({
@@ -25,8 +27,8 @@ export class RecipePage implements OnInit {
     private readonly alertController: AlertController,
     private readonly translateService: TranslateService,
     private readonly sessionService: SessionService,
-    private readonly navCtrl: NavController,
-    private readonly actionSheetCtrl: ActionSheetController
+    private readonly actionSheetCtrl: ActionSheetController,
+    private readonly navigationService: NavigationService
   ) { }
 
   ngOnInit() {
@@ -44,7 +46,7 @@ export class RecipePage implements OnInit {
     await loading.present()
     this.recipe = await this.dataService.getRecipe(id);
     await loading.dismiss();
-    if (!this.recipe) this.navCtrl.navigateRoot("/not-found");
+    if (!this.recipe) this.navigationService.setRoot("/not-found");
   }
 
   async onAddToPlanningClicked() {
@@ -76,7 +78,7 @@ export class RecipePage implements OnInit {
     const result = await actionSheet.onDidDismiss();
     if (result?.data?.action) {
       await this.dataService.addToPlanning(this.recipe, result.data.action);
-      this.navCtrl.navigateRoot("tabs/planning", {
+      this.navigationService.setRoot([NavigationPath.Home, HomeNavigationPath.Planning], {
         queryParams: {
           week: result?.data?.action
         }
@@ -96,7 +98,7 @@ export class RecipePage implements OnInit {
           text: "Ok",
           handler: () => {
             this.recipe && this.dataService.deleteRecipe(this.recipe.id);
-            this.navCtrl.pop();
+            this.navigationService.pop({ needToRefresh: true });
           }
         }
       ],

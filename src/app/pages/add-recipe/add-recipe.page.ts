@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { LoadingController, ModalController } from '@ionic/angular';
+import { LoadingController } from '@ionic/angular';
 import { Difficulty } from 'src/app/models/difficulty.enum';
 import { Food } from 'src/app/models/food.model';
+import { AddRecipeNavigationPath } from 'src/app/models/navigation-path.enum';
 import { RecipeType } from 'src/app/models/recipe-type.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { Step } from 'src/app/models/step.model';
 import { TimeUnit, WeightUnit } from 'src/app/models/unit.enum';
 import { DataService } from 'src/app/services/data.service';
-import { IngredientSelectionPage } from '../ingredient-selection/ingredient-selection.page';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
   selector: 'app-add-recipe',
@@ -27,9 +28,9 @@ export class AddRecipePage implements OnInit {
   isEdit = false;
 
   constructor(
-    private readonly modalController: ModalController,
     private readonly dataService: DataService,
-    private readonly loadingController: LoadingController
+    private readonly loadingController: LoadingController,
+    private readonly navigationService: NavigationService
   ) { }
 
   ngOnInit() {
@@ -45,22 +46,22 @@ export class AddRecipePage implements OnInit {
   }
 
   onCancelClicked() {
-    this.modalController.dismiss();
+    this.navigationService.pop();
   }
 
   async onAddIngredientClicked() {
-    const modal = await this.modalController.create({
-      component: IngredientSelectionPage,
-      componentProps: {
-        foodList: this.foodList
+    this.navigationService.push(AddRecipeNavigationPath.IngredientSelection,
+      {
+        params: {
+          foodList: this.foodList
+        },
+        dismissCallback: (ingredient: any) => {
+          if (ingredient && !this.selectedRecipe.ingredients.find(x => x.id == ingredient.id)) {
+            this.selectedRecipe.ingredients.push(ingredient);
+          }
+        }
       }
-    });
-    modal.onDidDismiss().then((response) => {
-      if (response.data && !this.selectedRecipe.ingredients.find(x => x.id == response.data.id)) {
-        this.selectedRecipe.ingredients.push(response.data);
-      }
-    });
-    await modal.present();
+    );
   }
 
   onAddStepClicked() {
@@ -92,10 +93,10 @@ export class AddRecipePage implements OnInit {
     await loading.present()
     this.dataService.addRecipe(this.selectedRecipe).then(
       () => { // Success
-        this.modalController.dismiss({needToRefresh: true});
+        this.navigationService.pop({ needToRefresh: true });
       },
       () => { // Error
-        this.modalController.dismiss();
+        this.navigationService.pop();
       }
     ).finally(() => loading.dismiss());
   }

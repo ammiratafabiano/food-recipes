@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { AlertController, NavController } from '@ionic/angular';
+import { NavigationPath, SettingsNavigationPath } from 'src/app/models/navigation-path.enum';
 import { UserData } from 'src/app/models/user-data.model';
 import { AuthService } from 'src/app/services/auth.service';
-import { DataService } from 'src/app/services/data.service';
+import { NavigationService } from 'src/app/services/navigation.service';
 import { SessionService } from 'src/app/services/session.service';
 
 @Component({
@@ -16,10 +16,8 @@ export class SettingsPage implements OnInit {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly navCtrl: NavController,
     private readonly sessionService: SessionService,
-    private readonly dataService: DataService,
-    private readonly alertController: AlertController
+    private readonly navigationService: NavigationService
   ) { }
 
   ngOnInit() {
@@ -28,11 +26,15 @@ export class SettingsPage implements OnInit {
 
   async onLogoutClicked() {
     await this.authService.signOut();
-    this.navCtrl.navigateBack("/login");
+    this.navigationService.setRoot(NavigationPath.Login,
+      {
+        animationDirection: "back"
+      }
+    );
   }
 
   async onDeleteClicked() {
-    this.navCtrl.navigateForward("/delete-user");
+    this.navigationService.push(SettingsNavigationPath.DeleteUser);
   }
 
 }

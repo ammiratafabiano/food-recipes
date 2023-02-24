@@ -2,11 +2,13 @@ import { Component } from '@angular/core';
 import { ActionSheetController, LoadingController, ModalController, NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
+import { HomeNavigationPath, NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
 import { RecipeTagFilter } from 'src/app/models/recipe-tag-filter.model';
 import { RecipeTypeFilter } from 'src/app/models/recipe-type-filter.model';
 import { RecipeType } from 'src/app/models/recipe-type.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { DataService } from 'src/app/services/data.service';
+import { NavigationService } from 'src/app/services/navigation.service';
 import { AddRecipePage } from '../add-recipe/add-recipe.page';
 
 @Component({
@@ -24,19 +26,14 @@ export class RecipeListPage {
   recipeTagFilters: RecipeTagFilter[] = [];
 
   constructor(
-    private readonly navCtrl: NavController,
     private readonly dataService: DataService,
     private readonly modalController: ModalController,
     private readonly loadingController: LoadingController,
     private readonly translateService: TranslateService,
-    private readonly actionSheetCtrl: ActionSheetController
+    private readonly actionSheetCtrl: ActionSheetController,
+    private readonly navigationService: NavigationService
   ) {
     this.getData();
-  }
-
-  ionViewDidEnter() {
-    console.log('Eseguito quando si atterra sulla pagina 2 dopo aver fatto pop() dalla pagina precedente');
-    // qui puoi inserire il tuo codice che vuoi eseguire quando si atterra sulla pagina
   }
 
   private async getData() {
@@ -85,20 +82,21 @@ export class RecipeListPage {
     this.displayRecipes = this.recipes?.filter(x => x.name.toLowerCase().indexOf(query) > -1);
   }
 
-  onRecipeClicked(recipe: Recipe) {
-    this.navCtrl.navigateForward("recipe", {queryParams: { id: recipe.id } });
-    // TODO refator for refresh on pop
+  async onRecipeClicked(recipe: Recipe) {
+    this.navigationService.push(RecipeListNavigationPath.Recipe,
+      {
+        queryParams: { id: recipe.id },
+        dismissCallback: (params: any) => params?.needToRefresh && this.getData()
+      }
+    );
   }
 
   async onAddClicked() {
-    const modal = await this.modalController.create({
-      component: AddRecipePage,
-      componentProps: {
-        isEdit: true
+    this.navigationService.push(RecipeListNavigationPath.AddRecipe,
+      {
+        dismissCallback: (params: any) => params?.needToRefresh && this.getData()
       }
-    });
-    modal.onDidDismiss().then((params) => params?.data?.needToRefresh && this.getData());
-    await modal.present();
+    );
   }
 
   async onAddToPlanningClicked(recipe: Recipe) {
@@ -130,11 +128,13 @@ export class RecipeListPage {
     const result = await actionSheet.onDidDismiss();
     if (result?.data?.action) {
       await this.dataService.addToPlanning(recipe, result.data.action);
-      this.navCtrl.navigateRoot("tabs/planning", {
-        queryParams: {
-          week: result?.data?.action
+      this.navigationService.setRoot([NavigationPath.Home, HomeNavigationPath.Planning],
+        {
+          queryParams: {
+            week: result?.data?.action
+          }
         }
-      });
+      );
     }
   }
 

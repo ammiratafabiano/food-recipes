@@ -7,6 +7,10 @@ const routes: Routes = [
   {
     path: '',
     component: SettingsPage
+  },
+  {
+    path: 'delete-user',
+    loadChildren: () => import('../delete-user/delete-user.module').then( m => m.DeleteUserPageModule)
   }
 ];
 

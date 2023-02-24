@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
 import { Food } from 'src/app/models/food.model';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
   selector: 'app-ingredient-selection',
@@ -11,17 +11,17 @@ export class IngredientSelectionPage implements OnInit {
 
   @Input() foodList: Food[] = [];
 
-  constructor(private readonly modalController: ModalController) { }
+  constructor(private readonly navigationService: NavigationService) { }
 
   ngOnInit() {
   }
 
   onFoodClicked(food: Food) {
-    this.modalController.dismiss(food);
+    this.navigationService.pop(food);
   }
 
   onCloseClicked() {
-    this.modalController.dismiss();
+    this.navigationService.pop();
   }
 
 }

@@ -2,6 +2,7 @@ import { Component } from '@angular/core'
 import { Validators, FormBuilder } from '@angular/forms'
 import { LoadingController, AlertController, NavController } from '@ionic/angular'
 import { AuthService } from 'src/app/services/auth.service'
+import { NavigationService } from 'src/app/services/navigation.service'
 
 @Component({
   selector: 'app-register',
@@ -19,7 +20,7 @@ export class RegisterPage {
     private authService: AuthService,
     private loadingController: LoadingController,
     private alertController: AlertController,
-    private navCtrl: NavController
+    private readonly navigationService: NavigationService
   ) {}
 
   get email() {
@@ -41,7 +42,7 @@ export class RegisterPage {
         this.showAlert('Registration failed', data.error.message)
       } else {
         this.showAlert('Signup success', 'Please confirm your email now!')
-        this.navCtrl.navigateBack("/login")
+        this.navigationService.pop();
       }
     })
   }

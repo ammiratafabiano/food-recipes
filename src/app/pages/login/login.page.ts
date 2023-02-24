@@ -32,7 +32,7 @@ export class LoginPage {
         if (loginRedirect) {
           this.router.navigateByUrl(loginRedirect, { replaceUrl: true });
         } else {
-          this.router.navigateByUrl("/tabs", { replaceUrl: true });
+          this.router.navigateByUrl("/home", { replaceUrl: true });
         }
       }
     })).subscribe();

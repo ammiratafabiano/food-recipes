@@ -3,9 +3,9 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { TabsPageRoutingModule } from './tabs-routing.module';
+import { HomePageRoutingModule } from './home-routing.module';
 
-import { TabsPage } from './tabs.page';
+import { HomePage } from './home.page';
 import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
@@ -13,9 +13,9 @@ import { TranslateModule } from '@ngx-translate/core';
     IonicModule,
     CommonModule,
     FormsModule,
-    TabsPageRoutingModule,
+    HomePageRoutingModule,
     TranslateModule
   ],
-  declarations: [TabsPage]
+  declarations: [HomePage]
 })
-export class TabsPageModule {}
+export class HomePageModule {}

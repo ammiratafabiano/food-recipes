@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { NavController } from '@ionic/angular';
+import { NavigationPath } from 'src/app/models/navigation-path.enum';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
   selector: 'app-not-found',
@@ -8,12 +9,12 @@ import { NavController } from '@ionic/angular';
 })
 export class NotFoundPage implements OnInit {
 
-  constructor(private navCtrl: NavController) { }
+  constructor(private readonly navigationService: NavigationService) { }
 
   ngOnInit() {
   }
   
   async onHomePageClicked() {
-    this.navCtrl.navigateBack("/login")
+    this.navigationService.setRoot(NavigationPath.Login);
   }
 }
