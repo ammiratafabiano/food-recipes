@@ -8,6 +8,16 @@
         "LOGIN_BUTTON": "Entra",
         "REGISTER_BUTTON": "Crea account",
         "FORGOT_PASSWORD_BUTTON": "Password dimenticata?",
+        "FORGOT_PASSWORD_POPUP_HEADER": "Reset della password",
+        "FORGOT_PASSWORD_POPUP_MESSAGE": "Per favore inserisci l'email",
+        "FORGOT_PASSWORD_POPUP_EMAIL_INPUT": "Email",
+        "FORGOT_PASSWORD_POPUP_OK_BUTTON": "Reset",
+        "FORGOT_PASSWORD_SUCCESS_POPUP_HEADER": "Per favore controlla l'email per ulteriori istruzioni!",
+        "MAGIC_LINK_POPUP_HEADER": "Ottieni un Magic Link",
+        "MAGIC_LINK_POPUP_MESSAGE": "Vi invieremo un link per effettuare magicamente il login!",
+        "MAGIC_LINK_POPUP_EMAIL_INPUT": "Email",
+        "MAGIC_LINK_POPUP_OK_BUTTON": "Ottieni Magic Link",
+        "MAGIC_LINK_SUCCESS_POPUP_HEADER": "Per favore controlla l'email per ulteriori istruzioni!",
         "FACEBOOK_LOGIN_BUTTON": "Entra con Facebook",
         "GOOGLE_LOGIN_BUTTON": "Entra con Google"
     },
@@ -18,7 +28,8 @@
         "PASSWORD": "Password",
         "PASSWORD_GENERIC_ERROR": "Inserisci una password",
         "PASSWORD_LENGTH_ERROR": "Lunghezza minima 6 caratteri",
-        "SUBMIT_BUTTON": "Registrati"
+        "SUBMIT_BUTTON": "Registrati",
+        "SUBMIT_POPUP_SUCCESS_HEADER": "Please confirm your email now!"
     },
     "RECIPE_LIST_PAGE": {
         "TITLE": "Ricette",
@@ -47,7 +58,8 @@
         "ADD_TO_PLANNING_CANCEL": "Annulla",
         "ERROR_TITLE": "Errore",
         "ERROR_DESCRIPTION": "Qualcosa è andato storto scaricando la ricetta. Prova più tardi.",
-        "DELETE_BUTTON": "Elimina ricetta"
+        "DELETE_BUTTON": "Elimina ricetta",
+        "DELETE_POPUP_CONFIRM_MESSAGE": "Vuoi davvero cancellare la ricetta?"
     },
     "ADD_RECIPE_PAGE": {
         "TITLE": "Nuova ricetta",
@@ -75,7 +87,8 @@
         "TITLE": "Cancella account",
         "SUBTITLE": "La privacy è importante",
         "CONTENT": "Se desideri cancellare i tuoi dati personali dal nostro sistema, puoi farlo in qualsiasi momento premendo il pulsante 'Cancella' qui sotto. Ti chiederemo di confermare la tua scelta prima di procedere alla cancellazione. Tieni presente che la cancellazione dei dati potrebbe richiedere alcuni giorni per essere completata e, una volta cancellati, i tuoi dati non potranno essere recuperati. Se decidi di procedere con la cancellazione, clicca sul pulsante qui sotto.",
-        "DELETE_BUTTON": "Cancella"
+        "DELETE_BUTTON": "Cancella",
+        "DELETE_POPUP_CONFIRM_MESSAGE": "Vuoi davvero cancellare il tuo account?"
     },
     "COMMON": {
         "RECIPE": "Ricetta",
@@ -120,6 +133,14 @@
             "DESSERT": "Dolce",
             "BEVERAGE": "Bevande",
             "OTHER": "Altro"
+        },
+        "GENERIC_ALERT": {
+            "WARNING_HEADER": "Attenzione",
+            "ERROR_HEADER": "Errore",
+            "INFO_HEADER": "Info",
+            "MESSAGE": "Si è verificato un errore generico. Riprova più tardi.",
+            "OK_BUTTON": "Ok",
+            "CANCEL_BUTTON": "Annulla"
         }
     }
 }

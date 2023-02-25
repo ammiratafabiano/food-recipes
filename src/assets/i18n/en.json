@@ -8,6 +8,16 @@
         "LOGIN_BUTTON": "Sign in",
         "REGISTER_BUTTON": "Create account",
         "FORGOT_PASSWORD_BUTTON": "Forgot password?",
+        "FORGOT_PASSWORD_POPUP_HEADER": "Reset password",
+        "FORGOT_PASSWORD_POPUP_MESSAGE": "Please insert your email",
+        "FORGOT_PASSWORD_POPUP_EMAIL_INPUT": "Email",
+        "FORGOT_PASSWORD_POPUP_OK_BUTTON": "Reset",
+        "FORGOT_PASSWORD_SUCCESS_HEADER": "Please check your emails for further instructions!",
+        "MAGIC_LINK_POPUP_HEADER": "Get a Magic Link",
+        "MAGIC_LINK_POPUP_MESSAGE": "We will send you a link to magically log in!",
+        "MAGIC_LINK_POPUP_EMAIL_INPUT": "Email",
+        "MAGIC_LINK_POPUP_OK_BUTTON": "Get Magic Link",
+        "MAGIC_LINK_SUCCESS_POPUP_HEADER": "Please check your emails for further instructions!",
         "FACEBOOK_LOGIN_BUTTON": "Facebook login",
         "GOOGLE_LOGIN_BUTTON": "Google login"
     },
@@ -18,7 +28,8 @@
         "PASSWORD": "Password",
         "PASSWORD_GENERIC_ERROR": "Please insert a password",
         "PASSWORD_LENGTH_ERROR": "Minlength 6 characters",
-        "SUBMIT_BUTTON": "Create my account"
+        "SUBMIT_BUTTON": "Create my account",
+        "SUBMIT_POPUP_SUCCESS_HEADER": "Per favore conferma l'email!"
     },
     "RECIPE_LIST_PAGE": {
         "TITLE": "Recipes",
@@ -47,7 +58,8 @@
         "ADD_TO_PLANNING_CANCEL": "Cancel",
         "ERROR_TITLE": "Error",
         "ERROR_DESCRIPTION": "An error occurred retrieveing the recipe. Please, try again later.",
-        "DELETE_BUTTON": "Delete recipe"
+        "DELETE_BUTTON": "Delete recipe",
+        "DELETE_POPUP_CONFIRM_MESSAGE": "Do you really want to delete the recipe?"
     },
     "ADD_RECIPE_PAGE": {
         "TITLE": "New recipe",
@@ -75,7 +87,8 @@
         "TITLE": "Delete account",
         "SUBTITLE": "Privacy matters",
         "CONTENT": "If you wish to delete your personal data from our system, you can do so at any time by clicking the 'Delete' button below. We will ask you to confirm your choice before proceeding with the deletion. Please note that the deletion of data may take a few days to complete, and once deleted, your data cannot be retrieved. If you decide to proceed with the deletion, please click the button below.",
-        "DELETE_BUTTON": "Delete"
+        "DELETE_BUTTON": "Delete",
+        "DELETE_POPUP_CONFIRM_MESSAGE": "Do you really want to delete your account?"
     },
     "COMMON": {
         "RECIPE": "Recipe",
@@ -120,6 +133,14 @@
             "DESSERT": "Dessert",
             "BEVERAGE": "Beverage",
             "OTHER": "Other"
+        },
+        "GENERIC_ALERT": {
+            "WARNING_HEADER": "Attention",
+            "ERROR_HEADER": "Error",
+            "INFO_HEADER": "Info",
+            "MESSAGE": "A generic error occurred. Please try again later.",
+            "OK_BUTTON": "Ok",
+            "CANCEL_BUTTON": "Cancel"
         }
     }
 }

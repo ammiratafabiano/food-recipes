@@ -2,9 +2,11 @@ import { AuthService } from './../../services/auth.service'
 import { Component } from '@angular/core'
 import { FormBuilder, Validators } from '@angular/forms'
 import { Router } from '@angular/router'
-import { LoadingController, AlertController } from '@ionic/angular'
+import { AlertInput, LoadingController } from '@ionic/angular'
 import { tap } from 'rxjs'
 import { SessionService } from 'src/app/services/session.service'
+import { AlertService } from 'src/app/services/alert.service'
+import { TranslateService } from '@ngx-translate/core'
 
 @Component({
   selector: 'app-login',
@@ -21,9 +23,10 @@ export class LoginPage {
     private readonly fb: FormBuilder,
     private readonly authService: AuthService,
     private readonly loadingController: LoadingController,
-    private readonly alertController: AlertController,
+    private readonly alertService: AlertService,
     private readonly router: Router,
-    private readonly sessionService: SessionService
+    private readonly sessionService: SessionService,
+    private readonly translateService: TranslateService
   ) {
     // TODO workaround for multiple subscribe
     this.authService.getCurrentUser().pipe(tap((user) => {
@@ -54,98 +57,79 @@ export class LoginPage {
       await loading.dismiss()
 
       if (data.error) {
-        this.showAlert('Login failed', data.error.message)
+        this.alertService.presentConfirmPopup(data.error.message);
       }
     })
   }
 
-  async showAlert(title: string, msg: string) {
-    const alert = await this.alertController.create({
-      header: title,
-      message: msg,
-      buttons: ['OK'],
-    })
-    await alert.present()
-  }
-
   async onForgotPasswordCLicked() {
-    const alert = await this.alertController.create({
-      header: "Receive a new password",
-      message: "Please insert your email",
-      inputs: [
-        {
-          type: "email",
-          name: "email",
-        },
-      ],
-      buttons: [
-        {
-          text: "Cancel",
-          role: "cancel",
-        },
-        {
-          text: "Reset password",
-          handler: async (result) => {
-            const loading = await this.loadingController.create();
-            await loading.present();
-            const { data, error } = await this.authService.sendPwReset(
-              result.email
-            );
-            await loading.dismiss();
+    const inputs: AlertInput[] = [
+      {
+        type: "email",
+        name: this.translateService.instant("LOGIN_PAGE.FORGOT_PASSWORD_POPUP_EMAIL_INPUT")
+      }
+    ]
+    return this.alertService.presentPromptPopup(
+      "LOGIN_PAGE.FORGOT_PASSWORD_POPUP_HEADER",
+      "LOGIN_PAGE.FORGOT_PASSWORD_POPUP_MESSAGE",
+      inputs,
+      "LOGIN_PAGE.FORGOT_PASSWORD_POPUP_OK_BUTTON",
+      async (result: any) => {
+        const loading = await this.loadingController.create();
+        await loading.present();
+        const { data, error } = await this.authService.sendPwReset(
+          result.email
+        );
+        await loading.dismiss();
 
-            if (error) {
-              this.showAlert("Failed", error.message);
-            } else {
-              this.showAlert(
-                "Success",
-                "Please check your emails for further instructions!"
-              );
-            }
-          },
-        },
-      ],
-    });
-    await alert.present();
+        if (error) {
+          this.alertService.presentAlertPopup(
+            "COMMON.GENERIC_ALERT.ERROR_HEADER",
+            error.message
+          );
+        } else {
+          this.alertService.presentAlertPopup(
+            "COMMON.GENERIC_ALERT.INFO_HEADER",
+            "LOGIN_PAGE.FORGOT_PASSWORD_SUCCESS_POPUP_HEADER"
+          );
+        }
+      }
+    );
   }
 
   async getMagicLink() {
-    const alert = await this.alertController.create({
-      header: "Get a Magic Link",
-      message: "We will send you a link to magically log in!",
-      inputs: [
-        {
-          type: "email",
-          name: "email",
-        },
-      ],
-      buttons: [
-        {
-          text: "Cancel",
-          role: "cancel",
-        },
-        {
-          text: "Get Magic Link",
-          handler: async (result) => {
-            const loading = await this.loadingController.create();
-            await loading.present();
-            const { data, error } = await this.authService.signInWithEmail(
-              result.email
-            );
-            await loading.dismiss();
+    const inputs: AlertInput[] = [
+      {
+        type: "email",
+        name: this.translateService.instant("LOGIN_PAGE.MAGIC_LINK_POPUP_EMAIL_INPUT")
+      },
+    ]
+    return this.alertService.presentPromptPopup(
+      "LOGIN_PAGE.MAGIC_LINK_POPUP_HEADER",
+      "LOGIN_PAGE.MAGIC_LINK_POPUP_MESSAGE",
+      inputs,
+      "LOGIN_PAGE.MAGIC_LINK_POPUP_OK_BUTTON",
+      async (result: any) => {
+        const loading = await this.loadingController.create();
+        await loading.present();
+        const { data, error } = await this.authService.signInWithEmail(
+          result.email
+        );
+        await loading.dismiss();
 
-            if (error) {
-              this.showAlert("Failed", error.message);
-            } else {
-              this.showAlert(
-                "Success",
-                "Please check your emails for further instructions!"
-              );
-            }
-          },
-        },
-      ],
-    });
-    await alert.present();
+        if (error) {
+          this.alertService.presentAlertPopup(
+            "COMMON.GENERIC_ALERT.WARNING_HEADER",
+            error.message
+          );
+        } else {
+          this.alertService.presentAlertPopup(
+            "COMMON.GENERIC_ALERT.ERROR_HEADER",
+            "LOGIN_PAGE.MAGIC_LINK_SUCCESS_POPUP_HEADER"
+          );
+        }
+      }
+    );
   }
 
   async onFacebookLoginClicked() {
@@ -156,7 +140,7 @@ export class LoginPage {
       await loading.dismiss()
 
       if (data.error) {
-        this.showAlert('Login failed', data.error.message)
+        this.alertService.presentConfirmPopup(data.error.message);
       }
     })
   }
@@ -169,7 +153,7 @@ export class LoginPage {
       await loading.dismiss()
 
       if (data.error) {
-        this.showAlert('Login failed', data.error.message)
+        this.alertService.presentConfirmPopup(data.error.message);
       }
     })
   }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { NavController, AlertController } from '@ionic/angular';
 import { NavigationPath } from 'src/app/models/navigation-path.enum';
+import { AlertService } from 'src/app/services/alert.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
@@ -16,7 +16,7 @@ export class DeleteUserPage implements OnInit {
   constructor(
     private readonly authService: AuthService,
     private readonly dataService: DataService,
-    private readonly alertController: AlertController,
+    private readonly alertService: AlertService,
     public readonly sessionService: SessionService,
     private readonly navigationService: NavigationService
   ) { }
@@ -28,25 +28,17 @@ export class DeleteUserPage implements OnInit {
     this.sessionService.loginRedirect = undefined;
   }
 
-  async onDeleteClicked() {
-    const alert = await this.alertController.create({
-      header: "Attenzione",
-      message: "Vuoi davvero cancellare il tuo account?",
-      buttons: [
-        {
-          text: "Cancel"
-        },
-        {
-          text: "Ok",
-          handler: async () => {
-            await this.dataService.deleteUser();
-            await this.authService.resetUser();
-            this.navigationService.setRoot(NavigationPath.Login);
-          }
-        }
-      ],
-    })
-    await alert.present();
+  async onBackClicked() {
+    return this.navigationService.pop();
   }
 
+  async onDeleteClicked() {
+    return this.alertService.presentConfirmPopup(
+      "DELETE_USER_PAGE.DELETE_POPUP_CONFIRM_MESSAGE",
+      async () => {
+        await this.dataService.deleteUser();
+        await this.authService.resetUser();
+        this.navigationService.setRoot(NavigationPath.Login);
+    });
+  }
 }

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core'
 import { Validators, FormBuilder } from '@angular/forms'
-import { LoadingController, AlertController, NavController } from '@ionic/angular'
+import { LoadingController } from '@ionic/angular'
+import { AlertService } from 'src/app/services/alert.service'
 import { AuthService } from 'src/app/services/auth.service'
 import { NavigationService } from 'src/app/services/navigation.service'
 
@@ -19,7 +20,7 @@ export class RegisterPage {
     private fb: FormBuilder,
     private authService: AuthService,
     private loadingController: LoadingController,
-    private alertController: AlertController,
+    private readonly alertService: AlertService,
     private readonly navigationService: NavigationService
   ) {}
 
@@ -39,20 +40,16 @@ export class RegisterPage {
       await loading.dismiss()
 
       if (data.error) {
-        this.showAlert('Registration failed', data.error.message)
+        this.alertService.presentAlertPopup(
+          "COMMON.GENERIC_ALERT.ERROR_HEADER",
+          data.error.message
+        );
       } else {
-        this.showAlert('Signup success', 'Please confirm your email now!')
-        this.navigationService.pop();
+        this.alertService.presentAlertPopup(
+          "COMMON.GENERIC_ALERT.INFO_HEADER",
+          "REGISTER_PAGE.SUBMIT_POPUP_SUCCESS_HEADER"
+        );
       }
     })
-  }
-
-  async showAlert(title: string, msg: string) {
-    const alert = await this.alertController.create({
-      header: title,
-      message: msg,
-      buttons: ['OK'],
-    })
-    await alert.present()
   }
 }

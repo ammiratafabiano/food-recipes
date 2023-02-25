@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ActionSheetController, AlertController, LoadingController, NavController } from '@ionic/angular';
+import { ActionSheetController, LoadingController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 import { HomeNavigationPath, NavigationPath } from 'src/app/models/navigation-path.enum';
 import { Recipe } from 'src/app/models/recipe.model';
+import { AlertService } from 'src/app/services/alert.service';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { SessionService } from 'src/app/services/session.service';
@@ -24,7 +25,7 @@ export class RecipePage implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly dataService: DataService,
     private readonly loadingController: LoadingController,
-    private readonly alertController: AlertController,
+    private readonly alertService: AlertService,
     private readonly translateService: TranslateService,
     private readonly sessionService: SessionService,
     private readonly actionSheetCtrl: ActionSheetController,
@@ -91,23 +92,13 @@ export class RecipePage implements OnInit {
   }
 
   async onDeleteClicked() {
-    const alert = await this.alertController.create({
-      header: "Attenzione",
-      message: "Vuoi davvero cancellare la ricetta?",
-      buttons: [
-        {
-          text: "Cancel"
-        },
-        {
-          text: "Ok",
-          handler: () => {
-            this.recipe && this.dataService.deleteRecipe(this.recipe.id);
-            this.navigationService.pop({ needToRefresh: true });
-          }
-        }
-      ],
-    })
-    await alert.present()
+    return this.alertService.presentConfirmPopup(
+      "RECIPE_PAGE.DELETE_POPUP_CONFIRM_MESSAGE",
+      () => {
+        this.recipe && this.dataService.deleteRecipe(this.recipe.id);
+        this.navigationService.pop({ needToRefresh: true });
+      }
+    );
   }
 
 }
