@@ -34,8 +34,8 @@ export class RecipePage implements OnInit {
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      if (params && params['id']) {
-        const recipe_id = params['id'];
+      if (params && params["id"]) {
+        const recipe_id = params["id"];
         this.getRecipe(recipe_id);
       }
     });
@@ -47,7 +47,7 @@ export class RecipePage implements OnInit {
     await loading.present()
     this.recipe = await this.dataService.getRecipe(id);
     await loading.dismiss();
-    if (!this.recipe) this.navigationService.setRoot("/not-found");
+    if (!this.recipe) this.navigationService.setRoot(NavigationPath.NotFound);
   }
 
   async onBackClicked() {
