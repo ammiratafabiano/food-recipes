@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ActionSheetController, LoadingController, ModalController, NavController } from '@ionic/angular';
+import { ActionSheetController, LoadingController, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 import { HomeNavigationPath, NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
@@ -9,7 +9,6 @@ import { RecipeType } from 'src/app/models/recipe-type.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
-import { AddRecipePage } from '../add-recipe/add-recipe.page';
 
 @Component({
   selector: 'app-recipe-list',
@@ -43,6 +42,9 @@ export class RecipeListPage {
       if (response && response.length > 0) {
         this.recipes = response;
         this.displayRecipes = this.recipes;
+      } else {
+        this.recipes = [];
+        this.displayRecipes = [];
       }
     }).finally(async () => {
       await loading.dismiss();
