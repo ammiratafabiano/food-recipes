@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ActionSheetController, LoadingController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
-import { HomeNavigationPath, NavigationPath } from 'src/app/models/navigation-path.enum';
+import { HomeNavigationPath, NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { AlertService } from 'src/app/services/alert.service';
 import { DataService } from 'src/app/services/data.service';
@@ -34,7 +34,7 @@ export class RecipePage implements OnInit {
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      if (params && params["id"]) {
+      if (!this.recipe && params && params["id"]) {
         const recipe_id = params["id"];
         this.getRecipe(recipe_id);
       }
@@ -52,6 +52,17 @@ export class RecipePage implements OnInit {
 
   async onBackClicked() {
     return this.navigationService.pop();
+  }
+
+  async onEditClicked() {
+    this.navigationService.setRoot([NavigationPath.Home, HomeNavigationPath.RecipeList, RecipeListNavigationPath.AddRecipe], {
+      params: {
+        recipe: this.recipe
+      },
+      queryParams: {
+        id: this.recipe?.id
+      }
+    });
   }
 
   async onAddToPlanningClicked() {
@@ -84,7 +95,7 @@ export class RecipePage implements OnInit {
     if (result?.data?.action) {
       await this.dataService.addToPlanning(this.recipe, result.data.action);
       this.navigationService.setRoot([NavigationPath.Home, HomeNavigationPath.Planning], {
-        queryParams: {
+        params: {
           week: result?.data?.action
         }
       });

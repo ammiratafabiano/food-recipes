@@ -13,7 +13,7 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-label class="ion-padding" *ngIf="!displayRecipes">
+  <ion-label class="ion-padding" *ngIf="displayRecipes != undefined && displayRecipes.length == 0">
     {{ 'RECIPE_LIST_PAGE.NO_DATA' | translate }}
   </ion-label>
 

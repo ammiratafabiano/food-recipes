@@ -5,7 +5,16 @@
         <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ 'ADD_RECIPE_PAGE.TITLE' | translate }}</ion-title>
+    <ion-title *ngIf="!isEdit">{{ 'ADD_RECIPE_PAGE.TITLE' | translate }}</ion-title>
+    <ng-container *ngIf="isEdit">
+      <ion-title>{{ 'ADD_RECIPE_PAGE.EDIT_TITLE' | translate }}</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="onCancelClicked()">
+          <ion-icon slot="icon-only" name="close"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ng-container>
+
   </ion-toolbar>
 </ion-header>
 
@@ -96,8 +105,11 @@
 
 <ion-footer class="ion-padding ion-no-border">
   <ion-toolbar>
-    <ion-button expand="block" (click)="onConfirmClicked()" [disabled]="!selectedRecipe.name || !selectedRecipe.ingredients">
+    <ion-button expand="block" *ngIf="!isEdit" (click)="onConfirmClicked()" [disabled]="!selectedRecipe.name || !selectedRecipe.ingredients">
       {{ 'ADD_RECIPE_PAGE.CONFIRM_BUTTON' | translate }}
+    </ion-button>
+    <ion-button expand="block" *ngIf="isEdit" (click)="onConfirmEditClicked()" [disabled]="!selectedRecipe.name || !selectedRecipe.ingredients">
+      {{ 'ADD_RECIPE_PAGE.CONFIRM_EDIT_BUTTON' | translate }}
     </ion-button>
   </ion-toolbar>
 </ion-footer>

@@ -63,8 +63,10 @@
     },
     "ADD_RECIPE_PAGE": {
         "TITLE": "New recipe",
+        "EDIT_TITLE": "Edit recipe",
         "CANCEL_BUTTON": "Cancel",
         "CONFIRM_BUTTON": "Add",
+        "CONFIRM_EDIT_BUTTON": "Edit",
         "NAME_PLACEHOLDER": "Name",
         "DESCRIPTION_PLACEHOLDER": "Description",
         "RECIPE_TYPE_PLACEHOLDER": "Category",

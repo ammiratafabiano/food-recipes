@@ -63,8 +63,10 @@
     },
     "ADD_RECIPE_PAGE": {
         "TITLE": "Nuova ricetta",
+        "EDIT_TITLE": "Modifica ricetta",
         "CANCEL_BUTTON": "Annulla",
         "CONFIRM_BUTTON": "Aggiungi",
+        "CONFIRM_EDIT_BUTTON": "Modifica",
         "NAME_PLACEHOLDER": "Nome",
         "DESCRIPTION_PLACEHOLDER": "Descrizione",
         "RECIPE_TYPE_PLACEHOLDER": "Categoria",

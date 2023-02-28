@@ -48,6 +48,8 @@ export class DataService {
       description: recipe.description,
       type: recipe.type,
       difficulty: recipe.difficulty,
+      time_quantity: recipe.time.value,
+      time_unit: recipe.time.unit,
       steps: recipe.steps,
       tags: recipe.tags
     }
@@ -90,6 +92,8 @@ export class DataService {
               recipe.description = recipeResult.description;
               recipe.type = recipeResult.type || RecipeType.Other;
               recipe.difficulty = recipeResult.difficulty;
+              recipe.time.value = recipeResult.time_quantity;
+              recipe.time.unit = recipeResult.time_unit;
               recipe.ingredients = ingredientsResult.data?.map(y => {
                 let ingredient = new Ingredient();
                 ingredient.id = y.food_id;
@@ -106,6 +110,41 @@ export class DataService {
           return
         }
       })
+  }
+
+  async editRecipe(recipe: Recipe) {
+    const user_id = this.authService.getCurrentUserId();
+    const element = {
+      user_id: user_id,
+      name: recipe.name,
+      description: recipe.description,
+      type: recipe.type,
+      difficulty: recipe.difficulty,
+      time_quantity: recipe.time.value,
+      time_unit: recipe.time.unit,
+      steps: recipe.steps,
+      tags: recipe.tags
+    }
+    return this.supabase
+      .from(RECIPES_TABLE)
+      .update(element).match({ id: recipe.id }).then(() => {
+        return this.supabase
+          .from(INGREDIENTS_TABLE)
+          .delete()
+          .eq('recipe_id', recipe.id).then(() => {
+            const ingredients = recipe.ingredients.map(x => {
+              return {
+                food_id: x.id,
+                recipe_id: recipe.id,
+                quantity_value: x.quantity.value,
+                quantity_unit: x.quantity.unit
+              }
+            });
+            return this.supabase
+              .from(INGREDIENTS_TABLE)
+              .insert(ingredients);
+          });
+      });
   }
 
   async deleteRecipe(recipe_id: string) {

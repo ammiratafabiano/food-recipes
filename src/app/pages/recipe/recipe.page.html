@@ -6,6 +6,11 @@
       </ion-button>
     </ion-buttons>
     <ion-title>{{ 'RECIPE_PAGE.TITLE' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onEditClicked()">
+        <ion-icon slot="icon-only" name="create"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -13,6 +18,7 @@
   <!-- Title-->
   <h1 class="ion-padding" *ngIf="recipe?.name">{{ recipe?.name }}</h1>
   <h2 class="ion-padding" *ngIf="recipe?.type">{{ 'COMMON.RECIPE_TYPES.' + recipe?.type | translate }}</h2>
+  <p class="ion-padding" *ngIf="recipe?.type">{{ recipe?.description }}</p>
   <!-- Metadata -->
   <ion-item lines="full" *ngIf="recipe?.time?.value">
     <ion-icon name="timer" slot="start"></ion-icon>

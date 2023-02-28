@@ -38,7 +38,7 @@ export class AlertService {
     let buttons: AlertButton[] = [
       {
         text: this.translateService.instant("COMMON.GENERIC_ALERT.OK_BUTTON"),
-        handler: () => onConfirmClicked
+        handler: () => onConfirmClicked && onConfirmClicked()
       },
       {
         role: "cancel",

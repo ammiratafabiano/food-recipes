@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
 import { Difficulty } from 'src/app/models/difficulty.enum';
 import { Food } from 'src/app/models/food.model';
-import { AddRecipeNavigationPath } from 'src/app/models/navigation-path.enum';
+import { AddRecipeNavigationPath, HomeNavigationPath, NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
 import { RecipeType } from 'src/app/models/recipe-type.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { Step } from 'src/app/models/step.model';
@@ -30,10 +31,23 @@ export class AddRecipePage implements OnInit {
   constructor(
     private readonly dataService: DataService,
     private readonly loadingController: LoadingController,
-    private readonly navigationService: NavigationService
+    private readonly navigationService: NavigationService,
+    private readonly route: ActivatedRoute
   ) { }
 
   ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      if (params && params["id"]) {
+        const recipe_id = params["id"];
+        const recipeToEdit = this.navigationService.getParams<{recipe:Recipe}>()?.recipe;
+        if (recipeToEdit && recipeToEdit.id == recipe_id) {
+          this.isEdit = true;
+          this.selectedRecipe = recipeToEdit;
+        } else {
+          this.navigationService.pop();
+        }
+      }
+    });
     this.getData();
   }
 
@@ -99,5 +113,26 @@ export class AddRecipePage implements OnInit {
         this.navigationService.pop();
       }
     ).finally(() => loading.dismiss());
+  }
+
+  async onConfirmEditClicked() {
+    const loading = await this.loadingController.create()
+    await loading.present()
+    this.dataService.editRecipe(this.selectedRecipe).then(
+      () => { // Success
+        this.navigationService.pop({ needToRefresh: true });
+      },
+      () => { // Error
+        this.navigationService.pop();
+      }
+    ).finally(() => loading.dismiss());
+  }
+
+  async onCancelClicked() {
+    return this.navigationService.setRoot([NavigationPath.Home, HomeNavigationPath.RecipeList, RecipeListNavigationPath.Recipe], {
+      queryParams: {
+        id: this.selectedRecipe.id
+      }
+    });
   }
 }

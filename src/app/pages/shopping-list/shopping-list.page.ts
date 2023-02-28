@@ -16,7 +16,9 @@ export class ShoppingList {
   constructor(
     private readonly dataService: DataService,
     private readonly loadingController: LoadingController
-  ) {
+  ) {}
+
+  ionViewDidEnter() {
     this.getData();
   }
 

@@ -6,13 +6,14 @@ import * as moment from 'moment';
 import { PlannedRecipe, Planning } from 'src/app/models/planning.model';
 import { DataService } from 'src/app/services/data.service';
 import { WeekDay } from "src/app/models/weekDay.enum";
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
   selector: 'app-planning',
   templateUrl: 'planning.page.html',
   styleUrls: ['planning.page.scss']
 })
-export class PlanningPage implements OnInit {
+export class PlanningPage {
 
   planning?: Planning;
 
@@ -20,38 +21,23 @@ export class PlanningPage implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly dataService: DataService,
-    private readonly loadingController: LoadingController
-  ) {
-    this.getData();
+    private readonly loadingController: LoadingController,
+    private readonly navigationService: NavigationService
+  ) {}
+
+  ionViewDidEnter() {
+    const week = this.navigationService.getParams<{week: string}>()?.week;
+    this.getData(week);
   }
 
-  ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      if (params && params['week']) {
-        this.getPlanning(params['week']);
-        this.removeNavigationParams(['week']);
-      }
-    });
-  }
-
-  private removeNavigationParams(list: string[]) {
-    const params = { ...this.route.snapshot.queryParams };
-    list.forEach(x => delete params[x]);
-    this.router.navigate([], { queryParams: params });
-  }
-
-  private async getData() {
+  private async getData(startDate?: string) {
     const loading = await this.loadingController.create();
     await loading.present();
-    this.getPlanning().finally(async () => {
-      await loading.dismiss();
-    });
-  }
-
-  private async getPlanning(startDate?: string) {
     if (!startDate) startDate = moment().startOf('week').format("YYYY-MM-DD");
     return this.dataService.getPlanning(startDate).then(response => {
       this.handleResponse(response);
+    }).finally(async () => {
+      await loading.dismiss();
     });
   }
 
@@ -95,22 +81,22 @@ export class PlanningPage implements OnInit {
     const loading = await this.loadingController.create();
     await loading.present();
     await this.dataService.deletePlanning(plannedRecipe.id);
-    await this.getPlanning(this.planning?.startDate)
+    await this.getData(this.planning?.startDate)
     await loading.dismiss();
   }
 
   async onPlanningBackClicked() {
     const startDate = moment(this.planning?.startDate).subtract(1, 'week').format("YYYY-MM-DD");
-    this.getPlanning(startDate);
+    this.getData(startDate);
   }
 
   async onPlanningForwardClicked() {
     const startDate = moment(this.planning?.startDate).add(1, 'week').format("YYYY-MM-DD");
-    this.getPlanning(startDate);
+    this.getData(startDate);
   }
 
   async handleRefresh(event: any) {
-    await this.getPlanning(this.planning?.startDate);
+    await this.getData(this.planning?.startDate);
     event.target.complete();
   }
 }
