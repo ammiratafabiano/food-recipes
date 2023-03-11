@@ -8,6 +8,7 @@ export class Recipe {
     id!: string;
     name!: string;
     description!: string;
+    cuisine?: string;
     type?: RecipeType;
     time: Quantity = new Quantity();
     difficulty?: Difficulty;

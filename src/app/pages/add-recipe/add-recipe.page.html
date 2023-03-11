@@ -25,16 +25,20 @@
       <ion-input [(ngModel)]="selectedRecipe.name" [placeholder]="'ADD_RECIPE_PAGE.NAME_PLACEHOLDER' | translate" slot="end"></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
-      <ion-textarea [(ngModel)]="selectedRecipe.description" [autoGrow]="true" [placeholder]="'ADD_RECIPE_PAGE.DESCRIPTION_PLACEHOLDER' | translate" slot="end"></ion-textarea>
-    </ion-item>
-    <ion-item>
       <ion-label>{{ 'COMMON.RECIPE_TYPE' | translate }}</ion-label>
       <ion-select [(ngModel)]="selectedRecipe.type" interface="action-sheet" [placeholder]="'ADD_RECIPE_PAGE.RECIPE_TYPE_PLACEHOLDER' | translate">
         <ion-select-option *ngFor="let option of typeList" [value]="option">
           {{ 'COMMON.RECIPE_TYPES.' + option | translate }}
         </ion-select-option>
       </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
+      <ion-textarea [(ngModel)]="selectedRecipe.description" [autoGrow]="true" [placeholder]="'ADD_RECIPE_PAGE.DESCRIPTION_PLACEHOLDER' | translate" slot="end"></ion-textarea>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
+      <ion-textarea [(ngModel)]="selectedRecipe.cuisine" [autoGrow]="true" [placeholder]="'COMMON.CUISINE' | translate" slot="end"></ion-textarea>
     </ion-item>
     <ion-item>
       <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>

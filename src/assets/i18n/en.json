@@ -38,7 +38,8 @@
     },
     "PLANNING_PAGE": {
         "TITLE": "Planning",
-        "DELETE_RECIPE_BUTTON": "Delete"
+        "DELETE_RECIPE_BUTTON": "Delete",
+        "MEAL_RESET": "Reset"
     },
     "SHOPPING_LIST_PAGE": {
         "TITLE": "Shopping list"
@@ -96,6 +97,7 @@
         "RECIPE": "Recipe",
         "DESCRIPTION": "Description",
         "TIME": "Time",
+        "CUISINE": "Cuisine",
         "DIFFICULTY": "Difficulty",
         "DIFFICULTY_LEVEL": {
             "EASY": "Easy",
@@ -135,6 +137,12 @@
             "DESSERT": "Dessert",
             "BEVERAGE": "Beverage",
             "OTHER": "Other"
+        },
+        "MEAL_TYPE": {
+            "BREAKFAST": "Breakfast",
+            "LUNCH": "Lunch",
+            "BREAK": "Break",
+            "DINNER": "Dinner"
         },
         "GENERIC_ALERT": {
             "WARNING_HEADER": "Attention",

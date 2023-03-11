@@ -1,3 +1,4 @@
+import { Meal } from "./meal.model";
 import { Recipe } from "./recipe.model";
 import { WeekDay } from "./weekDay.enum";
 
@@ -10,4 +11,5 @@ export class PlannedRecipe {
     id?: string;
     recipe?: Recipe;
     day?: WeekDay;
+    meal?: Meal;
 }

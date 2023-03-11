@@ -38,7 +38,8 @@
     },
     "PLANNING_PAGE": {
         "TITLE": "Planning",
-        "DELETE_RECIPE_BUTTON": "Elimina"
+        "DELETE_RECIPE_BUTTON": "Elimina",
+        "MEAL_RESET": "Resetta"
     },
     "SHOPPING_LIST_PAGE": {
         "TITLE": "Lista della spesa"
@@ -96,6 +97,7 @@
         "RECIPE": "Ricetta",
         "DESCRIPTION": "Descrizione",
         "TIME": "Tempo",
+        "CUISINE": "Cucina",
         "DIFFICULTY": "Difficoltà",
         "DIFFICULTY_LEVEL": {
             "EASY": "Easy",
@@ -135,6 +137,12 @@
             "DESSERT": "Dolce",
             "BEVERAGE": "Bevande",
             "OTHER": "Altro"
+        },
+        "MEAL_TYPE": {
+            "BREAKFAST": "Colazione",
+            "LUNCH": "Pranzo",
+            "BREAK": "Merenda",
+            "DINNER": "Cena"
         },
         "GENERIC_ALERT": {
             "WARNING_HEADER": "Attenzione",

@@ -46,6 +46,7 @@ export class DataService {
       user_id: user_id,
       name: recipe.name,
       description: recipe.description,
+      cuisine: recipe.cuisine,
       type: recipe.type,
       difficulty: recipe.difficulty,
       time_quantity: recipe.time.value,
@@ -90,6 +91,7 @@ export class DataService {
               recipe.id = recipeResult.id;
               recipe.name = recipeResult.name;
               recipe.description = recipeResult.description;
+              recipe.cuisine = recipeResult.cuisine;
               recipe.type = recipeResult.type || RecipeType.Other;
               recipe.difficulty = recipeResult.difficulty;
               recipe.time.value = recipeResult.time_quantity;
@@ -118,6 +120,7 @@ export class DataService {
       user_id: user_id,
       name: recipe.name,
       description: recipe.description,
+      cuisine: recipe.cuisine,
       type: recipe.type,
       difficulty: recipe.difficulty,
       time_quantity: recipe.time.value,
@@ -198,6 +201,7 @@ export class DataService {
         let plannedRecipe = new PlannedRecipe();
         plannedRecipe.id = x.id;
         plannedRecipe.day = x.day;
+        plannedRecipe.meal = x.meal;
         let recipe = new Recipe();
         recipe.id = x.recipe_id;
         recipe.name = x.recipe_name;
@@ -228,6 +232,16 @@ export class DataService {
       .from(PLANNINGS_TABLE)
       .delete()
       .eq('id', planning_id)
+  }
+
+  async editPlanning(planned_recipe: PlannedRecipe) {
+    const element = {
+      day: planned_recipe.day || null,
+      meal: planned_recipe.meal || null
+    }
+    return this.supabase
+      .from(PLANNINGS_TABLE)
+      .update(element).match({ id: planned_recipe.id });
   }
 
   async getShoppingList(week: string): Promise<Ingredient[] | undefined> {

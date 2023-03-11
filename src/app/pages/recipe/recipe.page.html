@@ -18,8 +18,13 @@
   <!-- Title-->
   <h1 class="ion-padding" *ngIf="recipe?.name">{{ recipe?.name }}</h1>
   <h2 class="ion-padding" *ngIf="recipe?.type">{{ 'COMMON.RECIPE_TYPES.' + recipe?.type | translate }}</h2>
-  <p class="ion-padding" *ngIf="recipe?.type">{{ recipe?.description }}</p>
+  <p class="ion-padding" *ngIf="recipe?.description">{{ recipe?.description }}</p>
   <!-- Metadata -->
+  <ion-item lines="full" *ngIf="recipe?.cuisine">
+    <ion-icon name="earth-outline" slot="start"></ion-icon>
+    <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
+    <ion-label>{{ recipe?.cuisine }}</ion-label>
+  </ion-item>
   <ion-item lines="full" *ngIf="recipe?.time?.value">
     <ion-icon name="timer" slot="start"></ion-icon>
     <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>

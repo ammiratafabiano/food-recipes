@@ -21,9 +21,10 @@
     <ion-reorder-group [disabled]="false" (ionItemReorder)="handleReorder($any($event))">
       <ng-container *ngFor="let planned of planning?.recipes">
         <ion-item-sliding>
-          <ion-item [lines]="planned.recipe ? 'inset' : 'none'">
+          <ion-item [lines]="planned.recipe ? 'inset' : 'none'" (click)="planned.recipe && onPlannedRecipeClicked(planned)">
             <ion-label *ngIf="!planned.id" class="delimiter">{{ 'COMMON.WEEK_DAYS.' + planned.day | translate }}</ion-label>
             <ion-label *ngIf="planned.id">{{ planned?.recipe?.name }}</ion-label>
+            <ion-label *ngIf="planned.id && planned?.meal" color="medium" slot="end">{{ 'COMMON.MEAL_TYPE.' + planned?.meal | translate }}</ion-label>
             <ion-reorder slot="end" *ngIf="planned.id"></ion-reorder>
           </ion-item>
           <ion-item-options side="end" *ngIf="planned.id">
@@ -46,7 +47,7 @@
       </ion-button>
       <ion-label>{{ planning.startDate | date }}</ion-label>
       <ion-button fill="clear" (click)="onPlanningForwardClicked()">
-        <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
+        <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
       </ion-button>
     </div>
   </ion-toolbar>

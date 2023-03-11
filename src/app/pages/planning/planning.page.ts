@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { LoadingController } from '@ionic/angular';
+import { Component } from '@angular/core';
+import { ActionSheetController, LoadingController } from '@ionic/angular';
 import { ItemReorderEventDetail } from '@ionic/core';
 import * as moment from 'moment';
 import { PlannedRecipe, Planning } from 'src/app/models/planning.model';
 import { DataService } from 'src/app/services/data.service';
 import { WeekDay } from "src/app/models/weekDay.enum";
 import { NavigationService } from 'src/app/services/navigation.service';
+import { TranslateService } from '@ngx-translate/core';
+import { Meal } from 'src/app/models/meal.model';
 
 @Component({
   selector: 'app-planning',
@@ -18,11 +19,11 @@ export class PlanningPage {
   planning?: Planning;
 
   constructor(
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
     private readonly dataService: DataService,
     private readonly loadingController: LoadingController,
-    private readonly navigationService: NavigationService
+    private readonly navigationService: NavigationService,
+    private readonly actionSheetCtrl: ActionSheetController,
+    private readonly translateService: TranslateService
   ) {}
 
   ionViewDidEnter() {
@@ -58,7 +59,7 @@ export class PlanningPage {
       if (this.planning) {
         if (planned.day) {
           const first = this.planning?.recipes.findIndex(x => x.day == planned.day);
-          this.planning.recipes.splice(first, 0, planned);
+          this.planning.recipes.splice(first + 1, 0, planned);
         } else {
           this.planning.recipes.unshift(planned);
         }
@@ -69,11 +70,32 @@ export class PlanningPage {
   handleReorder(ev: CustomEvent<ItemReorderEventDetail>) {
     const element = this.planning?.recipes[ev.detail.from];
     if (this.planning && element) {
+      const backup = Object.assign(this.planning.recipes);
       this.planning.recipes.splice(ev.detail.from, 1);
       this.planning.recipes.splice(ev.detail.to, 0, element);
       this.planning.recipes[ev.detail.to].day = ev.detail.to > 0 ? this.planning.recipes[ev.detail.to - 1].day : undefined;
+      this.dataService.editPlanning(this.planning.recipes[ev.detail.to]).then(
+        () => {},
+        () => {
+          if (this.planning) this.planning.recipes = backup;
+        }
+      )
     }
     ev.detail.complete();
+  }
+
+  async handleRefresh(event: any) {
+    await this.getData(this.planning?.startDate);
+    event.target.complete();
+  }
+
+  private sortList() {
+    if (!this.planning) return;
+    this.planning.recipes = this.planning.recipes.sort((p1, p2) => {
+      const index1 = Object.values(Meal).findIndex(x => x == p1.meal);
+      const index2 = Object.values(Meal).findIndex(x => x == p2.meal);
+      return (p1.day == p2.day && index1 > index2) ? 1 : (p1.day == p2.day && index1 < index2) ? -1 : 0;
+    });
   }
 
   async onRemoveRecipeClicked(plannedRecipe: PlannedRecipe) {
@@ -95,8 +117,44 @@ export class PlanningPage {
     this.getData(startDate);
   }
 
-  async handleRefresh(event: any) {
-    await this.getData(this.planning?.startDate);
-    event.target.complete();
+  async onPlannedRecipeClicked(plannedRecipe: PlannedRecipe) {
+    if (!plannedRecipe.id) return;
+  
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_CHOICE"),
+      buttons: [
+        ...Object.values(Meal).map(x => {
+          return {
+            text: this.translateService.instant("COMMON.MEAL_TYPE." + x),
+            data: {
+              action: x
+            }
+          }
+        }),
+        {
+          text: this.translateService.instant("PLANNING_PAGE.MEAL_RESET"),
+          data: {
+            action: undefined
+          },
+          role: 'cancel'
+        }
+      ],
+    });
+    await actionSheet.present();
+    const result = await actionSheet.onDidDismiss();
+    if (result?.data) {
+      if (plannedRecipe.meal != result.data.action) {
+        const backup = plannedRecipe.meal;
+        plannedRecipe.meal = result?.data?.action;
+        this.sortList();
+        this.dataService.editPlanning(plannedRecipe).then(
+          () => {},
+          () => {
+            plannedRecipe.meal = backup;
+            this.sortList();
+          }
+        )
+      }
+    }
   }
 }
