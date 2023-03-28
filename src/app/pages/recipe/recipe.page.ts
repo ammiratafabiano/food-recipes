@@ -106,7 +106,7 @@ export class RecipePage implements OnInit {
     return this.alertService.presentConfirmPopup(
       "RECIPE_PAGE.DELETE_POPUP_CONFIRM_MESSAGE",
       () => {
-        this.recipe && this.dataService.deleteRecipe(this.recipe.id);
+        this.recipe && this.dataService.deleteRecipe(this.recipe);
         this.navigationService.pop({ needToRefresh: true });
       }
     );

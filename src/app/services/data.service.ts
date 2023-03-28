@@ -8,6 +8,7 @@ import { Ingredient } from '../models/ingredient.model';
 import { RecipeType } from '../models/recipe-type.enum';
 import { Meal } from '../models/meal.model';
 import { WeekDay } from '../models/weekDay.enum';
+import { Step } from '../models/step.model';
 
 const USERS_TABLE = 'users'
 const RECIPES_TABLE = 'recipes'
@@ -42,6 +43,8 @@ export class DataService {
 
   async addRecipe(recipe: Recipe) {
     const user_id = this.authService.getCurrentUserId();
+    if (!user_id) return;
+    await this.uploadStepImages(user_id, recipe.steps);
     const element = {
       user_id: user_id,
       name: recipe.name,
@@ -114,8 +117,10 @@ export class DataService {
       })
   }
 
-  async editRecipe(recipe: Recipe) {
+  async editRecipe(recipe: Recipe, stepsOfImagesToDelete: Step[]) {
     const user_id = this.authService.getCurrentUserId();
+    if (!user_id) return;
+    await this.uploadStepImages(user_id, recipe.steps);
     const element = {
       user_id: user_id,
       name: recipe.name,
@@ -145,16 +150,51 @@ export class DataService {
             });
             return this.supabase
               .from(INGREDIENTS_TABLE)
-              .insert(ingredients);
+              .insert(ingredients).then(() => {
+                return this.deleteStepImages(stepsOfImagesToDelete);
+              });
           });
       });
   }
 
-  async deleteRecipe(recipe_id: string) {
+  private async uploadStepImages(user_id: string, steps: Step[]) {
+    for (let current of steps) {
+      if (current.imageUrl && current.imageToUpload) {
+        const fileName = this.getRandomFileName();
+        await this.supabase
+          .storage
+          .from('steps')
+          .upload(user_id + "/" + fileName, this.dataURLtoFile(current.imageUrl, fileName), {
+            cacheControl: '3600',
+            upsert: true
+          }).then((returning) => {
+            current.imageToUpload = false;
+            current.imageUrl = environment.supabaseUrl + environment.imagesPathUrl + "/" + returning.data?.path;
+          });
+      }
+    }
+  }
+
+  async deleteRecipe(recipe: Recipe) {
     return this.supabase
       .from(RECIPES_TABLE)
       .delete()
-      .eq('id', recipe_id)
+      .eq('id', recipe.id).then(() => {
+        return this.deleteStepImages(recipe.steps);
+      })
+  }
+
+  private async deleteStepImages(steps: Step[]) {
+    if (steps.length == 0) return;
+    const filesToRemove: string[] = [];
+        steps.forEach(x => {
+          const file = x.imageUrl?.split("steps/")[1];
+          file && filesToRemove.push(file);
+        })
+        return this.supabase
+          .storage
+          .from('steps')
+          .remove(filesToRemove);
   }
 
   async getRecipeList(): Promise<Recipe[] | undefined> {
@@ -260,5 +300,25 @@ export class DataService {
         return ingredient;
       });
     })  
+  }
+
+  private getRandomFileName() {
+    var timestamp = new Date().toISOString().replace(/[-:.]/g,"");  
+    var random = ("" + Math.random()).substring(2, 8); 
+    var random_number = timestamp+random;  
+    return random_number;
+  }
+
+  private dataURLtoFile(dataurl: string, filename: string) {
+    var arr = dataurl.split(',');
+    const math = arr[0].match(/:(.*?);/);
+    var mime =  math ? math[1] : undefined;
+    var bstr = atob(arr[1]);
+    var n = bstr.length;
+    var u8arr = new Uint8Array(n);
+    while(n--){
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, {type:mime});
   }
 }

@@ -27,6 +27,7 @@ export class AddRecipePage implements OnInit {
   selectedRecipe: Recipe = new Recipe();
 
   isEdit = false;
+  stepsOfImagesToDelete: Step[] = [];
 
   constructor(
     private readonly dataService: DataService,
@@ -78,6 +79,12 @@ export class AddRecipePage implements OnInit {
     );
   }
 
+  removeStepImage(step: Step) {
+    const copiedStep = Object.assign({}, step);
+    if (this.isEdit && !copiedStep.imageToUpload && copiedStep.imageUrl)
+      this.stepsOfImagesToDelete.push(copiedStep);
+  }
+
   onAddStepClicked() {
     const last = this.selectedRecipe.steps.length > 0 && this.selectedRecipe.steps[this.selectedRecipe.steps.length - 1]
     if (!last || (last?.imageUrl || last?.text)) {
@@ -89,8 +96,16 @@ export class AddRecipePage implements OnInit {
     this.selectedRecipe.ingredients.splice(index, 1);
   }
 
+  onRemoveStepImage(index: number) {
+    this.removeStepImage(this.selectedRecipe.steps[index]);
+    this.selectedRecipe.steps[index].imageUrl = undefined;
+    this.selectedRecipe.steps[index].imageToUpload = false;
+  }
+
   onRemoveStepClicked(index: number) {
+    this.removeStepImage(this.selectedRecipe.steps[index]);
     this.selectedRecipe.steps.splice(index, 1);
+    
   }
 
   onStepImageChange(event: any, step: Step) {
@@ -98,7 +113,10 @@ export class AddRecipePage implements OnInit {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
+      event.target.value = null;
+      this.removeStepImage(step);
       step.imageUrl = reader.result?.toString();
+      step.imageToUpload = true;
     };
   }
 
@@ -118,7 +136,7 @@ export class AddRecipePage implements OnInit {
   async onConfirmEditClicked() {
     const loading = await this.loadingController.create()
     await loading.present()
-    this.dataService.editRecipe(this.selectedRecipe).then(
+    this.dataService.editRecipe(this.selectedRecipe, this.stepsOfImagesToDelete).then(
       () => { // Success
         this.navigationService.pop({ needToRefresh: true });
       },

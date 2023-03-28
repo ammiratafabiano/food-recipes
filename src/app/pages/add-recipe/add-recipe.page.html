@@ -91,6 +91,12 @@
           <ion-label>{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
           <ion-textarea [(ngModel)]="selected.text" [autoGrow]="true" [placeholder]="'ADD_RECIPE_PAGE.DESCRIPTION_PLACEHOLDER' | translate" slot="end"></ion-textarea>
         </ion-item>
+        <ion-item *ngIf="selected.imageUrl">
+          <ion-button fill="clear" (click)="onRemoveStepImage(i)">
+            <ion-icon slot="icon-only" name="close"></ion-icon>
+          </ion-button>
+          <img [src]="selected.imageUrl" />
+        </ion-item>
         <ion-item>
           <input type="file" (change)="onStepImageChange($event, selected)" accept="image/*">
         </ion-item>
@@ -109,10 +115,10 @@
 
 <ion-footer class="ion-padding ion-no-border">
   <ion-toolbar>
-    <ion-button expand="block" *ngIf="!isEdit" (click)="onConfirmClicked()" [disabled]="!selectedRecipe.name || !selectedRecipe.ingredients">
+    <ion-button expand="block" *ngIf="!isEdit" (click)="onConfirmClicked()" [disabled]="!selectedRecipe.name || !(selectedRecipe.ingredients.length > 0)">
       {{ 'ADD_RECIPE_PAGE.CONFIRM_BUTTON' | translate }}
     </ion-button>
-    <ion-button expand="block" *ngIf="isEdit" (click)="onConfirmEditClicked()" [disabled]="!selectedRecipe.name || !selectedRecipe.ingredients">
+    <ion-button expand="block" *ngIf="isEdit" (click)="onConfirmEditClicked()" [disabled]="!selectedRecipe.name || !(selectedRecipe.ingredients.length > 0)">
       {{ 'ADD_RECIPE_PAGE.CONFIRM_EDIT_BUTTON' | translate }}
     </ion-button>
   </ion-toolbar>
