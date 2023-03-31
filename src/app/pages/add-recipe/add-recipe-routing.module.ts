@@ -9,9 +9,9 @@ const routes: Routes = [
     component: AddRecipePage
   },
   {
-    path: 'ingredient-selection',
-    loadChildren: () => import('../ingredient-selection/ingredient-selection.module').then( m => m.IngredientSelectionPageModule)
-  },
+    path: 'item-selection',
+    loadChildren: () => import('../item-selection/item-selection.module').then( m => m.ItemSelectionPageModule)
+  }
 ];
 
 @NgModule({

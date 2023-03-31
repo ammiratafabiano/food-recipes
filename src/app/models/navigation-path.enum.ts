@@ -25,7 +25,8 @@ export enum RecipeListNavigationPath {
 
 export enum AddRecipeNavigationPath {
     Base = "",
-    IngredientSelection = "ingredient-selection"
+    IngredientSelection = "ingredient-selection",
+    ItemSelection = "item-selection"
 }
 
 export enum SettingsNavigationPath {

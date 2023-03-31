@@ -3,6 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
 import { Difficulty } from 'src/app/models/difficulty.enum';
 import { Food } from 'src/app/models/food.model';
+import { Ingredient } from 'src/app/models/ingredient.model';
+import { Item } from 'src/app/models/item.model';
 import { AddRecipeNavigationPath, HomeNavigationPath, NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
 import { RecipeType } from 'src/app/models/recipe-type.enum';
 import { Recipe } from 'src/app/models/recipe.model';
@@ -22,7 +24,7 @@ export class AddRecipePage implements OnInit {
   difficultyList: Difficulty[] = Object.values(Difficulty);
   weightUnitList: WeightUnit[] = Object.values(WeightUnit);
   timeUnitList: TimeUnit[] = Object.values(TimeUnit);
-  foodList?: Food[];
+  foodList?: Ingredient[];
 
   selectedRecipe: Recipe = new Recipe();
 
@@ -65,14 +67,15 @@ export class AddRecipePage implements OnInit {
   }
 
   async onAddIngredientClicked() {
-    this.navigationService.push(AddRecipeNavigationPath.IngredientSelection,
+    this.navigationService.push(AddRecipeNavigationPath.ItemSelection,
       {
         params: {
-          foodList: this.foodList
+          items: this.foodList?.map(x => { return {value: x.id, text: x.name} })
         },
-        dismissCallback: (ingredient: any) => {
-          if (ingredient && !this.selectedRecipe.ingredients.find(x => x.id == ingredient.id)) {
-            this.selectedRecipe.ingredients.push(ingredient);
+        dismissCallback: (item: Item) => {
+          if (item && !this.selectedRecipe.ingredients.find(x => x.id == item.value)) {
+            const food = this.foodList?.find(x => x.id == item.value);
+            food && this.selectedRecipe.ingredients.push(food);
           }
         }
       }
