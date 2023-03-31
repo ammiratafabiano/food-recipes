@@ -38,7 +38,8 @@
     </ion-item>
     <ion-item>
       <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
-      <ion-input [value]="selectedRecipe.cuisine ? ('COMMON.CUISINE_TYPES.' + selectedRecipe.cuisine | translate) : undefined" (click)="onAddCuisineClicked()" [placeholder]="'COMMON.CUISINE' | translate" slot="end"></ion-input>
+      <ion-input [value]="selectedRecipe.cuisine ? ('COMMON.CUISINE_TYPES.' + selectedRecipe.cuisine | translate) : undefined"
+        (click)="onAddCuisineClicked()" [placeholder]="'COMMON.CUISINE' | translate" slot="end"></ion-input>
     </ion-item>
     <ion-item>
       <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>
@@ -64,8 +65,10 @@
   </p>
   <ion-list lines="inset" inset="true">
     <ion-item-sliding *ngFor="let selected of selectedRecipe.ingredients; let i = index">
-      <ion-item>
-        <ion-input [(ngModel)]="selected.name" [placeholder]="'ADD_RECIPE_PAGE.INGREDIENTS_PLACEHOLDER' | translate"></ion-input>
+      <ion-item class="ingredient-item">
+        <ion-label class="clickable" (click)="onAddIngredientClicked()">
+          {{ selected.name || 'ADD_RECIPE_PAGE.INGREDIENTS_PLACEHOLDER' | translate }}
+        </ion-label>
         <ion-input [(ngModel)]="selected.quantity.value" type="number" [placeholder]="'ADD_RECIPE_PAGE.INGREDIENTS_QUANTITY_PLACEHOLDER' | translate"></ion-input>
         <ion-label>{{ 'COMMON.WEIGHT_UNITS.' + selected.quantity.unit | translate }}</ion-label>
       </ion-item>

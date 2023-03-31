@@ -99,7 +99,22 @@
         "TIME": "Tempo",
         "CUISINE": "Cucina",
         "CUISINE_TYPES": {
-            "ITALIAN": "Italiana"
+            "AMERICAN": "Americana",
+            "AUSTRIAN": "Austriaca",
+            "CHINESE": "Cinese",
+            "CZECHSLOVAK": "Cecoslovacca",
+            "ENGLISH": "Inglese",
+            "FILIPINO": "Filippina",
+            "FRENCH": "Francese",
+            "GREEK": "Greca",
+            "INDIAN": "Indiana",
+            "ITALIAN": "Italiana",
+            "JAPANESE": "Giapponese",
+            "LEBANESE": "Libanese",
+            "MEXICAN": "Messicana",
+            "SPANISH": "Spagnola",
+            "THAI": "Tailandese",
+            "TURKEY": "Turca"
         },
         "DIFFICULTY": "Difficoltà",
         "DIFFICULTY_LEVEL": {

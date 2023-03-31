@@ -5,6 +5,15 @@
     --background: transparent;
 }
 
+.ingredient-item {
+    .clickable {
+        pointer-events: all;
+    }
+    ion-input {
+        text-align: right;
+    }
+}
+
 ion-footer {
     ion-toolbar {
         --background: transparent;

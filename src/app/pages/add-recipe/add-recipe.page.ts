@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
+import { Cuisine } from 'src/app/models/cuisine.enum';
 import { Difficulty } from 'src/app/models/difficulty.enum';
 import { Ingredient } from 'src/app/models/ingredient.model';
 import { Item } from 'src/app/models/item.model';
@@ -34,7 +36,8 @@ export class AddRecipePage implements OnInit {
     private readonly dataService: DataService,
     private readonly loadingController: LoadingController,
     private readonly navigationService: NavigationService,
-    private readonly route: ActivatedRoute
+    private readonly route: ActivatedRoute,
+    private readonly translateService: TranslateService
   ) { }
 
   ngOnInit() {
@@ -69,7 +72,10 @@ export class AddRecipePage implements OnInit {
     this.navigationService.push(AddRecipeNavigationPath.ItemSelection,
       {
         params: {
-          items: [{text: "Italiana", value: "ITALIAN"}] // TODO
+          items: Object.values(Cuisine).map(x => { return {
+            text: this.translateService.instant("COMMON.CUISINE_TYPES." + x),
+            value: x
+          }})
         },
         dismissCallback: (item: Item) => {
           if (item) {
