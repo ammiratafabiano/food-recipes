@@ -38,7 +38,7 @@
     </ion-item>
     <ion-item>
       <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
-      <ion-textarea [(ngModel)]="selectedRecipe.cuisine" [autoGrow]="true" [placeholder]="'COMMON.CUISINE' | translate" slot="end"></ion-textarea>
+      <ion-input [value]="selectedRecipe.cuisine ? ('COMMON.CUISINE_TYPES.' + selectedRecipe.cuisine | translate) : undefined" (click)="onAddCuisineClicked()" [placeholder]="'COMMON.CUISINE' | translate" slot="end"></ion-input>
     </ion-item>
     <ion-item>
       <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>

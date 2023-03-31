@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
 import { Difficulty } from 'src/app/models/difficulty.enum';
-import { Food } from 'src/app/models/food.model';
 import { Ingredient } from 'src/app/models/ingredient.model';
 import { Item } from 'src/app/models/item.model';
 import { AddRecipeNavigationPath, HomeNavigationPath, NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
@@ -64,6 +63,21 @@ export class AddRecipePage implements OnInit {
 
   async onBackClicked() {
     return this.navigationService.pop();
+  }
+
+  async onAddCuisineClicked() {
+    this.navigationService.push(AddRecipeNavigationPath.ItemSelection,
+      {
+        params: {
+          items: [{text: "Italiana", value: "ITALIAN"}] // TODO
+        },
+        dismissCallback: (item: Item) => {
+          if (item) {
+            this.selectedRecipe.cuisine = item.value;
+          }
+        }
+      }
+    );
   }
 
   async onAddIngredientClicked() {

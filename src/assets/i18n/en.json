@@ -98,6 +98,9 @@
         "DESCRIPTION": "Description",
         "TIME": "Time",
         "CUISINE": "Cuisine",
+        "CUISINE_TYPES": {
+            "ITALIAN": "Italiana"
+        },
         "DIFFICULTY": "Difficulty",
         "DIFFICULTY_LEVEL": {
             "EASY": "Easy",
