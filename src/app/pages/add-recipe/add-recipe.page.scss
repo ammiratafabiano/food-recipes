@@ -1,8 +1,16 @@
 
-.step-container-no-padding {
-    --padding-start: 0;
-    --inner-padding-end: 0;
-    --background: transparent;
+.step-item {
+    border-radius: 10px;
+    margin: 16px;
+    width: unset;
+    > ion-item {
+        --padding-start: 0;
+        --inner-padding-end: 0;
+        --background: transparent;
+        ion-list {
+            margin: 0;
+        }
+    }
 }
 
 .ingredient-item {

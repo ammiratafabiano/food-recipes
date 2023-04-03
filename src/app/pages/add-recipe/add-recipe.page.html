@@ -84,8 +84,8 @@
   <p class="ion-padding">
     {{ 'COMMON.STEPS' | translate }}
   </p>
-  <ion-item-sliding *ngFor="let selected of selectedRecipe.steps; let i = index">
-    <ion-item class="step-container-no-padding">
+  <ion-item-sliding class="step-item" *ngFor="let selected of selectedRecipe.steps; let i = index">
+    <ion-item>
       <ion-list lines="inset" inset="true">
         <ion-item>
           <ion-label>{{ 'COMMON.STEP_INDEX' | translate : { i: i+1 } }}</ion-label>
