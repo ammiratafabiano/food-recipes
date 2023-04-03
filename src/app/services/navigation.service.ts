@@ -110,7 +110,7 @@ export class NavigationService {
    */
   getParams<T>(): T {
     const currentPage = this.getCurrentPage();
-    this.logService.Info("NavigationService", "getParams", "param=" + JSON.stringify(currentPage?.data?.params));
+    this.logService.Info("NavigationService", "getParams", "");
     return currentPage?.data?.params as T;
   }
 
