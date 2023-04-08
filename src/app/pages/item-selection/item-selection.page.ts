@@ -12,18 +12,21 @@ export class ItemSelectionPage implements OnInit {
 
   items: Item[] = [];
   selectedItems: string[] = [];
-  title = 'Select Items';
+  title?: string;
   
   filteredItems: Item[] = [];
   workingSelectedValues: string[] = [];
+
+  customElement = "";
 
   constructor(private readonly navigationService: NavigationService) {
     
   }
 
   ngOnInit() {
-    this.items = this.navigationService.getParams<{items: Item[], selectedItem: string[]}>()?.items || this.navigationService.pop();
-    this.selectedItems = this.navigationService.getParams<{items: Item[], selectedItems: string[]}>()?.selectedItems || [];
+    this.items = this.navigationService.getParams<{title?: string, items: Item[], selectedItem: string[]}>()?.items || this.navigationService.pop();
+    this.title = this.navigationService.getParams<{title?: string, items: Item[], selectedItem: string[]}>()?.title;
+    this.selectedItems = this.navigationService.getParams<{title?: string, items: Item[], selectedItems: string[]}>()?.selectedItems || [];
     this.filteredItems = [...this.items];
     this.workingSelectedValues = [...this.selectedItems];
   }
@@ -38,6 +41,12 @@ export class ItemSelectionPage implements OnInit {
   
   onItemClicked(item: Item) {
     return this.navigationService.pop(item);
+  }
+
+  onCustomItemClicked() {
+    const custom: Item = { text: this.customElement, value: "", custom: true };
+
+    return this.navigationService.pop(custom);
   }
   
   searchbarInput(ev: any) {
@@ -68,6 +77,13 @@ export class ItemSelectionPage implements OnInit {
         return item.text.toLowerCase().includes(normalizedQuery);
       });
     }
+
+    this.customElement = searchQuery ? this.getCustomItem(searchQuery) : "";
+  }
+
+  private getCustomItem(search: string) {
+    const words = search.split(/\s+/);
+    return words.reduce((a,b)=> a + " " + b.charAt(0).toUpperCase() + b.slice(1), "").trim();
   }
   /* TODO multiple selection
   isChecked(value: string) {

@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { LoadingController } from '@ionic/angular';
+import { ActionSheetController, LoadingController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Cuisine } from 'src/app/models/cuisine.enum';
 import { Difficulty } from 'src/app/models/difficulty.enum';
+import { Food } from 'src/app/models/food.model';
 import { Ingredient } from 'src/app/models/ingredient.model';
 import { Item } from 'src/app/models/item.model';
 import { AddRecipeNavigationPath, HomeNavigationPath, NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
@@ -13,6 +14,7 @@ import { Step } from 'src/app/models/step.model';
 import { TimeUnit, WeightUnit } from 'src/app/models/unit.enum';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { SessionService } from 'src/app/services/session.service';
 
 @Component({
   selector: 'app-add-recipe',
@@ -37,7 +39,9 @@ export class AddRecipePage implements OnInit {
     private readonly loadingController: LoadingController,
     private readonly navigationService: NavigationService,
     private readonly route: ActivatedRoute,
-    private readonly translateService: TranslateService
+    private readonly translateService: TranslateService,
+    private readonly sessionService: SessionService,
+    private readonly actionSheetCtrl: ActionSheetController
   ) { }
 
   ngOnInit() {
@@ -51,17 +55,23 @@ export class AddRecipePage implements OnInit {
         } else {
           this.navigationService.pop();
         }
+      } else {
+        this.selectedRecipe = new Recipe();
       }
     });
     this.getData();
   }
 
   private async getData() {
-    const loading = await this.loadingController.create()
-    await loading.present()
-    this.dataService.getFoodList().then(response => {
-      this.foodList = response;
-    }).finally(() => loading.dismiss());
+    this.foodList = this.sessionService.foodList;
+    if (!this.foodList) {
+      const loading = await this.loadingController.create()
+      await loading.present()
+      this.dataService.getFoodList().then(response => {
+        this.foodList = response;
+        if (this.foodList) this.sessionService.foodList = this.foodList;
+      }).finally(() => loading.dismiss());
+    }
   }
 
   async onBackClicked() {
@@ -87,19 +97,56 @@ export class AddRecipePage implements OnInit {
   }
 
   async onAddIngredientClicked() {
+    const loading = await this.loadingController.create()
+    await loading.present()
     this.navigationService.push(AddRecipeNavigationPath.ItemSelection,
       {
         params: {
           items: this.foodList?.map(x => { return {value: x.id, text: x.name} })
         },
+        presentCallback: () => {
+          loading.dismiss();
+        },
         dismissCallback: (item: Item) => {
-          if (item && !this.selectedRecipe.ingredients.find(x => x.id == item.value)) {
+          if (item?.value && !this.selectedRecipe.ingredients.find(x => x.id == item.value)) {
             const food = this.foodList?.find(x => x.id == item.value);
             food && this.selectedRecipe.ingredients.push(food);
+          } else if (item?.text && item.custom) {
+            this.addCustomFood(item.text, (food: Ingredient) => {
+              food && this.selectedRecipe.ingredients.push(food);
+            });
           }
         }
       }
     );
+  }
+
+  async onIngredientUnitClicked(selectedIngredient: Ingredient) {  
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: this.translateService.instant("ADD_RECIPE_PAGE.UNIT_PLACEHOLDER"),
+      buttons: [
+        ...this.weightUnitList.map(x => {
+          return {
+            text: this.translateService.instant("COMMON.WEIGHT_UNITS." + x),
+            data: {
+              action: x
+            }
+          }
+        }),
+        {
+          text: this.translateService.instant("ADD_RECIPE_PAGE.UNIT_RESET"),
+          data: {
+            action: undefined
+          },
+          role: 'cancel'
+        }
+      ],
+    });
+    await actionSheet.present();
+    const result = await actionSheet.onDidDismiss();
+    if (result?.data) {
+      selectedIngredient.quantity.unit = result.data.action;
+    }
   }
 
   removeStepImage(step: Step) {
@@ -141,6 +188,14 @@ export class AddRecipePage implements OnInit {
       step.imageUrl = reader.result?.toString();
       step.imageToUpload = true;
     };
+  }
+
+  async addCustomFood(name: string, callback = (food: Ingredient) => {}) {
+    const loading = await this.loadingController.create()
+    await loading.present()
+    this.dataService.addCustomFood(name).then(response => {
+      response && callback(response);
+    }).finally(() => loading.dismiss());
   }
 
   async onConfirmClicked() {

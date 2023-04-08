@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, RealtimeChannel, RealtimePostgresChangesPayload, SupabaseClient } from '@supabase/supabase-js';
 import { PlannedRecipe, Planning } from '../models/planning.model';
 import { Recipe } from '../models/recipe.model';
 import { environment } from '../../environments/environment'
@@ -9,6 +9,7 @@ import { RecipeType } from '../models/recipe-type.enum';
 import { Meal } from '../models/meal.model';
 import { WeekDay } from '../models/weekDay.enum';
 import { Step } from '../models/step.model';
+import { Observable, Subject } from 'rxjs';
 
 const USERS_TABLE = 'users'
 const RECIPES_TABLE = 'recipes'
@@ -18,13 +19,13 @@ const PLANNINGS_TABLE = 'plannings'
 
 const NAMED_INGREDIENTS_VIEW = 'named_ingredients'
 const SHOPPING_LIST_VIEW = 'shopping_list'
-
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
 
   private supabase: SupabaseClient
+  private realtimeChannel?: RealtimeChannel;
 
   recipes: Recipe[] = [];
   planning: Planning[] = [];
@@ -92,6 +93,7 @@ export class DataService {
             .then((ingredientsResult) => {
               let recipe = new Recipe();
               recipe.id = recipeResult.id;
+              recipe.user_id = recipeResult.user_id;
               recipe.name = recipeResult.name;
               recipe.description = recipeResult.description;
               recipe.cuisine = recipeResult.cuisine;
@@ -240,6 +242,7 @@ export class DataService {
       planning.recipes = result.data?.map(x => {
         let plannedRecipe = new PlannedRecipe();
         plannedRecipe.id = x.id;
+        plannedRecipe.week= x.week;
         plannedRecipe.day = x.day;
         plannedRecipe.meal = x.meal;
         let recipe = new Recipe();
@@ -320,5 +323,52 @@ export class DataService {
       u8arr[n] = bstr.charCodeAt(n);
     }
     return new File([u8arr], filename, {type:mime});
+  }
+
+  async addCustomFood(name: string) {
+    const element = {
+      name,
+      custom: true
+    }
+    return this.supabase
+        .from(FOODS_TABLE)
+        .insert(element).select('*').then((returning) => {
+          if (returning.data && returning.data.length == 1 && returning.data[0].id) {
+            let food: Ingredient = {
+              id: returning.data[0].id,
+              name: returning.data[0].name,
+              quantity: {unit: returning.data[0].unit}
+            }
+            return food;
+          } else {
+            return undefined;
+          }
+        });
+  }
+
+  subscribeToPlannings(): Observable<PlannedRecipe> {
+    const user_ids = [this.authService.getCurrentUserId()]; // TODO followers
+    const changes = new Subject<PlannedRecipe>()
+    this.realtimeChannel = this.supabase
+      .channel('public:plannings')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'plannings' },
+        async (payload) => {
+          if (payload.new && user_ids.includes((payload.new as PlannedRecipe).user_id || null)) {
+            changes.next(payload.new as PlannedRecipe);
+          } else if (payload.old && (payload.old as PlannedRecipe).id) {
+            changes.next(payload.old as PlannedRecipe);
+          }
+        }
+      )
+      .subscribe()
+    return changes.asObservable();
+  }
+
+  unsubscribeToPlanning() {
+    if (this.realtimeChannel) {
+      this.supabase.removeChannel(this.realtimeChannel)
+    }
   }
 }

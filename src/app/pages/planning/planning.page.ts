@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActionSheetController, LoadingController } from '@ionic/angular';
 import { ItemReorderEventDetail } from '@ionic/core';
 import * as moment from 'moment';
@@ -14,7 +14,7 @@ import { Meal } from 'src/app/models/meal.model';
   templateUrl: 'planning.page.html',
   styleUrls: ['planning.page.scss']
 })
-export class PlanningPage {
+export class PlanningPage implements OnDestroy {
 
   planning?: Planning;
 
@@ -26,9 +26,24 @@ export class PlanningPage {
     private readonly translateService: TranslateService
   ) {}
 
+  ngOnDestroy(): void {
+    this.dataService.unsubscribeToPlanning();
+  }
+
   ionViewDidEnter() {
     const week = this.navigationService.getParams<{week: string}>()?.week;
     this.getData(week);
+    this.listenCollaboratorsChanges();
+  }
+
+  private listenCollaboratorsChanges() {
+    this.dataService.subscribeToPlannings().subscribe((planned: PlannedRecipe) => {
+      const updated = this.planning?.startDate && planned?.week && this.planning.startDate == planned.week;
+      const deleted = !updated && this.planning?.recipes.find(x => x.id == planned.id);
+      if (updated || deleted) {
+        this.getData(this.planning?.startDate);
+      }
+    });
   }
 
   private async getData(startDate?: string) {
@@ -103,7 +118,6 @@ export class PlanningPage {
     const loading = await this.loadingController.create();
     await loading.present();
     await this.dataService.deletePlanning(plannedRecipe.id);
-    await this.getData(this.planning?.startDate)
     await loading.dismiss();
   }
 

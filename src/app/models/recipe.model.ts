@@ -6,6 +6,7 @@ import { Step } from "./step.model";
 
 export class Recipe {
     id!: string;
+    user_id!: string;
     name!: string;
     description!: string;
     cuisine?: string;

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { UserData } from '../models/user-data.model';
+import { Ingredient } from '../models/ingredient.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +15,13 @@ export class SessionService {
     this._userData = v;
   }
 
+  private _foodList: Ingredient[] | undefined;
+  public get foodList(): Ingredient[] | undefined {
+    return this._foodList;
+  }
+  public set foodList(v: Ingredient[] | undefined) {
+    this._foodList = v;
+  }
   
   public get loginRedirect(): string | null | undefined {
     return this.getStorage("loginRedirect");

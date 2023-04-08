@@ -20,6 +20,7 @@ export class RecipePage implements OnInit {
   recipe?: Recipe;
 
   isUserLogged = false;
+  isEditable = false;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -47,7 +48,11 @@ export class RecipePage implements OnInit {
     await loading.present()
     this.recipe = await this.dataService.getRecipe(id);
     await loading.dismiss();
-    if (!this.recipe) this.navigationService.setRoot(NavigationPath.NotFound);
+    if (this.recipe) {
+      this.isEditable = this.sessionService.userData?.id == this.recipe.user_id;
+    } else {
+      this.navigationService.setRoot(NavigationPath.NotFound);
+    }
   }
 
   async onBackClicked() {

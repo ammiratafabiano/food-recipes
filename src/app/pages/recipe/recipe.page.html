@@ -6,7 +6,7 @@
       </ion-button>
     </ion-buttons>
     <ion-title>{{ 'RECIPE_PAGE.TITLE' | translate }}</ion-title>
-    <ion-buttons slot="end">
+    <ion-buttons slot="end" *ngIf="isEditable">
       <ion-button (click)="onEditClicked()">
         <ion-icon slot="icon-only" name="create"></ion-icon>
       </ion-button>

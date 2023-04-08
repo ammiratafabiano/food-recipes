@@ -75,10 +75,12 @@
         "DIFFICULTY_PLACEHOLDER": "Difficulty",
         "INGREDIENTS_PLACEHOLDER": "Ingredient",
         "INGREDIENTS_QUANTITY_PLACEHOLDER": "q.s.",
-        "UNIT_PLACEHOLDER": "Unit"
+        "UNIT_PLACEHOLDER": "Unit",
+        "UNIT_RESET": "Reset"
     },
-    "INGREDIENT_SELECTION_PAGE": {
-        "TITLE": "Seleziona ingrediente"
+    "ITEM_SELECTION_PAGE": {
+        "DEFAULT_TITLE": "Select item",
+        "CUSTOM_ITEM": "Add {{item}}"
     },
     "NOT_FOUND_PAGE": {
         "TITLE": "Not found",
