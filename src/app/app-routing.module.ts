@@ -22,12 +22,16 @@ const routes: Routes = [
     loadChildren: () => import('./pages/not-found/not-found.module').then( m => m.NotFoundPageModule)
   },
   {
-    path: '**',
-    redirectTo: '/not-found'
-  },
-  {
     path: 'item-selection',
     loadChildren: () => import('./pages/item-selection/item-selection.module').then( m => m.ItemSelectionPageModule)
+  },
+  {
+    path: 'recipe',
+    loadChildren: () => import('./pages/recipe/recipe.module').then( m => m.RecipePageModule)
+  },
+  {
+    path: '**',
+    redirectTo: '/not-found'
   }
 ];
 @NgModule({
