@@ -63,6 +63,10 @@
   <p class="ion-padding">
     {{ 'COMMON.INGREDIENTS' | translate }}
   </p>
+  <ion-item>
+    <ion-label>{{ 'ADD_RECIPE_PAGE.SERVINGS' | translate }}</ion-label>
+    <ion-input [(ngModel)]="selectedRecipe.servings" [placeholder]="'ADD_RECIPE_PAGE.SERVINGS' | translate"></ion-input>
+  </ion-item>
   <ion-list lines="inset" inset="true">
     <ion-item-sliding *ngFor="let selected of selectedRecipe.ingredients; let i = index">
       <ion-item class="ingredient-item">

@@ -61,7 +61,8 @@
         "ERROR_TITLE": "Errore",
         "ERROR_DESCRIPTION": "Qualcosa è andato storto scaricando la ricetta. Prova più tardi.",
         "DELETE_BUTTON": "Elimina ricetta",
-        "DELETE_POPUP_CONFIRM_MESSAGE": "Vuoi davvero cancellare la ricetta?"
+        "DELETE_POPUP_CONFIRM_MESSAGE": "Vuoi davvero cancellare la ricetta?",
+        "SERVINGS": "Per"
     },
     "ADD_RECIPE_PAGE": {
         "TITLE": "Nuova ricetta",
@@ -77,7 +78,8 @@
         "INGREDIENTS_PLACEHOLDER": "Ingrediente",
         "INGREDIENTS_QUANTITY_PLACEHOLDER": "q.b.",
         "UNIT_PLACEHOLDER": "Unità",
-        "UNIT_RESET": "Resetta"
+        "UNIT_RESET": "Resetta",
+        "SERVINGS": "Porzioni"
     },
     "ITEM_SELECTION_PAGE": {
         "DEFAULT_TITLE": "Seleziona elemento",

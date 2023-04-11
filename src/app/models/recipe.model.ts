@@ -17,4 +17,6 @@ export class Recipe {
     ingredients: Ingredient[] = [];
     steps: Step[] = [];
     tags: string[] = [];
+    servings!: number;
+    variant!: number;
 }

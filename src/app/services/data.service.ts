@@ -163,6 +163,8 @@ export class DataService {
               }) || [];
               recipe.steps = recipeResult.steps;
               recipe.tags = recipeResult.tags;
+              recipe.servings = recipeResult.servings;
+              recipe.variant = recipeResult.variant;
               return recipe;
             });
         } else {
@@ -186,7 +188,9 @@ export class DataService {
       time_quantity: recipe.time.value,
       time_unit: recipe.time.unit,
       steps: recipe.steps,
-      tags: recipe.tags
+      tags: recipe.tags,
+      servings: recipe.servings,
+      variant: recipe.variant
     }
     return this.supabase
       .from(RECIPES_TABLE)

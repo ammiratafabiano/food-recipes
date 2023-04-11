@@ -21,6 +21,9 @@ export class RecipePage implements OnInit {
 
   recipe?: Recipe;
 
+  multiplier = 1;
+  currentMultiplier = 1;
+
   isUserLogged = false;
   isMine = false;
 
@@ -51,6 +54,7 @@ export class RecipePage implements OnInit {
     const loading = await this.loadingController.create()
     await loading.present()
     this.recipe = await this.dataService.getRecipe(id);
+    this.currentMultiplier = this.recipe?.servings || 1;
     await loading.dismiss();
     if (this.recipe) {
       this.isMine = this.authService.getCurrentUser()?.id == this.recipe.user_id;
@@ -119,8 +123,13 @@ export class RecipePage implements OnInit {
   }
 
   async onSelfClicked() {
-    return this.onOwnerClicked();
     this.navigationService.setRoot([NavigationPath.Home, HomeNavigationPath.Settings]);
+  }
+
+  async onMultiplierChange(event: any) {
+    if (!this.recipe) return;
+    this.currentMultiplier = event.target.value;
+    this.multiplier = this.currentMultiplier / this.recipe?.servings;
   }
 
   async onAddToPlanningClicked() {

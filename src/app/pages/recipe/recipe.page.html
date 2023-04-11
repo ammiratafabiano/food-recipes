@@ -51,10 +51,14 @@
   <h3 class="ion-padding-horizontal" *ngIf="recipe?.ingredients">
     {{ 'COMMON.INGREDIENTS' | translate }}
   </h3>
+  <ion-item>
+    <ion-label>{{ 'RECIPE_PAGE.SERVINGS' | translate }}</ion-label>
+    <ion-input [value]="currentMultiplier" (ionChange)="onMultiplierChange($event)" type="number" min="1"></ion-input>
+  </ion-item>
   <ion-list lines="inset" inset="true">
     <ion-item *ngFor="let ingredient of recipe?.ingredients">
       <ion-label *ngIf="ingredient.quantity.value" class="quantity-label">
-        {{ ingredient.quantity.value }}{{ 'COMMON.WEIGHT_UNITS.' + ingredient.quantity.unit | translate }}
+        {{ ingredient.quantity.value * multiplier }}{{ 'COMMON.WEIGHT_UNITS.' + ingredient.quantity.unit | translate }}
       </ion-label>
       <ion-label *ngIf="!ingredient.quantity.value" class="quantity-label">
         {{ 'COMMON.MISSING_QUANTITY' | translate }}

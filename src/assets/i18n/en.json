@@ -61,7 +61,8 @@
         "ERROR_TITLE": "Error",
         "ERROR_DESCRIPTION": "An error occurred retrieveing the recipe. Please, try again later.",
         "DELETE_BUTTON": "Delete recipe",
-        "DELETE_POPUP_CONFIRM_MESSAGE": "Do you really want to delete the recipe?"
+        "DELETE_POPUP_CONFIRM_MESSAGE": "Do you really want to delete the recipe?",
+        "SERVINGS": "Per"
     },
     "ADD_RECIPE_PAGE": {
         "TITLE": "New recipe",
@@ -77,7 +78,8 @@
         "INGREDIENTS_PLACEHOLDER": "Ingredient",
         "INGREDIENTS_QUANTITY_PLACEHOLDER": "q.s.",
         "UNIT_PLACEHOLDER": "Unit",
-        "UNIT_RESET": "Reset"
+        "UNIT_RESET": "Reset",
+        "SERVINGS": "Servings"
     },
     "ITEM_SELECTION_PAGE": {
         "DEFAULT_TITLE": "Select item",
