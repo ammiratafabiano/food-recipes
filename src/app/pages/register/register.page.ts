@@ -45,8 +45,7 @@ export class RegisterPage {
           data.error.message
         );
       } else {
-        this.alertService.presentAlertPopup(
-          "COMMON.GENERIC_ALERT.INFO_HEADER",
+        this.alertService.presentInfoPopup(
           "REGISTER_PAGE.SUBMIT_POPUP_SUCCESS_HEADER"
         );
       }

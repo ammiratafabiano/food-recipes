@@ -10,6 +10,7 @@ import { AlertService } from 'src/app/services/alert.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-recipe',
@@ -90,8 +91,15 @@ export class RecipePage implements OnInit {
     });
   }
 
+  async onShareClicked() {
+    if (!this.recipe) return;
+    const link = environment.siteUrl + '/recipe?id=' + this.recipe.id;
+    navigator.clipboard.writeText(link);
+    const text = this.translateService.instant("COMMON.CLIPBOARD");
+    this.alertService.presentInfoPopup(text);
+  }
+
   async onOwnerClicked() {
-    if (this.isMine) return;
     this.navigationService.setRoot(NavigationPath.User,
       {
         queryParams: {
@@ -111,6 +119,7 @@ export class RecipePage implements OnInit {
   }
 
   async onSelfClicked() {
+    return this.onOwnerClicked();
     this.navigationService.setRoot([NavigationPath.Home, HomeNavigationPath.Settings]);
   }
 

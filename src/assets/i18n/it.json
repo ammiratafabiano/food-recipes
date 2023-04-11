@@ -180,6 +180,7 @@
             "MESSAGE": "Si è verificato un errore generico. Riprova più tardi.",
             "OK_BUTTON": "Ok",
             "CANCEL_BUTTON": "Annulla"
-        }
+        },
+        "CLIPBOARD": "Copiato negli appunti."
     }
 }

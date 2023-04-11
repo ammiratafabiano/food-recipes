@@ -180,6 +180,7 @@
             "MESSAGE": "A generic error occurred. Please try again later.",
             "OK_BUTTON": "Ok",
             "CANCEL_BUTTON": "Cancel"
-        }
+        },
+        "CLIPBOARD": "Copied to the clipboard."
     }
 }

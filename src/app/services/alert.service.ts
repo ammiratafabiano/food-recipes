@@ -12,6 +12,23 @@ export class AlertService {
     private readonly translateService: TranslateService
   ) { }
   
+  async presentInfoPopup(
+    message: string
+  ) {
+    let buttons: AlertButton[] = [
+      {
+        role: "cancel",
+        text: this.translateService.instant("COMMON.GENERIC_ALERT.OK_BUTTON")
+      },
+    ];
+    return this.presentGenericPopup(
+      "COMMON.GENERIC_ALERT.INFO_HEADER",
+      message,
+      undefined,
+      buttons
+    )
+  }
+
   async presentAlertPopup(
     header: string,
     message: string,

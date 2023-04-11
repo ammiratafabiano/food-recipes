@@ -88,8 +88,7 @@ export class LoginPage {
             error.message
           );
         } else {
-          this.alertService.presentAlertPopup(
-            "COMMON.GENERIC_ALERT.INFO_HEADER",
+          this.alertService.presentInfoPopup(
             "LOGIN_PAGE.FORGOT_PASSWORD_SUCCESS_POPUP_HEADER"
           );
         }

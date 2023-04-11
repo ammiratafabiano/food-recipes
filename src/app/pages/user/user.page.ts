@@ -1,13 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { take } from 'rxjs';
 import { HomeNavigationPath, NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { UserData } from 'src/app/models/user-data.model';
+import { AlertService } from 'src/app/services/alert.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-user',
@@ -25,7 +28,9 @@ export class UserPage implements OnInit {
     private readonly loadingController: LoadingController,
     private readonly navigationService: NavigationService,
     private readonly route: ActivatedRoute,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly alertService: AlertService,
+    private readonly translateService: TranslateService
   ) { }
 
   ngOnInit() {
@@ -52,6 +57,14 @@ export class UserPage implements OnInit {
   
   async onBackClicked() {
     return this.navigationService.setRoot(NavigationPath.Home);
+  }
+
+  async onShareClicked() {
+    if (!this.user) return;
+    const link = environment.siteUrl + '/user?id=' + this.user.id;
+    navigator.clipboard.writeText(link);
+    const text = this.translateService.instant("COMMON.CLIPBOARD");
+    this.alertService.presentInfoPopup(text);
   }
 
   async onFollowClicked() {
