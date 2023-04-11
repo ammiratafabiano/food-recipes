@@ -91,13 +91,13 @@ export class RecipePage implements OnInit {
   }
 
   async onOwnerClicked() {
-    //if (this.isMine) return;
+    if (this.isMine) return;
     this.navigationService.setRoot(NavigationPath.User,
       {
         queryParams: {
           id: this.recipe?.user_id
         }
-        /*,
+        /* TO BE REMOVED
         dismissCallback: () => {
           if (this.recipe) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -108,6 +108,10 @@ export class RecipePage implements OnInit {
         }*/
       }
     );
+  }
+
+  async onSelfClicked() {
+    this.navigationService.setRoot([NavigationPath.Home, HomeNavigationPath.Settings]);
   }
 
   async onAddToPlanningClicked() {

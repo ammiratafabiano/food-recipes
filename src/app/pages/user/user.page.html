@@ -1,8 +1,8 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start" *ngIf="isUserLogged">
+    <ion-buttons slot="start">
       <ion-button (click)="onBackClicked()">
-        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+        <ion-icon slot="icon-only" [name]="isUserLogged ? 'chevron-back-outline' : 'home-outline'"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title>{{ 'USER_PAGE.TITLE' | translate }}</ion-title>
@@ -19,12 +19,14 @@
       <ion-card-title>{{ user.name }}</ion-card-title>
       <ion-card-subtitle>{{ user.email }}</ion-card-subtitle>
     </ion-card-header>
-    <ion-button *ngIf="!user.followed" fill="clear" color="primary" (click)="onFollowClicked()">
-      {{ 'USER_PAGE.ADD_FOLLOW' | translate }}
-    </ion-button>
-    <ion-button *ngIf="user.followed" fill="clear" color="danger" (click)="onUnfollowClicked()">
-      {{ 'USER_PAGE.DELETE_FOLLOW' | translate }}
-    </ion-button>
+    <ng-container *ngIf="isUserLogged">
+      <ion-button *ngIf="!user.followed" fill="clear" color="primary" (click)="onFollowClicked()">
+        {{ 'USER_PAGE.ADD_FOLLOW' | translate }}
+      </ion-button>
+      <ion-button *ngIf="user.followed" fill="clear" color="danger" (click)="onUnfollowClicked()">
+        {{ 'USER_PAGE.DELETE_FOLLOW' | translate }}
+      </ion-button>
+    </ng-container>
   </ion-card>
 
   <ion-label class="ion-padding" *ngIf="user?.recipes != undefined && user?.recipes?.length == 0">

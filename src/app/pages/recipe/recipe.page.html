@@ -2,7 +2,7 @@
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button (click)="onBackClicked()">
-        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+        <ion-icon slot="icon-only" [name]="isUserLogged ? 'chevron-back-outline' : 'home-outline'">></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title>{{ 'RECIPE_PAGE.TITLE' | translate }}</ion-title>
@@ -19,7 +19,8 @@
   <h1 class="ion-padding-horizontal" *ngIf="recipe?.name">{{ recipe?.name }}</h1>
   <p class="ion-padding-horizontal" *ngIf="recipe?.user_name">
     {{ 'RECIPE_PAGE.OWNER' | translate }}
-    <a (click)="onOwnerClicked()">{{ recipe?.user_name }}</a>
+    <a *ngIf="!isMine" (click)="onOwnerClicked()">{{ recipe?.user_name }}</a>
+    <a *ngIf="isMine" (click)="onSelfClicked()">{{ recipe?.user_name }}</a>
   </p>
   <p class="ion-padding" *ngIf="recipe?.description">{{ recipe?.description }}</p>
   <!-- Metadata -->
