@@ -29,7 +29,7 @@ export class LoginPage {
     private readonly translateService: TranslateService
   ) {
     // TODO workaround for multiple subscribe
-    this.authService.getCurrentUser().pipe(tap((user) => {
+    this.authService.getCurrentUserAsync().pipe(tap((user) => {
       if (user) {
         const loginRedirect = this.sessionService.loginRedirect;
         if (loginRedirect) {

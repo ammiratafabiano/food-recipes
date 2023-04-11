@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core'
 import { AuthResponse, createClient, OAuthResponse, SupabaseClient, User } from '@supabase/supabase-js'
 import { BehaviorSubject, debounce, Observable, of, timer } from 'rxjs'
 import { environment } from '../../environments/environment'
-import { SessionService } from './session.service'
+import { UserData } from '../models/user-data.model'
 
 @Injectable({
   providedIn: 'root',
@@ -11,9 +11,7 @@ export class AuthService {
   private supabase: SupabaseClient
   private currentUser = new BehaviorSubject<User | undefined>(undefined)
 
-  constructor(
-    private readonly sessionService: SessionService
-  ) {
+  constructor() {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey)
 
     this.supabase.auth.onAuthStateChange((event, sess) => {
@@ -40,28 +38,26 @@ export class AuthService {
 
   private setCurrentUser(user: User | undefined) {
     if (user) {
-      this.currentUser.next(user)
-      this.sessionService.userData = {
-        id: user.id,
-        name: user.user_metadata.full_name,
-        email: user.user_metadata.email,
-        avatar_url: user.user_metadata.avatar_url
-      }
+      this.currentUser.next(user);
     } else {
       this.currentUser.next(undefined);
-      this.sessionService.userData = undefined;
     }
   }
 
-  getCurrentUser(): Observable<User | undefined> {
+  getCurrentUserAsync(): Observable<User | undefined> {
     return this.currentUser.asObservable().pipe(debounce(() => timer(200))) // TODO workaround for multiple subscribe
   }
 
-  getCurrentUserId(): string | null {
+  getCurrentUser(): UserData | undefined {
     if (this.currentUser.value) {
-      return (this.currentUser.value as User).id
+      return {
+        id: this.currentUser.value.id,
+        name: this.currentUser.value.user_metadata.full_name,
+        email: this.currentUser.value.user_metadata.email,
+        avatar_url: this.currentUser.value.user_metadata.avatar_url
+      }
     } else {
-      return null
+      return undefined;
     }
   }
 

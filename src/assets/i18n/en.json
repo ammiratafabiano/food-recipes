@@ -52,6 +52,7 @@
     },
     "RECIPE_PAGE": {
         "TITLE": "Recipe",
+        "OWNER": "by",
         "ADD_TO_PLANNING_BUTTON": "Add to planning",
         "ADD_TO_PLANNING_CHOICE": "Which week?",
         "ADD_TO_PLANNING_THIS_WEEK": "This week",
@@ -94,6 +95,14 @@
         "CONTENT": "If you wish to delete your personal data from our system, you can do so at any time by clicking the 'Delete' button below. We will ask you to confirm your choice before proceeding with the deletion. Please note that the deletion of data may take a few days to complete, and once deleted, your data cannot be retrieved. If you decide to proceed with the deletion, please click the button below.",
         "DELETE_BUTTON": "Delete",
         "DELETE_POPUP_CONFIRM_MESSAGE": "Do you really want to delete your account?"
+    },
+    "USER_PAGE": {
+        "TITLE": "User",
+        "ADD_FOLLOW": "Follow",
+        "DELETE_FOLLOW": "Unfollow",
+        "NO_DATA": "There are no recipes yet.",
+        "ADD_RECIPE": "Add",
+        "RECIPE_LIST": "Recipes"
     },
     "COMMON": {
         "RECIPE": "Recipe",

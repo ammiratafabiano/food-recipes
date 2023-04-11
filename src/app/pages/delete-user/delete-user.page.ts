@@ -37,7 +37,7 @@ export class DeleteUserPage implements OnInit {
       "DELETE_USER_PAGE.DELETE_POPUP_CONFIRM_MESSAGE",
       async () => {
         await this.dataService.deleteUser();
-        await this.authService.resetUser();
+        await this.authService.signOut();
         this.navigationService.setRoot(NavigationPath.Login);
     });
   }

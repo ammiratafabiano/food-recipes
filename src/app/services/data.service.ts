@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { createClient, RealtimeChannel, RealtimePostgresChangesPayload, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, RealtimeChannel, SupabaseClient, User } from '@supabase/supabase-js';
 import { PlannedRecipe, Planning } from '../models/planning.model';
 import { Recipe } from '../models/recipe.model';
 import { environment } from '../../environments/environment'
@@ -9,13 +9,15 @@ import { RecipeType } from '../models/recipe-type.enum';
 import { Meal } from '../models/meal.model';
 import { WeekDay } from '../models/weekDay.enum';
 import { Step } from '../models/step.model';
-import { Observable, Subject } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
+import { UserData } from '../models/user-data.model';
 
 const USERS_TABLE = 'users'
 const RECIPES_TABLE = 'recipes'
 const INGREDIENTS_TABLE = 'ingredients'
 const FOODS_TABLE = 'foods'
 const PLANNINGS_TABLE = 'plannings'
+const FOLLOWERS_TABLE = 'followers'
 
 const NAMED_INGREDIENTS_VIEW = 'named_ingredients'
 const SHOPPING_LIST_VIEW = 'shopping_list'
@@ -34,20 +36,69 @@ export class DataService {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
   }
 
+  async getUser(user_id: string): Promise<UserData | undefined> {
+    return this.supabase
+      .from(USERS_TABLE)
+      .select('id, email, nickname, full_name, avatar_url')
+      .eq('id', user_id)
+      .then(x => {
+        const userResult = x?.data && x?.data[0];
+        if (userResult) {
+          return this.supabase
+            .from(FOLLOWERS_TABLE)
+            .select()
+            .eq('follower', user_id)
+            .then(x => {
+              const followerResult = x?.data && x?.data[0];
+              let user = new UserData();
+              user.id = userResult.id;
+              user.email = userResult.email;
+              user.name = userResult.nickname || userResult.full_name;
+              user.avatar_url = userResult.avatar_url;
+              user.followed = !!followerResult;
+              return user;
+            })
+        } else {
+          return;
+        }
+      })
+  }
+
   async deleteUser() {
-    const user_id = this.authService.getCurrentUserId();
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
     return this.supabase
       .from(USERS_TABLE)
       .delete()
-      .eq('id', user_id)
+      .eq('id', user?.id)
+  }
+
+  async addFollower(user_id: string) {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    const element = {
+      follower: user.id,
+      followed: user_id
+    }
+    return this.supabase
+      .from(FOLLOWERS_TABLE)
+      .insert(element)
+  }
+
+  async deleteFollower(user_id: string) {
+    return this.supabase
+      .from(FOLLOWERS_TABLE)
+      .delete()
+      .eq('followed', user_id)
   }
 
   async addRecipe(recipe: Recipe) {
-    const user_id = this.authService.getCurrentUserId();
-    if (!user_id) return;
-    await this.uploadStepImages(user_id, recipe.steps);
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    await this.uploadStepImages(user.id, recipe.steps);
     const element = {
-      user_id: user_id,
+      user_id: user.id,
+      user_name: user.name,
       name: recipe.name,
       description: recipe.description,
       cuisine: recipe.cuisine,
@@ -79,7 +130,7 @@ export class DataService {
       });
   }
 
-  async getRecipe(recipe_id: number): Promise<Recipe | undefined> {
+  async getRecipe(recipe_id: string): Promise<Recipe | undefined> {
     return this.supabase
       .from(RECIPES_TABLE)
       .select()
@@ -94,6 +145,7 @@ export class DataService {
               let recipe = new Recipe();
               recipe.id = recipeResult.id;
               recipe.user_id = recipeResult.user_id;
+              recipe.user_name = recipeResult.user_name;
               recipe.name = recipeResult.name;
               recipe.description = recipeResult.description;
               recipe.cuisine = recipeResult.cuisine;
@@ -120,11 +172,12 @@ export class DataService {
   }
 
   async editRecipe(recipe: Recipe, stepsOfImagesToDelete: Step[]) {
-    const user_id = this.authService.getCurrentUserId();
-    if (!user_id) return;
-    await this.uploadStepImages(user_id, recipe.steps);
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    await this.uploadStepImages(user.id, recipe.steps);
     const element = {
-      user_id: user_id,
+      user_id: user.id,
+      user_name: user.name,
       name: recipe.name,
       description: recipe.description,
       cuisine: recipe.cuisine,
@@ -199,11 +252,13 @@ export class DataService {
           .remove(filesToRemove);
   }
 
-  async getRecipeList(): Promise<Recipe[] | undefined> {
+  async getRecipeList(user_id?: string): Promise<Recipe[] | undefined> {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
     return this.supabase
       .from(RECIPES_TABLE)
       .select('id, name, type')
-      .match({ user_id: this.authService.getCurrentUserId() })
+      .match({ user_id: user_id || user.id })
       .then((result) => {
         return result.data?.map(x => {
           let recipe = new Recipe();
@@ -231,11 +286,13 @@ export class DataService {
   }
 
   async getPlanning(week: string): Promise<Planning | undefined> {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
     return this.supabase
     .from(PLANNINGS_TABLE)
     .select('id, recipe_id, recipe_name, week, day, meal')
     .eq('week', week)
-    .match({ user_id: this.authService.getCurrentUserId() })
+    .match({ user_id: user.id })
     .then((result) => {
       let planning = new Planning();
       planning.startDate = week;
@@ -256,9 +313,10 @@ export class DataService {
   }
 
   async addToPlanning(recipe: Recipe, week: string, day?: WeekDay, meal?: Meal) {
-    const user_id = this.authService.getCurrentUserId();
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
     const element = {
-      user_id: user_id,
+      user_id: user.id,
       recipe_id: recipe.id,
       recipe_name: recipe.name,
       week: week,
@@ -288,11 +346,13 @@ export class DataService {
   }
 
   async getShoppingList(week: string): Promise<Ingredient[] | undefined> {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
     return this.supabase
     .from(SHOPPING_LIST_VIEW)
     .select('food_id, food_name, food_unit, food_total_quantity')
     .gte('planning_week', week)
-    .match({ user_id: this.authService.getCurrentUserId() })
+    .match({ user_id: user.id })
     .then((result) => {
       return result.data?.map(x => {
         let ingredient = new Ingredient();
@@ -346,8 +406,10 @@ export class DataService {
         });
   }
 
-  subscribeToPlannings(): Observable<PlannedRecipe> {
-    const user_ids = [this.authService.getCurrentUserId()]; // TODO followers
+  subscribeToPlannings(): Observable<PlannedRecipe | undefined> {
+    const user = this.authService.getCurrentUser();
+    if (!user) return of();
+    const user_ids = [user.id]; // TODO followers
     const changes = new Subject<PlannedRecipe>()
     this.realtimeChannel = this.supabase
       .channel('public:plannings')
@@ -355,7 +417,8 @@ export class DataService {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'plannings' },
         async (payload) => {
-          if (payload.new && user_ids.includes((payload.new as PlannedRecipe).user_id || null)) {
+          const user_id = (payload.new as PlannedRecipe).user_id;
+          if (payload.new && user_id && user_ids.includes(user_id)) {
             changes.next(payload.new as PlannedRecipe);
           } else if (payload.old && (payload.old as PlannedRecipe).id) {
             changes.next(payload.old as PlannedRecipe);

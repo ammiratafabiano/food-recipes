@@ -3,7 +3,6 @@ import { NavigationPath, SettingsNavigationPath } from 'src/app/models/navigatio
 import { UserData } from 'src/app/models/user-data.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { NavigationService } from 'src/app/services/navigation.service';
-import { SessionService } from 'src/app/services/session.service';
 
 @Component({
   selector: 'app-settings',
@@ -16,12 +15,11 @@ export class SettingsPage implements OnInit {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly sessionService: SessionService,
     private readonly navigationService: NavigationService
   ) { }
 
   ngOnInit() {
-    this.userData = this.sessionService.userData;
+    this.userData = this.authService.getCurrentUser();
   }
 
   async onLogoutClicked() {

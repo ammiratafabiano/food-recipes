@@ -3,12 +3,13 @@ import { ActivatedRoute } from '@angular/router';
 import { ActionSheetController, LoadingController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
+import { take } from 'rxjs';
 import { HomeNavigationPath, NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { AlertService } from 'src/app/services/alert.service';
+import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
-import { SessionService } from 'src/app/services/session.service';
 
 @Component({
   selector: 'app-recipe',
@@ -20,7 +21,7 @@ export class RecipePage implements OnInit {
   recipe?: Recipe;
 
   isUserLogged = false;
-  isEditable = false;
+  isMine = false;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -28,35 +29,54 @@ export class RecipePage implements OnInit {
     private readonly loadingController: LoadingController,
     private readonly alertService: AlertService,
     private readonly translateService: TranslateService,
-    private readonly sessionService: SessionService,
     private readonly actionSheetCtrl: ActionSheetController,
-    private readonly navigationService: NavigationService
+    private readonly navigationService: NavigationService,
+    private readonly authService: AuthService
   ) { }
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.pipe(take(1)).subscribe(params => {
       if (!this.recipe && params && params["id"]) {
         const recipe_id = params["id"];
         this.getRecipe(recipe_id);
+      } else {
+        this.navigationService.setRoot([NavigationPath.Home, HomeNavigationPath.RecipeList]);
       }
     });
-    this.isUserLogged = !!this.sessionService.userData;
+    this.isUserLogged = !!this.authService.getCurrentUser();
   }
 
-  private async getRecipe(id: number) {
+  private async getRecipe(id: string) {
     const loading = await this.loadingController.create()
     await loading.present()
     this.recipe = await this.dataService.getRecipe(id);
     await loading.dismiss();
     if (this.recipe) {
-      this.isEditable = this.sessionService.userData?.id == this.recipe.user_id;
+      this.isMine = this.authService.getCurrentUser()?.id == this.recipe.user_id;
     } else {
       this.navigationService.setRoot(NavigationPath.NotFound);
     }
   }
 
   async onBackClicked() {
-    return this.navigationService.pop();
+    if (this.isMine && this.isUserLogged) {
+      this.navigationService.pop();
+    } else if (this.isUserLogged) {
+      return this.navigationService.setRoot(NavigationPath.User,
+        {
+          queryParams: {
+            id: this.recipe?.user_id
+          },
+          animationDirection: "back"
+        }
+      );
+    } else {
+      return this.navigationService.setRoot(NavigationPath.Home,
+        {
+          animationDirection: "back"
+        }
+      );
+    }
   }
 
   async onEditClicked() {
@@ -68,6 +88,26 @@ export class RecipePage implements OnInit {
         id: this.recipe?.id
       }
     });
+  }
+
+  async onOwnerClicked() {
+    //if (this.isMine) return;
+    this.navigationService.setRoot(NavigationPath.User,
+      {
+        queryParams: {
+          id: this.recipe?.user_id
+        }
+        /*,
+        dismissCallback: () => {
+          if (this.recipe) {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('id', this.recipe.id);
+            const newUrl = window.location.pathname + '?' + urlParams.toString();
+            window.history.pushState({path:newUrl}, '', newUrl);
+          }
+        }*/
+      }
+    );
   }
 
   async onAddToPlanningClicked() {

@@ -30,6 +30,10 @@ const routes: Routes = [
     loadChildren: () => import('./pages/recipe/recipe.module').then( m => m.RecipePageModule)
   },
   {
+    path: 'user',
+    loadChildren: () => import('./pages/user/user.module').then( m => m.UserPageModule)
+  },
+  {
     path: '**',
     redirectTo: '/not-found'
   }

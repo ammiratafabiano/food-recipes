@@ -7,14 +7,6 @@ import { Ingredient } from '../models/ingredient.model';
 })
 export class SessionService {
 
-  private _userData: UserData | undefined;
-  public get userData(): UserData | undefined {
-    return this._userData;
-  }
-  public set userData(v: UserData | undefined) {
-    this._userData = v;
-  }
-
   private _foodList: Ingredient[] | undefined;
   public get foodList(): Ingredient[] | undefined {
     return this._foodList;

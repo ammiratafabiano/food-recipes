@@ -52,6 +52,7 @@
     },
     "RECIPE_PAGE": {
         "TITLE": "Ricetta",
+        "OWNER": "di",
         "ADD_TO_PLANNING_BUTTON": "Aggiungi al planning",
         "ADD_TO_PLANNING_CHOICE": "Quale settimana?",
         "ADD_TO_PLANNING_THIS_WEEK": "Questa settimana",
@@ -94,6 +95,14 @@
         "CONTENT": "Se desideri cancellare i tuoi dati personali dal nostro sistema, puoi farlo in qualsiasi momento premendo il pulsante 'Cancella' qui sotto. Ti chiederemo di confermare la tua scelta prima di procedere alla cancellazione. Tieni presente che la cancellazione dei dati potrebbe richiedere alcuni giorni per essere completata e, una volta cancellati, i tuoi dati non potranno essere recuperati. Se decidi di procedere con la cancellazione, clicca sul pulsante qui sotto.",
         "DELETE_BUTTON": "Cancella",
         "DELETE_POPUP_CONFIRM_MESSAGE": "Vuoi davvero cancellare il tuo account?"
+    },
+    "USER_PAGE": {
+        "TITLE": "Utente",
+        "ADD_FOLLOW": "Segui",
+        "DELETE_FOLLOW": "Non seguire più",
+        "NO_DATA": "Non ci sono ricette ancora.",
+        "ADD_RECIPE": "Aggiungi",
+        "RECIPE_LIST": "Ricette"
     },
     "COMMON": {
         "RECIPE": "Ricetta",

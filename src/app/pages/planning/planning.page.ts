@@ -37,11 +37,13 @@ export class PlanningPage implements OnDestroy {
   }
 
   private listenCollaboratorsChanges() {
-    this.dataService.subscribeToPlannings().subscribe((planned: PlannedRecipe) => {
-      const updated = this.planning?.startDate && planned?.week && this.planning.startDate == planned.week;
-      const deleted = !updated && this.planning?.recipes.find(x => x.id == planned.id);
-      if (updated || deleted) {
-        this.getData(this.planning?.startDate);
+    this.dataService.subscribeToPlannings().subscribe((planned) => {
+      if (planned) {
+        const updated = this.planning?.startDate && this.planning.startDate == planned.week;
+        const deleted = !updated && this.planning?.recipes.find(x => x.id == planned.id);
+        if (updated || deleted) {
+          this.getData(this.planning?.startDate);
+        }
       }
     });
   }

@@ -1,12 +1,12 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start" *ngIf="isUserLogged">
+    <ion-buttons slot="start">
       <ion-button (click)="onBackClicked()">
         <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title>{{ 'RECIPE_PAGE.TITLE' | translate }}</ion-title>
-    <ion-buttons slot="end" *ngIf="isEditable">
+    <ion-buttons slot="end" *ngIf="isMine">
       <ion-button (click)="onEditClicked()">
         <ion-icon slot="icon-only" name="create"></ion-icon>
       </ion-button>
@@ -16,10 +16,18 @@
 
 <ion-content>
   <!-- Title-->
-  <h1 class="ion-padding" *ngIf="recipe?.name">{{ recipe?.name }}</h1>
-  <h2 class="ion-padding" *ngIf="recipe?.type">{{ 'COMMON.RECIPE_TYPES.' + recipe?.type | translate }}</h2>
+  <h1 class="ion-padding-horizontal" *ngIf="recipe?.name">{{ recipe?.name }}</h1>
+  <p class="ion-padding-horizontal" *ngIf="recipe?.user_name">
+    {{ 'RECIPE_PAGE.OWNER' | translate }}
+    <a (click)="onOwnerClicked()">{{ recipe?.user_name }}</a>
+  </p>
   <p class="ion-padding" *ngIf="recipe?.description">{{ recipe?.description }}</p>
   <!-- Metadata -->
+  <ion-item lines="full" *ngIf="recipe?.type">
+    <ion-icon name="nutrition" slot="start"></ion-icon>
+    <ion-label>{{ 'COMMON.RECIPE_TYPE' | translate }}</ion-label>
+    <ion-label>{{ 'COMMON.RECIPE_TYPES.' + recipe?.type | translate }}</ion-label>
+  </ion-item>
   <ion-item lines="full" *ngIf="recipe?.cuisine">
     <ion-icon name="earth-outline" slot="start"></ion-icon>
     <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
