@@ -70,7 +70,7 @@
   <ion-list lines="inset" inset="true">
     <ion-item-sliding *ngFor="let selected of selectedRecipe.ingredients; let i = index">
       <ion-item class="ingredient-item">
-        <ion-label class="clickable" (click)="onAddIngredientClicked()">
+        <ion-label class="clickable" (click)="onAddIngredientClicked(i)">
           {{ selected.name || 'ADD_RECIPE_PAGE.INGREDIENTS_PLACEHOLDER' | translate }}
         </ion-label>
         <ion-input [(ngModel)]="selected.quantity.value" type="number" [placeholder]="'ADD_RECIPE_PAGE.INGREDIENTS_QUANTITY_PLACEHOLDER' | translate"></ion-input>

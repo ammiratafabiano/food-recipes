@@ -88,9 +88,6 @@ export class RecipePage implements OnInit {
     this.navigationService.setRoot([NavigationPath.Home, HomeNavigationPath.RecipeList, RecipeListNavigationPath.AddRecipe], {
       params: {
         recipe: this.recipe
-      },
-      queryParams: {
-        id: this.recipe?.id
       }
     });
   }
@@ -129,7 +126,11 @@ export class RecipePage implements OnInit {
   async onMultiplierChange(event: any) {
     if (!this.recipe) return;
     this.currentMultiplier = event.target.value;
-    this.multiplier = this.currentMultiplier / this.recipe?.servings;
+    this.multiplier = this.currentMultiplier ? this.currentMultiplier / this.recipe?.servings : 1;
+  }
+
+  async onMultiplierBlur(event: any) {
+    if (!event.target.value && this.recipe) this.currentMultiplier = this.recipe.servings;
   }
 
   async onAddToPlanningClicked() {

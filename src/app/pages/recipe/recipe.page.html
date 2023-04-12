@@ -51,9 +51,9 @@
   <h3 class="ion-padding-horizontal" *ngIf="recipe?.ingredients">
     {{ 'COMMON.INGREDIENTS' | translate }}
   </h3>
-  <ion-item>
+  <ion-item *ngIf="recipe">
     <ion-label>{{ 'RECIPE_PAGE.SERVINGS' | translate }}</ion-label>
-    <ion-input [value]="currentMultiplier" (ionChange)="onMultiplierChange($event)" type="number" min="1"></ion-input>
+    <ion-input [value]="currentMultiplier" (ionChange)="onMultiplierChange($event)" (ionBlur)="onMultiplierBlur($event)" type="number" min="1"></ion-input>
   </ion-item>
   <ion-list lines="inset" inset="true">
     <ion-item *ngFor="let ingredient of recipe?.ingredients">

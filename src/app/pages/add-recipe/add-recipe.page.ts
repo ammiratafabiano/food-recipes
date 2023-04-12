@@ -45,20 +45,13 @@ export class AddRecipePage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      if (params && params["id"]) {
-        const recipe_id = params["id"];
-        const recipeToEdit = this.navigationService.getParams<{recipe:Recipe}>()?.recipe;
-        if (recipeToEdit && recipeToEdit.id == recipe_id) {
-          this.isEdit = true;
-          this.selectedRecipe = recipeToEdit;
-        } else {
-          this.navigationService.pop();
-        }
-      } else {
-        this.selectedRecipe = new Recipe();
-      }
-    });
+    const recipeToEdit = this.navigationService.getParams<{recipe:Recipe}>()?.recipe;
+    if (recipeToEdit) {
+      this.isEdit = true;
+      this.selectedRecipe = recipeToEdit;
+    } else {
+      this.navigationService.pop();
+    }
     this.getData();
   }
 
@@ -96,7 +89,7 @@ export class AddRecipePage implements OnInit {
     );
   }
 
-  async onAddIngredientClicked() {
+  async onAddIngredientClicked(index?: number) {
     const loading = await this.loadingController.create()
     await loading.present()
     this.navigationService.push(AddRecipeNavigationPath.ItemSelection,
@@ -107,18 +100,34 @@ export class AddRecipePage implements OnInit {
         presentCallback: () => {
           loading.dismiss();
         },
-        dismissCallback: (item: Item) => {
-          if (item?.value && !this.selectedRecipe.ingredients.find(x => x.id == item.value)) {
-            const food = this.foodList?.find(x => x.id == item.value);
+        dismissCallback: async (item: Item) => {
+          const food = await this.mapSelectedIngredient(item);
+          if (index != undefined) {
+            food && this.selectedRecipe.ingredients.splice(index, 1, food);
+          } else {
             food && this.selectedRecipe.ingredients.push(food);
-          } else if (item?.text && item.custom) {
-            this.addCustomFood(item.text, (food: Ingredient) => {
-              food && this.selectedRecipe.ingredients.push(food);
-            });
           }
         }
       }
     );
+  }
+
+  private async mapSelectedIngredient(item?: Item): Promise<Ingredient | undefined> {
+    let food: Ingredient | undefined;
+    if (item?.custom) {
+      food = await this.addCustomFood(item.text);
+    } else if (item) {
+      food = new Ingredient();
+      food.id = item.value;
+      food.name = item.text;
+    }
+    return food;
+  }
+
+  private async addCustomFood(name: string) {
+    const loading = await this.loadingController.create()
+    await loading.present()
+    return this.dataService.addCustomFood(name).finally(() => loading.dismiss());
   }
 
   async onIngredientUnitClicked(selectedIngredient: Ingredient) {  
@@ -188,14 +197,6 @@ export class AddRecipePage implements OnInit {
       step.imageUrl = reader.result?.toString();
       step.imageToUpload = true;
     };
-  }
-
-  async addCustomFood(name: string, callback = (food: Ingredient) => {}) {
-    const loading = await this.loadingController.create()
-    await loading.present()
-    this.dataService.addCustomFood(name).then(response => {
-      response && callback(response);
-    }).finally(() => loading.dismiss());
   }
 
   async onConfirmClicked() {
