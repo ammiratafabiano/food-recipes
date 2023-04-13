@@ -56,6 +56,8 @@ export class DataService {
   }
 
   async getUser(user_id: string): Promise<UserData | undefined> {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
     return this.supabase
       .from(USERS_TABLE)
       .select('id, email, nickname, full_name, avatar_url')
@@ -66,7 +68,7 @@ export class DataService {
           return this.supabase
             .from(FOLLOWERS_TABLE)
             .select()
-            .eq('follower', user_id)
+            .eq('follower', user.id)
             .then(x => {
               const followerResult = x?.data && x?.data[0];
               let user = new UserData();
