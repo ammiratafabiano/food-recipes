@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LoadingController } from '@ionic/angular';
-import { NavigationPath } from 'src/app/models/navigation-path.enum';
+import { HomeNavigationPath, NavigationPath } from 'src/app/models/navigation-path.enum';
 import { UserData } from 'src/app/models/user-data.model';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
@@ -41,6 +41,9 @@ export class DiscoverPage {
       {
         queryParams: {
           id: user.id
+        },
+        params: {
+          previousPath: [NavigationPath.Home, HomeNavigationPath.Discover]
         }
       }
     );

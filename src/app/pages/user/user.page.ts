@@ -23,6 +23,8 @@ export class UserPage implements OnInit {
 
   isUserLogged = false;
 
+  previousPath?: string[];
+
   constructor(
     private readonly dataService: DataService,
     private readonly loadingController: LoadingController,
@@ -42,6 +44,7 @@ export class UserPage implements OnInit {
         this.navigationService.pop();
       }
     });
+    this.previousPath = this.navigationService.getParams<{previousPath: string[]}>()?.previousPath;
     this.isUserLogged = !!this.authService.getCurrentUser();
   }
 
@@ -56,7 +59,12 @@ export class UserPage implements OnInit {
   }
   
   async onBackClicked() {
-    return this.navigationService.setRoot(NavigationPath.Home);
+    // TODO refactory
+    if (this.previousPath) {
+      return this.navigationService.setRoot(this.previousPath);
+    } else {
+      return this.navigationService.setRoot(NavigationPath.Home);
+    }
   }
 
   async onShareClicked() {

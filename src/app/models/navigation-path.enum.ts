@@ -14,6 +14,7 @@ export enum LoginNavigationPath {
 
 export enum HomeNavigationPath {
     Base = "",
+    Discover = "discover",
     RecipeList = "recipe-list",
     Planning = "planning",
     ShoppingList = "shopping-list",
