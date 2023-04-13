@@ -34,17 +34,15 @@
     </ng-container>
   </ion-card>
 
-  <ion-label class="ion-padding" *ngIf="user?.recipes != undefined && user?.recipes?.length == 0">
-    {{ 'USER_PAGE.NO_DATA' | translate }}
-  </ion-label>
-
-  <p class="ion-padding" *ngIf="user?.recipes">
-    {{ 'USER_PAGE.RECIPE_LIST' | translate }}
-  </p>
-
-  <ion-list lines="inset" inset="true">
-    <ng-container *ngFor="let recipe of user?.recipes">
-      <ion-item-sliding>
+  <ng-container *ngIf="user?.recipes != undefined">
+    <h2 class="ion-padding">
+      {{ 'USER_PAGE.RECIPE_LIST' | translate }}
+    </h2>
+    <ion-label class="ion-padding" *ngIf="user?.recipes?.length == 0">
+      {{ 'USER_PAGE.NO_DATA' | translate }}
+    </ion-label>
+    <ion-list lines="inset" inset="true" *ngIf="user?.recipes?.length != 0">
+      <ion-item-sliding *ngFor="let recipe of user?.recipes">
         <ion-item button (click)="onRecipeClicked(recipe)">
           <ion-label>{{ recipe.name }}</ion-label>
         </ion-item>
@@ -54,7 +52,7 @@
           </ion-item-option>
         </ion-item-options>
       </ion-item-sliding>
-    </ng-container>
-  </ion-list>
+    </ion-list>
+  </ng-container>
 
 </ion-content>

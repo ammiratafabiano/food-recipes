@@ -34,7 +34,13 @@
     "RECIPE_LIST_PAGE": {
         "TITLE": "Recipes",
         "FILTERS": "Filters",
-        "NO_DATA": "You have no recipe yet."
+        "NO_DATA": "You have no recipe yet.",
+        "YOURS": "Yours",
+        "OTHERS": "Others"
+    },
+    "DISCOVER_PAGE": {
+        "TITLE": "Discover",
+        "USERS": "Users"
     },
     "PLANNING_PAGE": {
         "TITLE": "Planning",

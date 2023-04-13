@@ -80,13 +80,13 @@
     </ion-card-content>
   </ion-card>
 
-  <ion-item class="ion-padding-top" lines="none" *ngIf="isMine && isUserLogged" (click)="onDeleteClicked()">
+  <ion-item class="ion-padding-top" lines="none" *ngIf="recipe && isMine && isUserLogged" (click)="onDeleteClicked()">
     <ion-label color="danger">{{ 'RECIPE_PAGE.DELETE_BUTTON' | translate }} </ion-label>
   </ion-item>
   
 </ion-content>
 
-<ion-footer class="ion-padding" *ngIf="isUserLogged">
+<ion-footer class="ion-padding" *ngIf="recipe && isUserLogged">
   <ion-toolbar>
     <ion-button expand="block" (click)="onAddToPlanningClicked()">
       {{ 'RECIPE_PAGE.ADD_TO_PLANNING_BUTTON' | translate }}

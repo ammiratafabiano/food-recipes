@@ -73,7 +73,7 @@ export class AuthService {
     return this.supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: environment.siteUrl,
+        emailRedirectTo: environment.callbackUrl,
       }
     })
   }
@@ -82,7 +82,7 @@ export class AuthService {
     return this.supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {
-        redirectTo: environment.siteUrl
+        redirectTo: environment.callbackUrl
       }
     })
   }
@@ -91,7 +91,7 @@ export class AuthService {
     return this.supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: environment.siteUrl
+        redirectTo: environment.callbackUrl
       }
     })
   }

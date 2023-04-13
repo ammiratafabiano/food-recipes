@@ -31,10 +31,16 @@
         "SUBMIT_BUTTON": "Registrati",
         "SUBMIT_POPUP_SUCCESS_HEADER": "Please confirm your email now!"
     },
+    "DISCOVER_PAGE": {
+        "TITLE": "Scopri",
+        "USERS": "Utenti"
+    },
     "RECIPE_LIST_PAGE": {
         "TITLE": "Ricette",
         "FILTERS": "Filtri",
-        "NO_DATA": "Non hai ancora nessuna ricetta."
+        "NO_DATA": "Non hai ancora nessuna ricetta.",
+        "YOURS": "Le tue",
+        "OTHERS": "Degli altri"
     },
     "PLANNING_PAGE": {
         "TITLE": "Planning",

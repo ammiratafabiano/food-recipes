@@ -36,6 +36,10 @@ const routes: Routes = [
   {
     path: '**',
     redirectTo: '/not-found'
+  },
+  {
+    path: 'discover',
+    loadChildren: () => import('./pages/discover/discover.module').then( m => m.DiscoverPageModule)
   }
 ];
 @NgModule({

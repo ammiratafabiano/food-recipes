@@ -8,6 +8,10 @@ const routes: Routes = [
     component: HomePage,
     children: [
       {
+        path: 'discover',
+        loadChildren: () => import('../discover/discover.module').then(m => m.DiscoverPageModule)
+      },
+      {
         path: 'recipe-list',
         loadChildren: () => import('../recipe-list/recipe-list.module').then(m => m.RecipeListPageModule)
       },

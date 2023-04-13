@@ -36,6 +36,25 @@ export class DataService {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
   }
 
+  async getUsers() {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    return this.supabase
+      .from(USERS_TABLE)
+      .select('id, email, nickname, full_name, avatar_url')
+      .neq('id', user.id)
+      .then(result => {
+        return result.data?.map(userResult=> {
+          let user = new UserData();
+          user.id = userResult.id;
+          user.email = userResult.email;
+          user.name = userResult.nickname || userResult.full_name;
+          user.avatar_url = userResult.avatar_url;
+          return user;
+        });
+      });
+  }
+
   async getUser(user_id: string): Promise<UserData | undefined> {
     return this.supabase
       .from(USERS_TABLE)

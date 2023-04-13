@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { take } from 'rxjs';
-import { HomeNavigationPath, NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
+import { NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { UserData } from 'src/app/models/user-data.model';
 import { AlertService } from 'src/app/services/alert.service';

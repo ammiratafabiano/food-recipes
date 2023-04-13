@@ -13,30 +13,46 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-label class="ion-padding" *ngIf="displayRecipes != undefined && displayRecipes.length == 0">
-    {{ 'RECIPE_LIST_PAGE.NO_DATA' | translate }}
-  </ion-label>
+  <ng-container *ngIf="displayRecipes != undefined">
+    <h2 class="ion-padding">
+      {{ 'RECIPE_LIST_PAGE.YOURS' | translate }}
+    </h2>
+    <ion-label class="ion-padding" *ngIf="displayRecipes.length == 0">
+      {{ 'RECIPE_LIST_PAGE.NO_DATA' | translate }}
+    </ion-label>
+    <ion-list lines="inset" inset="true" *ngIf="displayRecipes.length > 0">
+      <ion-item-sliding *ngFor="let recipe of displayRecipes">
+        <ion-item button (click)="onRecipeClicked(recipe)">
+          <ion-label>{{ recipe.name }}</ion-label>
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option (click)="onAddToPlanningClicked(recipe)">
+            {{ 'RECIPE_PAGE.ADD_TO_PLANNING_BUTTON' | translate }}
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </ng-container>
 
-  <ng-container *ngFor="let recipeTypeFilter of recipeTypeFilters">
-    <ng-container *ngIf="recipeTypeFilter.enabled">
-      <p class="ion-padding">
-        {{ 'COMMON.RECIPE_TYPES.' + recipeTypeFilter.type | translate }}
-      </p>
-      <ion-list lines="inset" inset="true">
-        <ng-container *ngFor="let recipe of displayRecipes">
-          <ion-item-sliding>
-            <ion-item button *ngIf="recipeTypeFilter.type == recipe.type" (click)="onRecipeClicked(recipe)">
-              <ion-label>{{ recipe.name }}</ion-label>
-            </ion-item>
-            <ion-item-options side="end">
-              <ion-item-option (click)="onAddToPlanningClicked(recipe)">
-                {{ 'RECIPE_PAGE.ADD_TO_PLANNING_BUTTON' | translate }}
-              </ion-item-option>
-            </ion-item-options>
-          </ion-item-sliding>
-        </ng-container>
-      </ion-list>
-    </ng-container>
+  <ng-container *ngIf="displayOthersRecipes != undefined">
+    <h2 class="ion-padding">
+      {{ 'RECIPE_LIST_PAGE.OTHERS' | translate }}
+    </h2>
+    <ion-label class="ion-padding" *ngIf="displayOthersRecipes.length == 0">
+      {{ 'RECIPE_LIST_PAGE.NO_DATA' | translate }}
+    </ion-label>
+    <ion-list lines="inset" inset="true" *ngIf="displayOthersRecipes.length > 0">
+      <ion-item-sliding *ngFor="let recipe of displayOthersRecipes">
+        <ion-item button (click)="onRecipeClicked(recipe)">
+          <ion-label>{{ recipe.name }}</ion-label>
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option (click)="onAddToPlanningClicked(recipe)">
+            {{ 'RECIPE_PAGE.ADD_TO_PLANNING_BUTTON' | translate }}
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
   </ng-container>
 
 </ion-content>

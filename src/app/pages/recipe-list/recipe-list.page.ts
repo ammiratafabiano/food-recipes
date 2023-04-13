@@ -20,13 +20,15 @@ export class RecipeListPage {
   recipes?: Recipe[];
   displayRecipes?: Recipe[];
 
+  othersRecipes?: Recipe[];
+  displayOthersRecipes?: Recipe[];
+
   // Filters
   recipeTypeFilters: RecipeTypeFilter[] = [];
   recipeTagFilters: RecipeTagFilter[] = [];
 
   constructor(
     private readonly dataService: DataService,
-    private readonly modalController: ModalController,
     private readonly loadingController: LoadingController,
     private readonly translateService: TranslateService,
     private readonly actionSheetCtrl: ActionSheetController,
