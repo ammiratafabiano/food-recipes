@@ -2,6 +2,16 @@ ion-avatar {
     float: right;
 }
 
+ion-card {
+    ion-card-content {
+        padding: 0;
+        ion-item {
+            text-align: center;
+            --background: transparent;
+        }
+    }
+}
+
 .content {
     display: flex;
     flex-direction: column;

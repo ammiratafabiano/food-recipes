@@ -49,8 +49,6 @@ export class AddRecipePage implements OnInit {
     if (recipeToEdit) {
       this.isEdit = true;
       this.selectedRecipe = recipeToEdit;
-    } else {
-      this.navigationService.pop();
     }
     this.getData();
   }

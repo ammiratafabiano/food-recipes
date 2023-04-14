@@ -21,13 +21,31 @@
         </ion-avatar>
         <ion-card-title>{{ userData.name }}</ion-card-title>
         <ion-card-subtitle>{{ userData.email }}</ion-card-subtitle>
-      </ion-card-header> 
-      <ion-button fill="clear" (click)="onLogoutClicked()">
-        {{ 'SETTINGS_PAGE.LOGOUT_BUTTON' | translate }}
-      </ion-button>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-label>
+            <h3>Followers</h3>
+            <p>1</p>
+          </ion-label>
+          <ion-label>
+            <h3>Followed</h3>
+            <p>1</p>
+          </ion-label>
+          <ion-label>
+            <h3>Saved</h3>
+            <p>2</p>
+          </ion-label>
+        </ion-item>
+      </ion-card-content>
     </ion-card>
   
     <ion-list class="settings-list">
+      <ion-item lines="none" (click)="onLogoutClicked()">
+        <ion-label color="primary">
+          {{ 'SETTINGS_PAGE.LOGOUT_BUTTON' | translate }}
+        </ion-label>
+      </ion-item>
       <ion-item lines="none" (click)="onDeleteClicked()">
         <ion-label color="danger">
           {{ 'SETTINGS_PAGE.DELETE_USER_BUTTON' | translate }}
