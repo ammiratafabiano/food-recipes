@@ -1,7 +1,7 @@
 {
-  "name": "app",
-  "short_name": "app",
-  "theme_color": "#1976d2",
+  "name": "Recipes App",
+  "short_name": "Recipes App",
+  "theme_color": "#f7f7f7",
   "background_color": "#fafafa",
   "display": "standalone",
   "scope": "./",
