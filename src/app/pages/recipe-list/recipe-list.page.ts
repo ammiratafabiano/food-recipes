@@ -40,25 +40,20 @@ export class RecipeListPage {
   private async getData() {
     const loading = await this.loadingController.create();
     await loading.present();
-    this.dataService.getRecipeList().then(response => {
-      if (response && response.length > 0) {
-        this.recipes = response;
-        this.displayRecipes = this.recipes;
-      } else {
-        this.recipes = [];
-        this.displayRecipes = [];
-      }
-    }).finally(async () => {
-      await loading.dismiss();
-      this.initFilters();
-    });
+    this.recipes = await this.dataService.getRecipeList() || [];
+    this.displayRecipes = this.recipes;
+    this.othersRecipes = await this.dataService.getSavedRecipeList() || [];
+    this.displayOthersRecipes = this.othersRecipes;
+    this.initFilters();
+    await loading.dismiss();
   }
 
   private initFilters() {
+    const allRecipes = (this.recipes || []).concat(this.othersRecipes || []);
     // Init types
     this.recipeTypeFilters = [];
     Object.values(RecipeType).forEach(x => {
-      if (this.recipes?.find(y => y.type == x)) {
+      if (allRecipes.find(y => y.type == x)) {
         let recipeTypeFilter = new RecipeTypeFilter();
         recipeTypeFilter.type = x;
         this.recipeTypeFilters.push(recipeTypeFilter);
@@ -66,7 +61,7 @@ export class RecipeListPage {
     });
     // Init tags
     this.recipeTagFilters = [];
-    this.recipes?.forEach(x => {
+    allRecipes.forEach(x => {
       x?.tags?.forEach(y => {
         if (!this.recipeTagFilters.find(z => z.tag == y)) {
           let recipeTagFilter = new RecipeTagFilter();
@@ -84,6 +79,7 @@ export class RecipeListPage {
   onSearchChange(event: any) {
     const query = event.target.value.toLowerCase().trim();
     this.displayRecipes = this.recipes?.filter(x => x.name.toLowerCase().indexOf(query) > -1);
+    this.displayOthersRecipes = this.othersRecipes?.filter(x => x.name.toLowerCase().indexOf(query) > -1);
   }
 
   async onRecipeClicked(recipe: Recipe) {
@@ -132,7 +128,7 @@ export class RecipeListPage {
     const result = await actionSheet.onDidDismiss();
     if (result?.data?.action) {
       await this.dataService.addToPlanning(recipe, result.data.action);
-      this.navigationService.setRoot([NavigationPath.Home, HomeNavigationPath.Planning],
+      this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],
         {
           queryParams: {
             week: result?.data?.action

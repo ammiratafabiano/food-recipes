@@ -88,6 +88,8 @@ export class NavigationService {
       navigationStackElement.from = from.join("/");
       navigationStackElement.data = navigationData;
       this.stack = [navigationStackElement];
+    } else {
+      this.stack = [];
     }
     const successCallback = (success: boolean) => {
       if (success) {
@@ -112,6 +114,31 @@ export class NavigationService {
     const currentPage = this.getCurrentPage();
     this.logService.Info("NavigationService", "getParams", "");
     return currentPage?.data?.params as T;
+  }
+
+  /**
+   * @description Call to navigate to the previous page from a current component.
+   * @param params The params from previous page (optional)
+   * @returns void
+   */
+  goToPreviousPage(params?: any) {
+    if (this.stack.length > 0) {
+      const stackElement = this.stack[this.stack.length - 1];
+      let toStackElement = this.stack.find(x => x.to == stackElement.from);
+      if (toStackElement?.data && params) {
+        toStackElement.data.params = params;
+      } else if (toStackElement && params) {
+        toStackElement.data = new NavigationData();
+        toStackElement.data.params = params;
+      } else if (params) {
+        toStackElement = new NavigationStackElement();
+        toStackElement.data = new NavigationData();
+        toStackElement.data.params = params;
+      }
+      this.setRoot(stackElement.from, toStackElement?.data);
+    } else {
+      this.pop(params);
+    }
   }
 
   /**

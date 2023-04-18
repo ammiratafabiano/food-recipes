@@ -7,6 +7,12 @@
     </ion-buttons>
     <ion-title>{{ 'RECIPE_PAGE.TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
+      <ion-button (click)="onSaveClicked()" *ngIf="recipe && !isMine && !recipe.isAdded && isUserLogged">
+        <ion-icon slot="icon-only" name="bookmark-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="onUnsaveClicked()" *ngIf="recipe && !isMine && recipe.isAdded && isUserLogged">
+        <ion-icon slot="icon-only" name="bookmark"></ion-icon>
+      </ion-button>
       <ion-button (click)="onEditClicked()" *ngIf="isMine && isUserLogged">
         <ion-icon slot="icon-only" name="create"></ion-icon>
       </ion-button>
@@ -20,10 +26,10 @@
 <ion-content>
   <!-- Title-->
   <h1 class="ion-padding-horizontal" *ngIf="recipe?.name">{{ recipe?.name }}</h1>
-  <p class="ion-padding-horizontal" *ngIf="recipe?.user_name">
+  <p class="ion-padding-horizontal" *ngIf="recipe?.userName">
     {{ 'RECIPE_PAGE.OWNER' | translate }}
-    <a *ngIf="!isMine" (click)="onOwnerClicked()">{{ recipe?.user_name }}</a>
-    <a *ngIf="isMine" (click)="onSelfClicked()">{{ recipe?.user_name }}</a>
+    <a *ngIf="!isMine" (click)="onOwnerClicked()">{{ recipe?.userName }}</a>
+    <a *ngIf="isMine" (click)="onSelfClicked()">{{ recipe?.userName }}</a>
   </p>
   <p class="ion-padding" *ngIf="recipe?.description">{{ recipe?.description }}</p>
   <!-- Metadata -->
@@ -35,12 +41,12 @@
   <ion-item lines="full" *ngIf="recipe?.cuisine">
     <ion-icon name="earth-outline" slot="start"></ion-icon>
     <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
-    <ion-label>{{ recipe?.cuisine }}</ion-label>
+    <ion-label>{{ 'COMMON.CUISINE_TYPES.' + recipe?.cuisine | translate }}</ion-label>
   </ion-item>
   <ion-item lines="full" *ngIf="recipe?.time?.value">
     <ion-icon name="timer" slot="start"></ion-icon>
     <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>
-    <ion-label>{{ recipe?.time?.value }}{{ 'COMMON.TIME_UNITS.' + recipe?.time?.unit | translate }}</ion-label>
+    <ion-label>{{ recipe?.time?.value }} {{ 'COMMON.TIME_UNITS.' + recipe?.time?.unit | translate }}</ion-label>
   </ion-item>
   <ion-item lines="full" *ngIf="recipe?.difficulty">
     <ion-icon name="podium" slot="start"></ion-icon>

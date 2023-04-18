@@ -23,8 +23,6 @@ export class UserPage implements OnInit {
 
   isUserLogged = false;
 
-  previousPath?: string[];
-
   constructor(
     private readonly dataService: DataService,
     private readonly loadingController: LoadingController,
@@ -44,7 +42,6 @@ export class UserPage implements OnInit {
         this.navigationService.pop();
       }
     });
-    this.previousPath = this.navigationService.getParams<{previousPath: string[]}>()?.previousPath;
     this.isUserLogged = !!this.authService.getCurrentUser();
   }
 
@@ -59,12 +56,7 @@ export class UserPage implements OnInit {
   }
   
   async onBackClicked() {
-    // TODO refactory
-    if (this.previousPath) {
-      return this.navigationService.setRoot(this.previousPath);
-    } else {
-      return this.navigationService.setRoot(NavigationPath.Home);
-    }
+    this.navigationService.goToPreviousPage();
   }
 
   async onShareClicked() {
@@ -76,15 +68,14 @@ export class UserPage implements OnInit {
   }
 
   async onFollowClicked() {
-    if (this.user) {
-      const loading = await this.loadingController.create()
-      await loading.present()
-      const result = await this.dataService.addFollower(this.user.id);
-      if (result) {
-        this.user.followed = true;
-      }
-      await loading.dismiss();
+    if (!this.user) return;
+    const loading = await this.loadingController.create()
+    await loading.present()
+    const result = await this.dataService.addFollower(this.user.id);
+    if (result) {
+      this.user.followed = true;
     }
+    await loading.dismiss();
   }
 
   async onUnfollowClicked() {
@@ -105,9 +96,5 @@ export class UserPage implements OnInit {
         id: recipe.id
       }
     });
-  }
-
-  async onAddClicked(recipe: Recipe) {
-
   }
 }

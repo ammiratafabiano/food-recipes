@@ -37,13 +37,10 @@ export class DiscoverPage {
   }
 
   async onUserClicked(user: UserData) {
-    this.navigationService.setRoot(NavigationPath.User,
+    this.navigationService.setRoot([NavigationPath.Base, NavigationPath.User],
       {
         queryParams: {
           id: user.id
-        },
-        params: {
-          previousPath: [NavigationPath.Home, HomeNavigationPath.Discover]
         }
       }
     );

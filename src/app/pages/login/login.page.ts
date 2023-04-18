@@ -28,17 +28,18 @@ export class LoginPage {
     private readonly sessionService: SessionService,
     private readonly translateService: TranslateService
   ) {
-    // TODO workaround for multiple subscribe
-    this.authService.getCurrentUserAsync().pipe(tap((user) => {
+    this.authService.getCurrentUserAsync().subscribe((user) => {
       if (user) {
         const loginRedirect = this.sessionService.loginRedirect;
         if (loginRedirect) {
-          this.router.navigateByUrl(loginRedirect, { replaceUrl: true });
+          this.router.navigateByUrl(loginRedirect, { replaceUrl: true }).then(() => {
+            this.sessionService.loginRedirect = undefined;
+          });
         } else {
           this.router.navigateByUrl("/home", { replaceUrl: true });
         }
       }
-    })).subscribe();
+    });
   }
 
   get email() {

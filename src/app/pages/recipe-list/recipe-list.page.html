@@ -39,7 +39,7 @@
       {{ 'RECIPE_LIST_PAGE.OTHERS' | translate }}
     </h2>
     <ion-label class="ion-padding" *ngIf="displayOthersRecipes.length == 0">
-      {{ 'RECIPE_LIST_PAGE.NO_DATA' | translate }}
+      {{ 'RECIPE_LIST_PAGE.NO_DATA_OTHERS' | translate }}
     </ion-label>
     <ion-list lines="inset" inset="true" *ngIf="displayOthersRecipes.length > 0">
       <ion-item-sliding *ngFor="let recipe of displayOthersRecipes">

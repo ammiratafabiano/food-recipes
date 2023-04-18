@@ -224,7 +224,7 @@ export class AddRecipePage implements OnInit {
   }
 
   async onCancelClicked() {
-    return this.navigationService.setRoot([NavigationPath.Home, HomeNavigationPath.RecipeList, RecipeListNavigationPath.Recipe], {
+    return this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.RecipeList, RecipeListNavigationPath.Recipe], {
       queryParams: {
         id: this.selectedRecipe.id
       }

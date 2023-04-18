@@ -12,15 +12,17 @@ import { Step } from '../models/step.model';
 import { Observable, of, Subject } from 'rxjs';
 import { UserData } from '../models/user-data.model';
 
-const USERS_TABLE = 'users'
-const RECIPES_TABLE = 'recipes'
-const INGREDIENTS_TABLE = 'ingredients'
-const FOODS_TABLE = 'foods'
-const PLANNINGS_TABLE = 'plannings'
-const FOLLOWERS_TABLE = 'followers'
+const USERS = 'users'
+const RECIPES = 'recipes'
+const SAVED_RECIPES = 'saved_recipes'
+const INGREDIENTS = 'ingredients'
+const FOODS = 'foods'
+const PLANNINGS = 'plannings'
+const FOLLOWERS = 'followers'
+const SAVED = 'saved'
+const NAMED_INGREDIENTS = 'named_ingredients'
+const SHOPPING_LIST = 'shopping_list'
 
-const NAMED_INGREDIENTS_VIEW = 'named_ingredients'
-const SHOPPING_LIST_VIEW = 'shopping_list'
 @Injectable({
   providedIn: 'root'
 })
@@ -40,7 +42,7 @@ export class DataService {
     const user = this.authService.getCurrentUser();
     if (!user) return;
     return this.supabase
-      .from(USERS_TABLE)
+      .from(USERS)
       .select('id, email, nickname, full_name, avatar_url')
       .neq('id', user.id)
       .then(result => {
@@ -59,16 +61,16 @@ export class DataService {
     const user = this.authService.getCurrentUser();
     if (!user) return;
     return this.supabase
-      .from(USERS_TABLE)
+      .from(USERS)
       .select('id, email, nickname, full_name, avatar_url')
       .eq('id', user_id)
       .then(x => {
         const userResult = x?.data && x?.data[0];
         if (userResult) {
           return this.supabase
-            .from(FOLLOWERS_TABLE)
+            .from(FOLLOWERS)
             .select()
-            .eq('follower', user.id)
+            .match({'followed': user_id, 'follower': user.id})
             .then(x => {
               const followerResult = x?.data && x?.data[0];
               let user = new UserData();
@@ -89,7 +91,7 @@ export class DataService {
     const user = this.authService.getCurrentUser();
     if (!user) return;
     return this.supabase
-      .from(USERS_TABLE)
+      .from(USERS)
       .delete()
       .eq('id', user?.id)
   }
@@ -102,15 +104,38 @@ export class DataService {
       followed: user_id
     }
     return this.supabase
-      .from(FOLLOWERS_TABLE)
+      .from(FOLLOWERS)
       .insert(element)
   }
 
   async deleteFollower(user_id: string) {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
     return this.supabase
-      .from(FOLLOWERS_TABLE)
+      .from(FOLLOWERS)
       .delete()
-      .eq('followed', user_id)
+      .match({'followed': user_id, 'follower': user.id})
+  }
+
+  async saveRecipe(recipe_id: string) {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    const element = {
+      recipe_id,
+      user_id: user.id
+    }
+    return this.supabase
+      .from(SAVED)
+      .insert(element)
+  }
+
+  async unsaveRecipe(recipe_id: string) {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    return this.supabase
+      .from(SAVED)
+      .delete()
+      .match({'recipe_id': recipe_id, 'user_id': user.id})
   }
 
   async addRecipe(recipe: Recipe) {
@@ -131,7 +156,7 @@ export class DataService {
       tags: recipe.tags
     }
     return this.supabase
-      .from(RECIPES_TABLE)
+      .from(RECIPES)
       .insert(element).select('*').then((returning) => {
         if (returning.data && returning.data.length == 1 && returning.data[0].id) {
           const ingredients = recipe.ingredients.map(x => {
@@ -143,7 +168,7 @@ export class DataService {
             }
           });
           return this.supabase
-            .from(INGREDIENTS_TABLE)
+            .from(INGREDIENTS)
             .insert(ingredients);
         } else {
           return
@@ -152,42 +177,52 @@ export class DataService {
   }
 
   async getRecipe(recipe_id: string): Promise<Recipe | undefined> {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
     return this.supabase
-      .from(RECIPES_TABLE)
+      .from(RECIPES)
       .select()
       .eq('id', recipe_id)
       .then(x => {
         const recipeResult = x?.data && x?.data[0];
         if (recipeResult) {
-          return this.supabase.from(NAMED_INGREDIENTS_VIEW)
+          return this.supabase.from(NAMED_INGREDIENTS)
             .select('food_id, food_name, quantity_value, quantity_unit')
             .match({ recipe_id: recipe_id })
             .then((ingredientsResult) => {
-              let recipe = new Recipe();
-              recipe.id = recipeResult.id;
-              recipe.user_id = recipeResult.user_id;
-              recipe.user_name = recipeResult.user_name;
-              recipe.name = recipeResult.name;
-              recipe.description = recipeResult.description;
-              recipe.cuisine = recipeResult.cuisine;
-              recipe.type = recipeResult.type || RecipeType.Other;
-              recipe.difficulty = recipeResult.difficulty;
-              recipe.time.value = recipeResult.time_quantity;
-              recipe.time.unit = recipeResult.time_unit;
-              recipe.ingredients = ingredientsResult.data?.map(y => {
-                let ingredient = new Ingredient();
-                ingredient.id = y.food_id;
-                ingredient.name = y.food_name;
-                ingredient.quantity.value = y.quantity_value;
-                ingredient.quantity.unit = y.quantity_unit;
-                return ingredient;
-              }) || [];
-              recipe.steps = recipeResult.steps;
-              recipe.tags = recipeResult.tags;
-              recipe.servings = recipeResult.servings;
-              recipe.variant = recipeResult.variant;
-              return recipe;
+              return this.supabase
+              .from(SAVED)
+              .select()
+              .match({'recipe_id': recipe_id, 'user_id': user.id})
+              .then(x => {
+                const savedResult = x?.data && x?.data[0];
+                let recipe = new Recipe();
+                recipe.id = recipeResult.id;
+                recipe.userId = recipeResult.user_id;
+                recipe.userName = recipeResult.user_name;
+                recipe.name = recipeResult.name;
+                recipe.description = recipeResult.description;
+                recipe.cuisine = recipeResult.cuisine;
+                recipe.type = recipeResult.type || RecipeType.Other;
+                recipe.difficulty = recipeResult.difficulty;
+                recipe.time.value = recipeResult.time_quantity;
+                recipe.time.unit = recipeResult.time_unit;
+                recipe.ingredients = ingredientsResult.data?.map(y => {
+                  let ingredient = new Ingredient();
+                  ingredient.id = y.food_id;
+                  ingredient.name = y.food_name;
+                  ingredient.quantity.value = y.quantity_value;
+                  ingredient.quantity.unit = y.quantity_unit;
+                  return ingredient;
+                }) || [];
+                recipe.steps = recipeResult.steps;
+                recipe.tags = recipeResult.tags;
+                recipe.servings = recipeResult.servings;
+                recipe.variant = recipeResult.variant;
+                recipe.isAdded = !!savedResult;
+                return recipe;
             });
+          });
         } else {
           return
         }
@@ -214,10 +249,10 @@ export class DataService {
       variant: recipe.variant
     }
     return this.supabase
-      .from(RECIPES_TABLE)
+      .from(RECIPES)
       .update(element).match({ id: recipe.id }).then(() => {
         return this.supabase
-          .from(INGREDIENTS_TABLE)
+          .from(INGREDIENTS)
           .delete()
           .eq('recipe_id', recipe.id).then(() => {
             const ingredients = recipe.ingredients.map(x => {
@@ -229,7 +264,7 @@ export class DataService {
               }
             });
             return this.supabase
-              .from(INGREDIENTS_TABLE)
+              .from(INGREDIENTS)
               .insert(ingredients).then(() => {
                 return this.deleteStepImages(stepsOfImagesToDelete);
               });
@@ -257,7 +292,7 @@ export class DataService {
 
   async deleteRecipe(recipe: Recipe) {
     return this.supabase
-      .from(RECIPES_TABLE)
+      .from(RECIPES)
       .delete()
       .eq('id', recipe.id).then(() => {
         return this.deleteStepImages(recipe.steps);
@@ -281,7 +316,7 @@ export class DataService {
     const user = this.authService.getCurrentUser();
     if (!user) return;
     return this.supabase
-      .from(RECIPES_TABLE)
+      .from(RECIPES)
       .select('id, name, type')
       .match({ user_id: user_id || user.id })
       .then((result) => {
@@ -295,9 +330,28 @@ export class DataService {
       })    
   }
 
+  async getSavedRecipeList(user_id?: string): Promise<Recipe[] | undefined> {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    return this.supabase
+      .from(SAVED_RECIPES)
+      .select('id, user_id, name, type')
+      .match({ saved_by: user_id || user.id })
+      .then((result) => {
+        return result.data?.map(x => {
+          let recipe = new Recipe();
+          recipe.userId = x.user_id;
+          recipe.id = x.id;
+          recipe.name = x.name;
+          recipe.type = x.type || RecipeType.Other;
+          return recipe;
+        })
+      })    
+  }
+
   async getFoodList(): Promise<Ingredient[] | undefined> {
     return this.supabase
-      .from(FOODS_TABLE)
+      .from(FOODS)
       .select('id, name, unit')
       .then((result) => {
         return result.data?.map(x => {
@@ -314,7 +368,7 @@ export class DataService {
     const user = this.authService.getCurrentUser();
     if (!user) return;
     return this.supabase
-    .from(PLANNINGS_TABLE)
+    .from(PLANNINGS)
     .select('id, recipe_id, recipe_name, week, day, meal')
     .eq('week', week)
     .match({ user_id: user.id })
@@ -349,13 +403,13 @@ export class DataService {
       meal: meal
     }
     return this.supabase
-        .from(PLANNINGS_TABLE)
+        .from(PLANNINGS)
         .insert(element);
   }
 
   async deletePlanning(planning_id: string) {
     return this.supabase
-      .from(PLANNINGS_TABLE)
+      .from(PLANNINGS)
       .delete()
       .eq('id', planning_id)
   }
@@ -366,7 +420,7 @@ export class DataService {
       meal: planned_recipe.meal || null
     }
     return this.supabase
-      .from(PLANNINGS_TABLE)
+      .from(PLANNINGS)
       .update(element).match({ id: planned_recipe.id });
   }
 
@@ -374,7 +428,7 @@ export class DataService {
     const user = this.authService.getCurrentUser();
     if (!user) return;
     return this.supabase
-    .from(SHOPPING_LIST_VIEW)
+    .from(SHOPPING_LIST)
     .select('food_id, food_name, food_unit, food_total_quantity')
     .gte('planning_week', week)
     .match({ user_id: user.id })
@@ -416,7 +470,7 @@ export class DataService {
       custom: true
     }
     return this.supabase
-        .from(FOODS_TABLE)
+        .from(FOODS)
         .insert(element).select('*').then((returning) => {
           if (returning.data && returning.data.length == 1 && returning.data[0].id) {
             let food: Ingredient = {

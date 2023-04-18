@@ -38,7 +38,8 @@
     "RECIPE_LIST_PAGE": {
         "TITLE": "Ricette",
         "FILTERS": "Filtri",
-        "NO_DATA": "Non hai ancora nessuna ricetta.",
+        "NO_DATA": "Non hai aggiunto ancora nessuna ricetta.",
+        "NO_DATA_OTHERS": "Non hai salvato ancora nessuna ricetta.",
         "YOURS": "Le tue",
         "OTHERS": "Degli altri"
     },
@@ -48,7 +49,8 @@
         "MEAL_RESET": "Resetta"
     },
     "SHOPPING_LIST_PAGE": {
-        "TITLE": "Lista della spesa"
+        "TITLE": "Lista della spesa",
+        "NO_DATA": "Lista vuota. Aggiungi ricette al planning prima."
     },
     "SETTINGS_PAGE": {
         "TITLE": "Impostazioni",
@@ -152,8 +154,8 @@
             "MILLILITER": "ml"
         },
         "TIME_UNITS": {
-            "MINUTE": "min",
-            "HOUR": "hrs"
+            "MINUTE": "minuti",
+            "HOUR": "ore"
         },
         "WEEK_DAYS": {
             "MON": "Lunedì",

@@ -15,6 +15,6 @@ export class NotFoundPage implements OnInit {
   }
   
   async onHomePageClicked() {
-    this.navigationService.setRoot(NavigationPath.Login);
+    this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Login]);
   }
 }

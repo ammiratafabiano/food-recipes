@@ -11,7 +11,7 @@ import { SessionService } from 'src/app/services/session.service';
   templateUrl: './delete-user.page.html',
   styleUrls: ['./delete-user.page.scss'],
 })
-export class DeleteUserPage implements OnInit {
+export class DeleteUserPage {
 
   constructor(
     private readonly authService: AuthService,
@@ -20,13 +20,6 @@ export class DeleteUserPage implements OnInit {
     public readonly sessionService: SessionService,
     private readonly navigationService: NavigationService
   ) { }
-
-  ngOnInit() {
-  }
-
-  ionViewDidEnter() {
-    this.sessionService.loginRedirect = undefined;
-  }
 
   async onBackClicked() {
     return this.navigationService.pop();
@@ -38,7 +31,7 @@ export class DeleteUserPage implements OnInit {
       async () => {
         await this.dataService.deleteUser();
         await this.authService.signOut();
-        this.navigationService.setRoot(NavigationPath.Login);
+        this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Login]);
     });
   }
 }

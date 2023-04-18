@@ -35,6 +35,7 @@
         "TITLE": "Recipes",
         "FILTERS": "Filters",
         "NO_DATA": "You have no recipe yet.",
+        "NO_DATA_OTHERS": "You have no saved recipe yet.",
         "YOURS": "Yours",
         "OTHERS": "Others"
     },
@@ -48,7 +49,9 @@
         "MEAL_RESET": "Reset"
     },
     "SHOPPING_LIST_PAGE": {
-        "TITLE": "Shopping list"
+        "TITLE": "Shopping list",
+        "NO_DATA": "Empty list. Add recipes to the planning first."
+
     },
     "SETTINGS_PAGE": {
         "TITLE": "Settings",
@@ -152,8 +155,8 @@
             "MILLILITER": "ml"
         },
         "TIME_UNITS": {
-            "MINUTE": "min",
-            "HOUR": "hrs"
+            "MINUTE": "minutes",
+            "HOUR": "hours"
         },
         "WEEK_DAYS": {
             "MON": "Monday",

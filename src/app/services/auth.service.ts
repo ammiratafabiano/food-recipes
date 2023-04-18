@@ -45,7 +45,7 @@ export class AuthService {
   }
 
   getCurrentUserAsync(): Observable<User | undefined> {
-    return this.currentUser.asObservable().pipe(debounce(() => timer(200))) // TODO workaround for multiple subscribe
+    return this.currentUser.asObservable();
   }
 
   getCurrentUser(): UserData | undefined {

@@ -24,7 +24,7 @@ export class SettingsPage implements OnInit {
 
   async onLogoutClicked() {
     await this.authService.signOut();
-    this.navigationService.setRoot(NavigationPath.Login,
+    this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Login],
       {
         animationDirection: "back"
       }

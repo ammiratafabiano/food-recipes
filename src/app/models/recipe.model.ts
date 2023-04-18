@@ -6,8 +6,8 @@ import { Step } from "./step.model";
 
 export class Recipe {
     id!: string;
-    user_id!: string;
-    user_name!: string;
+    userId!: string;
+    userName!: string;
     name!: string;
     description!: string;
     cuisine?: string;
@@ -19,4 +19,5 @@ export class Recipe {
     tags: string[] = [];
     servings!: number;
     variant!: number;
+    isAdded = false;
 }
