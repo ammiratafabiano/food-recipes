@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { RecipeNavigationPath } from 'src/app/models/navigation-path.enum';
 
 import { RecipePage } from './recipe.page';
 
 const routes: Routes = [
   {
-    path: '',
+    path: RecipeNavigationPath.Base,
     component: RecipePage
   }
 ];

@@ -1,15 +1,16 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { AddRecipeNavigationPath } from 'src/app/models/navigation-path.enum';
 
 import { AddRecipePage } from './add-recipe.page';
 
 const routes: Routes = [
   {
-    path: '',
+    path: AddRecipeNavigationPath.Base,
     component: AddRecipePage
   },
   {
-    path: 'item-selection',
+    path: AddRecipeNavigationPath.ItemSelection,
     loadChildren: () => import('../item-selection/item-selection.module').then( m => m.ItemSelectionPageModule)
   }
 ];

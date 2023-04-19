@@ -38,7 +38,6 @@ export enum UserNavigationPath {
 
 export enum AddRecipeNavigationPath {
     Base = "",
-    IngredientSelection = "ingredient-selection",
     ItemSelection = "item-selection"
 }
 

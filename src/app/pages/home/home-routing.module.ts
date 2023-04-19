@@ -1,43 +1,39 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { HomeNavigationPath } from 'src/app/models/navigation-path.enum';
 import { HomePage } from './home.page';
 
 const routes: Routes = [
   {
-    path: '',
+    path: HomeNavigationPath.Base,
     component: HomePage,
     children: [
       {
-        path: 'discover',
+        path: HomeNavigationPath.Discover,
         loadChildren: () => import('../discover/discover.module').then(m => m.DiscoverPageModule)
       },
       {
-        path: 'recipe-list',
+        path: HomeNavigationPath.RecipeList,
         loadChildren: () => import('../recipe-list/recipe-list.module').then(m => m.RecipeListPageModule)
       },
       {
-        path: 'planning',
+        path: HomeNavigationPath.Planning,
         loadChildren: () => import('../planning/planning.module').then(m => m.PlanningPageModule)
       },
       {
-        path: 'shopping-list',
+        path: HomeNavigationPath.ShoppingList,
         loadChildren: () => import('../shopping-list/shopping-list.module').then(m => m.ShoppingListModule)
       },
       {
-        path: 'settings',
+        path: HomeNavigationPath.Settings,
         loadChildren: () => import('../settings/settings.module').then( m => m.SettingsPageModule)
       },
       {
         path: '',
-        redirectTo: '/home/recipe-list',
+        redirectTo: HomeNavigationPath.RecipeList,
         pathMatch: 'full'
       }
     ]
-  },
-  {
-    path: '',
-    redirectTo: '/home/recipe-list',
-    pathMatch: 'full'
   }
 ];
 

@@ -1,18 +1,19 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
 import { RecipeListPage } from './recipe-list.page';
 
 const routes: Routes = [
   {
-    path: '',
+    path: RecipeListNavigationPath.Base,
     component: RecipeListPage,
   },
   {
-    path: 'recipe',
+    path: RecipeListNavigationPath.Recipe,
     loadChildren: () => import('../recipe/recipe.module').then( m => m.RecipePageModule)
   },
   {
-    path: 'add-recipe',
+    path: RecipeListNavigationPath.AddRecipe,
     loadChildren: () => import('../add-recipe/add-recipe.module').then( m => m.AddRecipePageModule)
   },
 ];
