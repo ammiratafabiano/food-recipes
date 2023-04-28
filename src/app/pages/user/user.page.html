@@ -25,10 +25,10 @@
       <ion-card-subtitle>{{ user.email }}</ion-card-subtitle>
     </ion-card-header>
     <ng-container *ngIf="isUserLogged">
-      <ion-button *ngIf="!user.followed" fill="clear" color="primary" (click)="onFollowClicked()">
+      <ion-button *ngIf="!user.isFollowed" fill="clear" color="primary" (click)="onFollowClicked()">
         {{ 'USER_PAGE.ADD_FOLLOW' | translate }}
       </ion-button>
-      <ion-button *ngIf="user.followed" fill="clear" color="danger" (click)="onUnfollowClicked()">
+      <ion-button *ngIf="user.isFollowed" fill="clear" color="danger" (click)="onUnfollowClicked()">
         {{ 'USER_PAGE.DELETE_FOLLOW' | translate }}
       </ion-button>
     </ng-container>

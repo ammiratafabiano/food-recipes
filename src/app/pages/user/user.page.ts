@@ -73,7 +73,7 @@ export class UserPage implements OnInit {
     await loading.present()
     const result = await this.dataService.addFollower(this.user.id);
     if (result) {
-      this.user.followed = true;
+      this.user.isFollowed = true;
     }
     await loading.dismiss();
   }
@@ -84,7 +84,7 @@ export class UserPage implements OnInit {
     await loading.present()
     const result = await this.dataService.deleteFollower(this.user.id);
     if (result) {
-      this.user.followed = false;
+      this.user.isFollowed = false;
     }
     await loading.dismiss();
   }
@@ -94,7 +94,8 @@ export class UserPage implements OnInit {
     return this.navigationService.push(RecipeListNavigationPath.Recipe, {
       queryParams: {
         id: recipe.id
-      }
+      },
+      dismissCallback: (params: any) => params?.needToRefresh && this.user && this.getData(this.user.id)
     });
   }
 }

@@ -70,7 +70,8 @@
         "ERROR_DESCRIPTION": "Qualcosa è andato storto scaricando la ricetta. Prova più tardi.",
         "DELETE_BUTTON": "Elimina ricetta",
         "DELETE_POPUP_CONFIRM_MESSAGE": "Vuoi davvero cancellare la ricetta?",
-        "SERVINGS": "Per"
+        "SERVINGS": "Per",
+        "VARIANT": "Variante di"
     },
     "ADD_RECIPE_PAGE": {
         "TITLE": "Nuova ricetta",
@@ -191,6 +192,7 @@
             "OK_BUTTON": "Ok",
             "CANCEL_BUTTON": "Annulla"
         },
-        "CLIPBOARD": "Copiato negli appunti."
+        "CLIPBOARD": "Copiato negli appunti.",
+        "VARIANT": "Variante"
     }
 }

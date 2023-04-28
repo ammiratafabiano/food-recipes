@@ -5,6 +5,13 @@ export class UserData {
     name!: string;
     email!: string;
     avatar_url?: string;
-    followed?: boolean;
+    isFollowed?: boolean;
     recipes?: Recipe[];
+    stats?: UserStats;
+}
+
+export class UserStats {
+    saved?: number;
+    followers?: number;
+    followed?: number;
 }

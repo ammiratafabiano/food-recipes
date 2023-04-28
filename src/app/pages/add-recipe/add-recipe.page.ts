@@ -4,7 +4,6 @@ import { ActionSheetController, LoadingController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Cuisine } from 'src/app/models/cuisine.enum';
 import { Difficulty } from 'src/app/models/difficulty.enum';
-import { Food } from 'src/app/models/food.model';
 import { Ingredient } from 'src/app/models/ingredient.model';
 import { Item } from 'src/app/models/item.model';
 import { AddRecipeNavigationPath, HomeNavigationPath, NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
@@ -38,7 +37,6 @@ export class AddRecipePage implements OnInit {
     private readonly dataService: DataService,
     private readonly loadingController: LoadingController,
     private readonly navigationService: NavigationService,
-    private readonly route: ActivatedRoute,
     private readonly translateService: TranslateService,
     private readonly sessionService: SessionService,
     private readonly actionSheetCtrl: ActionSheetController
@@ -67,6 +65,11 @@ export class AddRecipePage implements OnInit {
 
   async onBackClicked() {
     return this.navigationService.pop();
+  }
+
+  async onVariantChange(event: any) {
+    this.selectedRecipe.variantId = event.target.checked ? this.selectedRecipe.id : undefined;
+    this.selectedRecipe.variantName = event.target.checked ? this.selectedRecipe.name : undefined;
   }
 
   async onAddCuisineClicked() {

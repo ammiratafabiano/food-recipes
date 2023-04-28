@@ -10,9 +10,10 @@ import { Meal } from '../models/meal.model';
 import { WeekDay } from '../models/weekDay.enum';
 import { Step } from '../models/step.model';
 import { Observable, of, Subject } from 'rxjs';
-import { UserData } from '../models/user-data.model';
+import { UserData, UserStats } from '../models/user-data.model';
 
 const USERS = 'users'
+const USER_STATS = 'user_stats'
 const RECIPES = 'recipes'
 const SAVED_RECIPES = 'saved_recipes'
 const INGREDIENTS = 'ingredients'
@@ -78,7 +79,7 @@ export class DataService {
               user.email = userResult.email;
               user.name = userResult.nickname || userResult.full_name;
               user.avatar_url = userResult.avatar_url;
-              user.followed = !!followerResult;
+              user.isFollowed = !!followerResult;
               return user;
             })
         } else {
@@ -94,6 +95,27 @@ export class DataService {
       .from(USERS)
       .delete()
       .eq('id', user?.id)
+  }
+
+  async getUserStats(): Promise<UserStats | undefined>{
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    return this.supabase
+      .from(USER_STATS)
+      .select('saved, followers, followed')
+      .eq('id', user.id)
+      .then(x => {
+        const statsResult = x?.data && x?.data[0];
+        if (statsResult) {
+          return {
+            saved: statsResult.saved,
+            followers: statsResult.followers,
+            followed: statsResult.followed
+          }
+        } else {
+          return
+        }
+      });
   }
 
   async addFollower(user_id: string) {
@@ -153,7 +175,9 @@ export class DataService {
       time_quantity: recipe.time.value,
       time_unit: recipe.time.unit,
       steps: recipe.steps,
-      tags: recipe.tags
+      tags: recipe.tags,
+      variant_id: recipe.variantId,
+      variant_name: recipe.variantName
     }
     return this.supabase
       .from(RECIPES)
@@ -218,7 +242,8 @@ export class DataService {
                 recipe.steps = recipeResult.steps;
                 recipe.tags = recipeResult.tags;
                 recipe.servings = recipeResult.servings;
-                recipe.variant = recipeResult.variant;
+                recipe.variantId = recipeResult.variant_id;
+                recipe.variantName = recipeResult.variant_name
                 recipe.isAdded = !!savedResult;
                 return recipe;
             });
@@ -246,7 +271,7 @@ export class DataService {
       steps: recipe.steps,
       tags: recipe.tags,
       servings: recipe.servings,
-      variant: recipe.variant
+      variant: recipe.variantId
     }
     return this.supabase
       .from(RECIPES)

@@ -18,6 +18,7 @@ export class Recipe {
     steps: Step[] = [];
     tags: string[] = [];
     servings!: number;
-    variant!: number;
+    variantId?: string;
+    variantName?: string;
     isAdded = false;
 }

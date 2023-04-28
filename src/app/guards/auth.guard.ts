@@ -2,7 +2,7 @@ import { AuthService } from './../services/auth.service'
 import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router'
 import { Observable } from 'rxjs'
-import { map, take } from 'rxjs/operators'
+import { debounceTime, map, take } from 'rxjs/operators'
 import { SessionService } from '../services/session.service'
 
 @Injectable({
@@ -17,6 +17,7 @@ export class AuthGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> {
     return this.auth.getCurrentUserAsync().pipe(
+      debounceTime(500),
       map((isAuthenticated) => {
         if (isAuthenticated) {
           return true;

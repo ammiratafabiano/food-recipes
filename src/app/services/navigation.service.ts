@@ -123,19 +123,24 @@ export class NavigationService {
    */
   goToPreviousPage(params?: any) {
     if (this.stack.length > 0) {
-      const stackElement = this.stack[this.stack.length - 1];
-      let toStackElement = this.stack.find(x => x.to == stackElement.from);
+      const lastStackElement = this.stack[this.stack.length - 1];
+      let toStackElement = this.stack.find(x => x.to == lastStackElement.from);
       if (toStackElement?.data && params) {
         toStackElement.data.params = params;
+        toStackElement.data.animationDirection = "back";
       } else if (toStackElement && params) {
         toStackElement.data = new NavigationData();
         toStackElement.data.params = params;
+        toStackElement.data.animationDirection = "back";
       } else if (params) {
         toStackElement = new NavigationStackElement();
         toStackElement.data = new NavigationData();
         toStackElement.data.params = params;
+        toStackElement.data.animationDirection = "back";
       }
-      this.setRoot(stackElement.from, toStackElement?.data);
+      this.setRoot(lastStackElement.from, toStackElement?.data).then(() => {
+        lastStackElement?.data?.dismissCallback && lastStackElement.data.dismissCallback(params);
+      });
     } else {
       this.pop(params);
     }

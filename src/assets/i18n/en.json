@@ -71,7 +71,8 @@
         "ERROR_DESCRIPTION": "An error occurred retrieveing the recipe. Please, try again later.",
         "DELETE_BUTTON": "Delete recipe",
         "DELETE_POPUP_CONFIRM_MESSAGE": "Do you really want to delete the recipe?",
-        "SERVINGS": "Per"
+        "SERVINGS": "Per",
+        "VARIANT": "Variant of"
     },
     "ADD_RECIPE_PAGE": {
         "TITLE": "New recipe",
@@ -192,6 +193,7 @@
             "OK_BUTTON": "Ok",
             "CANCEL_BUTTON": "Cancel"
         },
-        "CLIPBOARD": "Copied to the clipboard."
+        "CLIPBOARD": "Copied to the clipboard.",
+        "VARIANT": "Variant"
     }
 }

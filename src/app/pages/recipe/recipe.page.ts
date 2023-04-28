@@ -27,6 +27,8 @@ export class RecipePage implements OnInit {
   isUserLogged = false;
   isMine = false;
 
+  refreshOnDismiss = false;
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly dataService: DataService,
@@ -64,7 +66,7 @@ export class RecipePage implements OnInit {
   }
 
   async onBackClicked() {
-    this.navigationService.goToPreviousPage();
+    this.navigationService.goToPreviousPage({ needToRefresh: this.refreshOnDismiss });
   }
 
   async onEditClicked() {
@@ -90,6 +92,7 @@ export class RecipePage implements OnInit {
     const result = await this.dataService.saveRecipe(this.recipe.id);
     if (result) {
       this.recipe.isAdded = true;
+      this.refreshOnDismiss = true;
     }
     await loading.dismiss();
   }
@@ -101,6 +104,7 @@ export class RecipePage implements OnInit {
     const result = await this.dataService.unsaveRecipe(this.recipe.id);
     if (result) {
       this.recipe.isAdded = false;
+      this.refreshOnDismiss = true;
     }
     await loading.dismiss();
   }
@@ -111,15 +115,16 @@ export class RecipePage implements OnInit {
         queryParams: {
           id: this.recipe?.userId
         }
-        /* TO BE REMOVED
-        dismissCallback: () => {
-          if (this.recipe) {
-            const urlParams = new URLSearchParams(window.location.search);
-            urlParams.set('id', this.recipe.id);
-            const newUrl = window.location.pathname + '?' + urlParams.toString();
-            window.history.pushState({path:newUrl}, '', newUrl);
-          }
-        }*/
+      }
+    );
+  }
+
+  async onVariantClicked() {
+    this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Recipe],
+      {
+        queryParams: {
+          id: this.recipe?.variantId
+        }
       }
     );
   }

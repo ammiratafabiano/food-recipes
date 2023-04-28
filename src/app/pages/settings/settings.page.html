@@ -13,6 +13,10 @@
     </ion-toolbar>
   </ion-header>
 
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <div class="content">
     <ion-card *ngIf="userData">
       <ion-card-header>
@@ -23,18 +27,18 @@
         <ion-card-subtitle>{{ userData.email }}</ion-card-subtitle>
       </ion-card-header>
       <ion-card-content>
-        <ion-item lines="none">
+        <ion-item lines="none" *ngIf="userData.stats">
           <ion-label>
             <h3>Followers</h3>
-            <p>1</p>
+            <p>{{ userData.stats.followers != undefined ? userData.stats.followers : '/' }}</p>
           </ion-label>
           <ion-label>
             <h3>Followed</h3>
-            <p>1</p>
+            <p>{{ userData.stats.followed != undefined ? userData.stats.followed : '/' }}</p>
           </ion-label>
           <ion-label>
             <h3>Saved</h3>
-            <p>2</p>
+            <p>{{ userData.stats.saved != undefined ? userData.stats.saved : '/' }}</p>
           </ion-label>
         </ion-item>
       </ion-card-content>

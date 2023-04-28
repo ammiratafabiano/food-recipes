@@ -31,6 +31,12 @@
     <a *ngIf="!isMine" (click)="onOwnerClicked()">{{ recipe?.userName }}</a>
     <a *ngIf="isMine" (click)="onSelfClicked()">{{ recipe?.userName }}</a>
   </p>
+  <p class="ion-padding-horizontal" *ngIf="recipe?.variantId">
+    {{ 'RECIPE_PAGE.VARIANT' | translate }}
+    <a (click)="onVariantClicked()">
+      {{ recipe?.variantName || 'COMMON.RECIPE' | translate }}
+    </a>
+  </p>
   <p class="ion-padding" *ngIf="recipe?.description">{{ recipe?.description }}</p>
   <!-- Metadata -->
   <ion-item lines="full" *ngIf="recipe?.type">
