@@ -8,6 +8,9 @@ import { WeekDay } from "src/app/models/weekDay.enum";
 import { NavigationService } from 'src/app/services/navigation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Meal } from 'src/app/models/meal.model';
+import { Group } from 'src/app/models/group.model';
+import { HomeNavigationPath, NavigationPath, SettingsNavigationPath } from 'src/app/models/navigation-path.enum';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-planning',
@@ -16,7 +19,10 @@ import { Meal } from 'src/app/models/meal.model';
 })
 export class PlanningPage implements OnDestroy {
 
+  group?: Group;
   planning?: Planning;
+
+  dataLoaded = new Subject<boolean>();
 
   constructor(
     private readonly dataService: DataService,
@@ -30,14 +36,15 @@ export class PlanningPage implements OnDestroy {
     this.dataService.unsubscribeToPlanning();
   }
 
-  ionViewDidEnter() {
+  async ionViewDidEnter() {
+    this.dataLoaded.next(false);
     const week = this.navigationService.getParams<{week: string}>()?.week;
-    this.getData(week);
-    this.listenCollaboratorsChanges();
+    await this.getData(week);
+    this.group && this.listenCollaboratorsChanges(this.group);
   }
 
-  private listenCollaboratorsChanges() {
-    this.dataService.subscribeToPlannings().subscribe((planned) => {
+  private listenCollaboratorsChanges(group: Group) {
+    this.dataService.subscribeToPlannings(group).subscribe((planned) => {
       if (planned) {
         const updated = this.planning?.startDate && this.planning.startDate == planned.week;
         const deleted = !updated && this.planning?.recipes.find(x => x.id == planned.id);
@@ -51,11 +58,13 @@ export class PlanningPage implements OnDestroy {
   private async getData(startDate?: string) {
     const loading = await this.loadingController.create();
     await loading.present();
+    this.group = await this.dataService.retrieveGroup();
     if (!startDate) startDate = moment().startOf('week').format("YYYY-MM-DD");
-    return this.dataService.getPlanning(startDate).then(response => {
+    return this.dataService.getPlanning(startDate, this.group).then(response => {
       this.handleResponse(response);
     }).finally(async () => {
       await loading.dismiss();
+      this.dataLoaded.next(true);
     });
   }
 
@@ -137,7 +146,7 @@ export class PlanningPage implements OnDestroy {
     if (!plannedRecipe.id) return;
   
     const actionSheet = await this.actionSheetCtrl.create({
-      header: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_CHOICE"),
+      header: this.translateService.instant("COMMON.PLANNINGS.ADD_TO_PLANNING.CHOICE"),
       buttons: [
         ...Object.values(Meal).map(x => {
           return {
@@ -172,5 +181,9 @@ export class PlanningPage implements OnDestroy {
         )
       }
     }
+  }
+
+  async onGoToGroupManagementClicked() {
+    this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Settings, SettingsNavigationPath.GroupManagement]);
   }
 }

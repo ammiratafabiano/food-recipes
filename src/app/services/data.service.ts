@@ -11,6 +11,8 @@ import { WeekDay } from '../models/weekDay.enum';
 import { Step } from '../models/step.model';
 import { Observable, of, Subject } from 'rxjs';
 import { UserData, UserStats } from '../models/user-data.model';
+import { Group } from '../models/group.model';
+import {v4 as uuidv4} from 'uuid';
 
 const USERS = 'users'
 const USER_STATS = 'user_stats'
@@ -23,6 +25,7 @@ const FOLLOWERS = 'followers'
 const SAVED = 'saved'
 const NAMED_INGREDIENTS = 'named_ingredients'
 const SHOPPING_LIST = 'shopping_list'
+const GROUPS = 'groups'
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +38,9 @@ export class DataService {
   recipes: Recipe[] = [];
   planning: Planning[] = [];
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService
+  ) {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
   }
 
@@ -201,8 +206,6 @@ export class DataService {
   }
 
   async getRecipe(recipe_id: string): Promise<Recipe | undefined> {
-    const user = this.authService.getCurrentUser();
-    if (!user) return;
     return this.supabase
       .from(RECIPES)
       .select()
@@ -217,7 +220,7 @@ export class DataService {
               return this.supabase
               .from(SAVED)
               .select()
-              .match({'recipe_id': recipe_id, 'user_id': user.id})
+              .match({'recipe_id': recipe_id})
               .then(x => {
                 const savedResult = x?.data && x?.data[0];
                 let recipe = new Recipe();
@@ -389,14 +392,14 @@ export class DataService {
       })
   }
 
-  async getPlanning(week: string): Promise<Planning | undefined> {
+  async getPlanning(week: string, group: Group | undefined): Promise<Planning | undefined> {
     const user = this.authService.getCurrentUser();
     if (!user) return;
     return this.supabase
     .from(PLANNINGS)
     .select('id, recipe_id, recipe_name, week, day, meal')
     .eq('week', week)
-    .match({ user_id: user.id })
+    .in('user_id', group ? group.users : [user.id])
     .then((result) => {
       let planning = new Planning();
       planning.startDate = week;
@@ -416,20 +419,26 @@ export class DataService {
     })  
   }
 
-  async addToPlanning(recipe: Recipe, week: string, day?: WeekDay, meal?: Meal) {
+  async addToPlanning(recipe: Recipe, week: string, day?: WeekDay, meal?: Meal): Promise<any> {
     const user = this.authService.getCurrentUser();
     if (!user) return;
-    const element = {
-      user_id: user.id,
-      recipe_id: recipe.id,
-      recipe_name: recipe.name,
-      week: week,
-      day: day,
-      meal: meal
-    }
-    return this.supabase
-        .from(PLANNINGS)
-        .insert(element);
+    return this.retrieveGroup().then((group) => {
+      if (group) {
+        const element = {
+          user_id: user.id,
+          recipe_id: recipe.id,
+          recipe_name: recipe.name,
+          week: week,
+          day: day,
+          meal: meal
+        }
+        return this.supabase
+          .from(PLANNINGS)
+          .insert(element);
+      } else {
+        return undefined;
+      }
+    })
   }
 
   async deletePlanning(planning_id: string) {
@@ -467,6 +476,74 @@ export class DataService {
         return ingredient;
       });
     })  
+  }
+
+  async retrieveGroup(): Promise<Group | undefined> {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    return this.supabase
+      .from(GROUPS)
+      .select('group_id')
+      .match({ user_id: user.id })
+      .then(x => {
+        const groupResult = x?.data && x?.data[0];
+        if (groupResult) {
+          return this.supabase
+            .from(GROUPS)
+            .select('user_id')
+            .match({ group_id: groupResult.group_id })
+            .then(x => {
+              let group = new Group();
+              group.id = groupResult?.group_id;
+              group.users = x.data?.map(x => x.user_id) || []
+              return group;
+            })
+        } else {
+          return
+        }
+      })  
+  }
+
+  async createGroup(): Promise<Group | undefined> {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    const element = {
+      user_id: user.id,
+      group_id: uuidv4()
+    }
+    return this.supabase
+      .from(GROUPS)
+      .insert(element)
+      .then(() => {
+        return this.retrieveGroup();
+      });
+  }
+
+  async joinGroup(group_id: string): Promise<Group | undefined> {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    const element = {
+      user_id: user.id,
+      group_id: group_id
+    }
+    return this.supabase
+      .from(GROUPS)
+      .insert(element)
+      .then(() => {
+        return this.retrieveGroup();
+      });
+  }
+
+  async leaveGroup(group_id: string): Promise<Group | undefined> {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    return this.supabase
+      .from(GROUPS)
+      .delete()
+      .match({'user_id': user.id, 'group_id': group_id})
+      .then(() => {
+        return this.retrieveGroup();
+      })
   }
 
   private getRandomFileName() {
@@ -510,10 +587,9 @@ export class DataService {
         });
   }
 
-  subscribeToPlannings(): Observable<PlannedRecipe | undefined> {
+  subscribeToPlannings(group: Group): Observable<PlannedRecipe | undefined> {
     const user = this.authService.getCurrentUser();
     if (!user) return of();
-    const user_ids = [user.id]; // TODO followers
     const changes = new Subject<PlannedRecipe>()
     this.realtimeChannel = this.supabase
       .channel('public:plannings')
@@ -522,7 +598,7 @@ export class DataService {
         { event: '*', schema: 'public', table: 'plannings' },
         async (payload) => {
           const user_id = (payload.new as PlannedRecipe).user_id;
-          if (payload.new && user_id && user_ids.includes(user_id)) {
+          if (payload.new && user_id && group?.users.includes(user_id)) {
             changes.next(payload.new as PlannedRecipe);
           } else if (payload.old && (payload.old as PlannedRecipe).id) {
             changes.next(payload.old as PlannedRecipe);

@@ -43,6 +43,12 @@
         </ion-item>
       </ion-card-content>
     </ion-card>
+
+    <ion-list lines="inset" inset="true" >
+      <ion-item button (click)="onGroupManagementClicked()">
+        <ion-label>{{ 'SETTINGS_PAGE.GROUP_BUTTON' | translate }}</ion-label>
+      </ion-item>
+    </ion-list>
   
     <ion-list class="settings-list">
       <ion-item lines="none" (click)="onLogoutClicked()">

@@ -43,5 +43,6 @@ export enum AddRecipeNavigationPath {
 
 export enum SettingsNavigationPath {
     Base = "",
+    GroupManagement = "group-management",
     DeleteUser = "delete-user"
 }

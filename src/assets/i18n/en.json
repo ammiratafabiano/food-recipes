@@ -57,16 +57,25 @@
         "TITLE": "Settings",
         "RECIPES": "Recipes",
         "LOGOUT_BUTTON": "Logout",
-        "DELETE_USER_BUTTON": "Delete account"
+        "DELETE_USER_BUTTON": "Delete account",
+        "GROUP_BUTTON": "Group management"
+    },
+    "GROUP_MANAGEMENT_PAGE": {
+        "TITLE": "Group management",
+        "GROUP_ID": "Group Id",
+        "NO_GROUP": "You are not part of any group.",
+        "CREATE_GROUP": "Create a new group and then invite other users if you want later.",
+        "CREATE_GROUP_BUTTON": "Create group",
+        "JOIN_GROUP": "Join an existing group.",
+        "JOIN_GROUP_BUTTON": "Join group",
+        "LEAVE_GROUP": "Current group",
+        "LEAVE_GROUP_BUTTON": "Leave group",
+        "SEPARATOR": "Or",
+        "ADDED_GROUP_ALERT": "You are now part of a group!"
     },
     "RECIPE_PAGE": {
         "TITLE": "Recipe",
         "OWNER": "by",
-        "ADD_TO_PLANNING_BUTTON": "Add to planning",
-        "ADD_TO_PLANNING_CHOICE": "Which week?",
-        "ADD_TO_PLANNING_THIS_WEEK": "This week",
-        "ADD_TO_PLANNING_NEXT_WEEK": "Next week",
-        "ADD_TO_PLANNING_CANCEL": "Cancel",
         "ERROR_TITLE": "Error",
         "ERROR_DESCRIPTION": "An error occurred retrieveing the recipe. Please, try again later.",
         "DELETE_BUTTON": "Delete recipe",
@@ -194,6 +203,17 @@
             "CANCEL_BUTTON": "Cancel"
         },
         "CLIPBOARD": "Copied to the clipboard.",
-        "VARIANT": "Variant"
+        "VARIANT": "Variant",
+        "PLANNINGS": {
+            "NO_GROUP_ERROR": "You are not part of any group.",
+            "GO_TO_GROUP_MANAGEMENT_BUTTON": "Go to Group Management",
+            "ADD_TO_PLANNING": {
+                "BUTTON": "Add to planning",
+                "CHOICE": "Which week?",
+                "THIS_WEEK": "This week",
+                "NEXT_WEEK": "Next week",
+                "CANCEL": "Cancel"
+            }
+        }
     }
 }

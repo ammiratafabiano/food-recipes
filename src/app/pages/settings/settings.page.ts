@@ -39,6 +39,10 @@ export class SettingsPage implements OnInit {
     event.target.complete();
   }
 
+  async onGroupManagementClicked() {
+    this.navigationService.push(SettingsNavigationPath.GroupManagement);
+  }
+
   async onLogoutClicked() {
     await this.authService.signOut();
     this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Login],

@@ -10,6 +10,10 @@ const routes: Routes = [
     component: SettingsPage
   },
   {
+    path: SettingsNavigationPath.GroupManagement,
+    loadChildren: () => import('../group-management/group-management.module').then( m => m.GroupManagementPageModule)
+  },
+  {
     path: SettingsNavigationPath.DeleteUser,
     loadChildren: () => import('../delete-user/delete-user.module').then( m => m.DeleteUserPageModule)
   }

@@ -4,7 +4,7 @@ import { ActionSheetController, LoadingController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 import { take } from 'rxjs';
-import { HomeNavigationPath, NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
+import { HomeNavigationPath, NavigationPath, RecipeListNavigationPath, SettingsNavigationPath } from 'src/app/models/navigation-path.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { AlertService } from 'src/app/services/alert.service';
 import { AuthService } from 'src/app/services/auth.service';
@@ -147,22 +147,22 @@ export class RecipePage implements OnInit {
     if (!this.recipe) return;
   
     const actionSheet = await this.actionSheetCtrl.create({
-      header: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_CHOICE"),
+      header: this.translateService.instant("COMMON.PLANNINGS.ADD_TO_PLANNING.CHOICE"),
       buttons: [
         {
-          text: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_THIS_WEEK"),
+          text: this.translateService.instant("COMMON.PLANNINGS.ADD_TO_PLANNING.THIS_WEEK"),
           data: {
             action: moment().startOf('week').format("YYYY-MM-DD"),
           }
         },
         {
-          text: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_NEXT_WEEK"),
+          text: this.translateService.instant("COMMON.PLANNINGS.ADD_TO_PLANNING.NEXT_WEEK"),
           data: {
             action: moment().startOf('week').add(1,'week').format("YYYY-MM-DD"),
           }
         },
         {
-          text: this.translateService.instant("RECIPE_PAGE.ADD_TO_PLANNING_CANCEL"),
+          text: this.translateService.instant("COMMON.PLANNINGS.ADD_TO_PLANNING.CANCEL"),
           role: 'cancel'
         },
       ],
@@ -171,12 +171,25 @@ export class RecipePage implements OnInit {
     await actionSheet.present();
     const result = await actionSheet.onDidDismiss();
     if (result?.data?.action) {
-      await this.dataService.addToPlanning(this.recipe, result.data.action);
-      this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning], {
-        params: {
-          week: result?.data?.action
-        }
-      });
+      const res = await this.dataService.addToPlanning(this.recipe, result.data.action);
+      if (res) {
+        this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],
+          {
+            queryParams: {
+              week: result?.data?.action
+            }
+          }
+        );
+      } else {
+        this.alertService.presentAlertPopup(
+          "COMMON.GENERIC_ALERT.ERROR_HEADER",
+          "COMMON.PLANNINGS.NO_GROUP_ERROR",
+          () => {
+            this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Settings, SettingsNavigationPath.GroupManagement]);
+          },
+          "COMMON.PLANNINGS.GO_TO_GROUP_MANAGEMENT_BUTTON"
+        );
+      }
     }
   }
 

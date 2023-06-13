@@ -32,12 +32,13 @@ export class AlertService {
   async presentAlertPopup(
     header: string,
     message: string,
-    onConfirmClicked?: Function
+    onConfirmClicked?: Function,
+    confirmButton = "COMMON.GENERIC_ALERT.OK_BUTTON"
   ) {
     let buttons: AlertButton[] = [
       {
-        text: this.translateService.instant("COMMON.GENERIC_ALERT.OK_BUTTON"),
-        handler: () => onConfirmClicked
+        text: this.translateService.instant(confirmButton),
+        handler: () => onConfirmClicked && onConfirmClicked()
       }
     ];
     return this.presentGenericPopup(
@@ -51,10 +52,11 @@ export class AlertService {
   async presentConfirmPopup(
     message: string,
     onConfirmClicked?: Function,
+    confirmButton = "COMMON.GENERIC_ALERT.OK_BUTTON"
   ) {
     let buttons: AlertButton[] = [
       {
-        text: this.translateService.instant("COMMON.GENERIC_ALERT.OK_BUTTON"),
+        text: this.translateService.instant(confirmButton),
         handler: () => onConfirmClicked && onConfirmClicked()
       },
       {

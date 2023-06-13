@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { UserData } from '../models/user-data.model';
 import { Ingredient } from '../models/ingredient.model';
 
 @Injectable({
@@ -21,7 +20,7 @@ export class SessionService {
   public set loginRedirect(v: string | null | undefined) {
     this.setStorage("loginRedirect", v);
   }
-  
+
 
   constructor() { }
 

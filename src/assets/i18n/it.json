@@ -56,16 +56,25 @@
         "TITLE": "Impostazioni",
         "RECIPES": "Ricette",
         "LOGOUT_BUTTON": "Esci",
-        "DELETE_USER_BUTTON": "Cancella account"
+        "DELETE_USER_BUTTON": "Cancella account",
+        "GROUP_BUTTON": "Gestione gruppo"
+    },
+    "GROUP_MANAGEMENT_PAGE": {
+        "TITLE": "Gestione gruppo",
+        "GROUP_ID": "Id Gruppo",
+        "NO_GROUP": "Non fai parte di nessun gruppo.",
+        "CREATE_GROUP": "Crea un gruppo nuovo per poi invitare se vorrai altri utenti successivamente.",
+        "CREATE_GROUP_BUTTON": "Crea gruppo",
+        "JOIN_GROUP": "Entra dentro un gruppo già esistente.",
+        "JOIN_GROUP_BUTTON": "Entra nel gruppo",
+        "LEAVE_GROUP": "Gruppo attuale",
+        "LEAVE_GROUP_BUTTON": "Lascia gruppo",
+        "SEPARATOR": "Oppure",
+        "ADDED_GROUP_ALERT": "Ora fai parte di un gruppo!"
     },
     "RECIPE_PAGE": {
         "TITLE": "Ricetta",
         "OWNER": "di",
-        "ADD_TO_PLANNING_BUTTON": "Aggiungi al planning",
-        "ADD_TO_PLANNING_CHOICE": "Quale settimana?",
-        "ADD_TO_PLANNING_THIS_WEEK": "Questa settimana",
-        "ADD_TO_PLANNING_NEXT_WEEK": "Prossima settimana",
-        "ADD_TO_PLANNING_CANCEL": "Annulla",
         "ERROR_TITLE": "Errore",
         "ERROR_DESCRIPTION": "Qualcosa è andato storto scaricando la ricetta. Prova più tardi.",
         "DELETE_BUTTON": "Elimina ricetta",
@@ -193,6 +202,17 @@
             "CANCEL_BUTTON": "Annulla"
         },
         "CLIPBOARD": "Copiato negli appunti.",
-        "VARIANT": "Variante"
+        "VARIANT": "Variante",
+        "PLANNINGS": {
+            "NO_GROUP_ERROR": "Non fai parte di nessun gruppo.",
+            "GO_TO_GROUP_MANAGEMENT_BUTTON": "Vai a Gestione Gruppo",
+            "ADD_TO_PLANNING": {
+                "BUTTON": "Aggiungi al planning",
+                "CHOICE": "Quale settimana?",
+                "THIS_WEEK": "Questa settimana",
+                "NEXT_WEEK": "Prossima settimana",
+                "CANCEL": "Annulla"
+            }
+        }
     }
 }

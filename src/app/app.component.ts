@@ -17,6 +17,11 @@ export class AppComponent {
     private loggingService: LoggingService,
     private navigationService: NavigationService
   ) {
+    this.handleLanguage();
+    this.handleAndroidBackButton();
+  }
+
+  private handleLanguage() {
     const currentLang = this.translate.getBrowserLang() || "en";
     this.translate.setDefaultLang(currentLang);
     moment.updateLocale(currentLang, {
@@ -24,8 +29,11 @@ export class AppComponent {
         dow: 1
       }
     })
+  }
+
+  private handleAndroidBackButton() {
     this.platform.backButton.subscribeWithPriority(10, () => {
-      this.loggingService.Info("AtomHeader", "Hardware Back Button", "pressed");
+      this.loggingService.Info("AppComponent", "Hardware Back Button", "pressed");
       this.navigationService.pop();
     });
   }

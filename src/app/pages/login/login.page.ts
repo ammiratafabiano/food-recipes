@@ -1,12 +1,14 @@
 import { AuthService } from './../../services/auth.service'
 import { Component } from '@angular/core'
 import { FormBuilder, Validators } from '@angular/forms'
-import { Router } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 import { AlertInput, LoadingController } from '@ionic/angular'
-import { tap } from 'rxjs'
+import { Subject, debounceTime, filter, take, takeUntil } from 'rxjs'
 import { SessionService } from 'src/app/services/session.service'
 import { AlertService } from 'src/app/services/alert.service'
 import { TranslateService } from '@ngx-translate/core'
+import { LoggingService } from 'src/app/services/logging.service'
+import { DataService } from 'src/app/services/data.service'
 
 @Component({
   selector: 'app-login',
@@ -26,10 +28,14 @@ export class LoginPage {
     private readonly alertService: AlertService,
     private readonly router: Router,
     private readonly sessionService: SessionService,
-    private readonly translateService: TranslateService
+    private readonly translateService: TranslateService,
+    private readonly route: ActivatedRoute,
+    private readonly loggingService: LoggingService,
+    private readonly dataService: DataService
   ) {
-    this.authService.getCurrentUserAsync().subscribe((user) => {
+    this.authService.getCurrentUserAsync().pipe(debounceTime(1000)).subscribe(async (user) => {
       if (user) {
+        this.handleQueryStringParam();
         const loginRedirect = this.sessionService.loginRedirect;
         if (loginRedirect) {
           this.router.navigateByUrl(loginRedirect, { replaceUrl: true }).then(() => {
@@ -156,5 +162,40 @@ export class LoginPage {
         this.alertService.presentConfirmPopup(data.error.message);
       }
     })
+  }
+
+  private handleQueryStringParam() {
+    let stop$ = new Subject<boolean>();
+    setTimeout(() => {
+      stop$.next(false);
+      stop$.complete();
+    }, 500)
+    this.route.queryParams.pipe(
+      takeUntil(stop$),
+      filter(x => Object.keys(x).length > 0),
+      take(1)
+    ).subscribe(params => {
+      if (params) {
+        if (params["group"]) {
+          this.loggingService.Info("AppComponent", "Query String Param", "group: " + params["group"]);
+          const group_id: string= params["group"];
+          this.joinGroup(group_id);
+        } else if (params["recipe"]) {
+          this.loggingService.Info("AppComponent", "Query String Param", "recipe: " + params["recipe"]);
+          const recipe_id: string = params["recipe"];
+        } else if (params["user"]) {
+          this.loggingService.Info("AppComponent", "Query String Param", "user: " + params["user"]);
+          const user_id: string = params["user"];
+        }
+      }
+    });
+  }
+  
+  private async joinGroup(group_id: string) {
+    const loading = await this.loadingController.create();
+    await loading.present();
+    await this.dataService.joinGroup(group_id);
+    this.alertService.presentConfirmPopup("GROUP_MANAGEMENT_PAGE.ADDED_GROUP_ALERT");
+    await loading.dismiss();
   }
 }
