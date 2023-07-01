@@ -41,7 +41,8 @@
     },
     "DISCOVER_PAGE": {
         "TITLE": "Discover",
-        "USERS": "Users"
+        "USERS": "Users",
+        "NO_DATA": "Retrieving information was not possible."
     },
     "PLANNING_PAGE": {
         "TITLE": "Planning",

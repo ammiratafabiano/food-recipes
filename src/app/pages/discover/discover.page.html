@@ -13,18 +13,23 @@
     </ion-toolbar>
   </ion-header>
 
-  <p class="ion-padding" *ngIf="users && users.length > 0">
-    {{ 'DISCOVER_PAGE.USERS' | translate }}
-  </p>
-  <ion-list>
-    <ion-item *ngFor="let user of users" (click)="onUserClicked(user)">
-      <ion-avatar slot="start">
-        <img [src]="user.avatar_url" referrerpolicy="no-referrer"/>
-      </ion-avatar>
-      <ion-label>
-        {{ user.name }}
-      </ion-label>
-    </ion-item>    
-  </ion-list>
+  <ng-container *ngIf="users != undefined">
+    <p class="ion-padding" *ngIf="users && users.length > 0">
+      {{ 'DISCOVER_PAGE.USERS' | translate }}
+    </p>
+    <ion-label class="ion-padding" *ngIf="users.length == 0">
+      {{ 'DISCOVER_PAGE.NO_DATA' | translate }}
+    </ion-label>
+    <ion-list>
+      <ion-item *ngFor="let user of users" (click)="onUserClicked(user)">
+        <ion-avatar slot="start">
+          <img [src]="user.avatar_url" referrerpolicy="no-referrer"/>
+        </ion-avatar>
+        <ion-label>
+          {{ user.name }}
+        </ion-label>
+      </ion-item>    
+    </ion-list>
+  </ng-container>
 
 </ion-content>

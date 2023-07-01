@@ -33,7 +33,11 @@ export class ShoppingList {
   async getShoppingList(startDate?: string) {
     if (!startDate) startDate = moment().startOf('week').format("YYYY-MM-DD");
     return this.dataService.getShoppingList(startDate).then(response => {
-      this.shoppingList = response;
+      if (response && response.length > 0) {
+        this.shoppingList = response;
+      } else {
+        this.shoppingList = [];
+      }
     })
   }
 

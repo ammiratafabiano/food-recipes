@@ -33,7 +33,8 @@
     },
     "DISCOVER_PAGE": {
         "TITLE": "Scopri",
-        "USERS": "Utenti"
+        "USERS": "Utenti",
+        "NO_DATA": "Non è stato possibile scaricare le informazioni."
     },
     "RECIPE_LIST_PAGE": {
         "TITLE": "Ricette",

@@ -17,22 +17,24 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <ion-label class="ion-padding" *ngIf="shoppingList != undefined && shoppingList.length == 0">
-    {{ 'SHOPPING_LIST_PAGE.NO_DATA' | translate }}
-  </ion-label>
-
-  <ion-list class="ion-margin-top">
-    <ion-item *ngFor="let item of shoppingList">
-      <ion-label>
-        {{ item.name }}
-      </ion-label>
-      <ion-label *ngIf="item.quantity.value" class="quantity-label">
-        {{ item.quantity.value }}{{ 'COMMON.WEIGHT_UNITS.' + item.quantity.unit | translate }}
-      </ion-label>
-      <ion-label *ngIf="!item.quantity.value" class="quantity-label">
-        {{ 'COMMON.MISSING_QUANTITY' | translate }}
-      </ion-label>
-    </ion-item>
-  </ion-list>
+  <ng-container *ngIf="shoppingList != undefined">
+    <ion-label class="ion-padding" *ngIf="shoppingList.length == 0">
+      {{ 'SHOPPING_LIST_PAGE.NO_DATA' | translate }}
+    </ion-label>
+  
+    <ion-list class="ion-margin-top">
+      <ion-item *ngFor="let item of shoppingList">
+        <ion-label>
+          {{ item.name }}
+        </ion-label>
+        <ion-label *ngIf="item.quantity.value" class="quantity-label">
+          {{ item.quantity.value }}{{ 'COMMON.WEIGHT_UNITS.' + item.quantity.unit | translate }}
+        </ion-label>
+        <ion-label *ngIf="!item.quantity.value" class="quantity-label">
+          {{ 'COMMON.MISSING_QUANTITY' | translate }}
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ng-container>
 
 </ion-content>
