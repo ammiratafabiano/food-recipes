@@ -20,3 +20,7 @@ Welcome to Food Recipes, your go-to solution for managing recipes, planning week
 - **Meal Planning**: Navigate to the 'Planning' section, choose the day and add recipes for breakfast, lunch, and dinner.
 - **Shopping List**: Access the 'Shopping List' section to view and download the auto-generated shopping list for the week.
 - **Connecting with Others**: Use the 'Discovery' section to follow your friends and public chefs to stay updated with their recipes.
+
+## Language
+- **Italian**
+- **English**
