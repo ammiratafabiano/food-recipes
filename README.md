@@ -4,7 +4,7 @@
 
 [DEMO](http://recipes.ammiratafabiano.dev)
 
-Welcome to Food Recipes, your go-to solution for managing recipes, planning weekly meals, and generating shopping lists automatically.
+Welcome to Food Recipes, a Ionic 6 app for managing recipes, planning weekly meals, and generating shopping lists automatically. Backend is provided by Supabase.
 
 ## Features
 
