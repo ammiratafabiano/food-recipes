@@ -24,3 +24,9 @@ Welcome to Food Recipes, a Ionic 6 app for managing recipes, planning weekly mea
 ## Language
 - **Italian**
 - **English**
+
+## Screenshots
+<img src="https://github.com/ammiratafabiano/food-recipes/assets/36988217/c8aab186-9dd8-419f-ad21-6bb67d89a0ac" alt="drawing" width="200"/>
+<img src="https://github.com/ammiratafabiano/food-recipes/assets/36988217/123461d6-fb0f-42d9-9a86-6f3eb85d6ca6" alt="drawing" width="200"/>
+<img src="https://github.com/ammiratafabiano/food-recipes/assets/36988217/ac66554d-7318-445a-a546-a7046be69c9f" alt="drawing" width="200"/>
+<img src="https://github.com/ammiratafabiano/food-recipes/assets/36988217/826ccd79-2b42-4e07-9862-dbaa14a42d53" alt="drawing" width="200"/>
