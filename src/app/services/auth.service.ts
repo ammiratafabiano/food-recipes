@@ -9,7 +9,7 @@ import { UserData } from '../models/user-data.model'
 })
 export class AuthService {
   private supabase: SupabaseClient
-  private currentUser = new BehaviorSubject<User | undefined>(undefined)
+  private currentUser = new BehaviorSubject<User | 0 | undefined>(undefined)
 
   constructor() {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey)
@@ -33,18 +33,14 @@ export class AuthService {
     }
     const user = await this.supabase.auth.getUser()
 
-    this.setCurrentUser(user.data.user || undefined);
+    this.setCurrentUser(user.data.user || 0);
   }
 
-  private setCurrentUser(user: User | undefined) {
-    if (user) {
-      this.currentUser.next(user);
-    } else {
-      this.currentUser.next(undefined);
-    }
+  private setCurrentUser(user: User | 0 | undefined) {
+    this.currentUser.next(user);
   }
 
-  getCurrentUserAsync(): Observable<User | undefined> {
+  getCurrentUserAsync(): Observable<User | 0 | undefined> {
     return this.currentUser.asObservable();
   }
 

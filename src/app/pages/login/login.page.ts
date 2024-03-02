@@ -3,12 +3,14 @@ import { Component } from '@angular/core'
 import { FormBuilder, Validators } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { AlertInput, LoadingController } from '@ionic/angular'
-import { Subject, debounceTime, filter, take, takeUntil } from 'rxjs'
+import { Subject, debounceTime, filter, forkJoin, map, of, take, takeUntil } from 'rxjs'
 import { SessionService } from 'src/app/services/session.service'
 import { AlertService } from 'src/app/services/alert.service'
 import { TranslateService } from '@ngx-translate/core'
 import { LoggingService } from 'src/app/services/logging.service'
 import { DataService } from 'src/app/services/data.service'
+import { NavigationService } from 'src/app/services/navigation.service'
+import { NavigationPath } from 'src/app/models/navigation-path.enum'
 
 @Component({
   selector: 'app-login',
@@ -31,21 +33,10 @@ export class LoginPage {
     private readonly translateService: TranslateService,
     private readonly route: ActivatedRoute,
     private readonly loggingService: LoggingService,
-    private readonly dataService: DataService
+    private readonly dataService: DataService,
+    private readonly navigationService: NavigationService
   ) {
-    this.authService.getCurrentUserAsync().pipe(debounceTime(1000)).subscribe(async (user) => {
-      if (user) {
-        this.handleQueryStringParam();
-        const loginRedirect = this.sessionService.loginRedirect;
-        if (loginRedirect) {
-          this.router.navigateByUrl(loginRedirect, { replaceUrl: true }).then(() => {
-            this.sessionService.loginRedirect = undefined;
-          });
-        } else {
-          this.router.navigateByUrl("/home", { replaceUrl: true });
-        }
-      }
-    });
+    this.init();
   }
 
   get email() {
@@ -64,7 +55,10 @@ export class LoginPage {
       await loading.dismiss()
 
       if (data.error) {
-        this.alertService.presentConfirmPopup(data.error.message);
+        this.alertService.presentAlertPopup(
+          "COMMON.GENERIC_ALERT.ERROR_HEADER",
+          data.error.message
+        );
       }
     })
   }
@@ -164,31 +158,60 @@ export class LoginPage {
     })
   }
 
-  private handleQueryStringParam() {
+  private async init() {
+    forkJoin({
+      user: this.getUserState(),
+      params: this.getQueryStringParams()
+    }).subscribe((response) => {
+      const isLogged = !!response.user;
+      const params = response.params;
+      if (params["group"] && isLogged) {
+        this.loggingService.Info("AppComponent", "Query String Param", "group: " + params["group"]);
+        const group_id: string= params["group"];
+        this.joinGroup(group_id);
+        this.handleLoginNavigation();
+      } else if (params["recipe"]) {
+        this.loggingService.Info("AppComponent", "Query String Param", "recipe: " + params["recipe"]);
+        const recipe_id: string = params["recipe"];
+        this.goToRecipePage(recipe_id, () => {
+          isLogged && this.handleLoginNavigation();
+        });
+      } else if (params["user"]) {
+        this.loggingService.Info("AppComponent", "Query String Param", "user: " + params["user"]);
+        const user_id: string = params["user"];
+        this.goToUserPage(user_id, () => {
+          isLogged && this.handleLoginNavigation();
+        });
+      } else if (isLogged) {
+        this.handleLoginNavigation();
+      }
+    })
+  }
+
+  private getUserState() {
+    return this.authService.getCurrentUserAsync().pipe(filter(x=> x != undefined),take(1));
+  }
+
+  private getQueryStringParams() {
     let stop$ = new Subject<boolean>();
     setTimeout(() => {
       stop$.next(false);
       stop$.complete();
     }, 500)
-    this.route.queryParams.pipe(
-      takeUntil(stop$),
-      filter(x => Object.keys(x).length > 0),
-      take(1)
-    ).subscribe(params => {
-      if (params) {
-        if (params["group"]) {
-          this.loggingService.Info("AppComponent", "Query String Param", "group: " + params["group"]);
-          const group_id: string= params["group"];
-          this.joinGroup(group_id);
-        } else if (params["recipe"]) {
-          this.loggingService.Info("AppComponent", "Query String Param", "recipe: " + params["recipe"]);
-          const recipe_id: string = params["recipe"];
-        } else if (params["user"]) {
-          this.loggingService.Info("AppComponent", "Query String Param", "user: " + params["user"]);
-          const user_id: string = params["user"];
-        }
-      }
-    });
+    return this.route.queryParams.pipe(
+      takeUntil(stop$)
+    );
+  }
+
+  private handleLoginNavigation() {
+    const loginRedirect = this.sessionService.loginRedirect;
+    if (loginRedirect) {
+      this.router.navigateByUrl(loginRedirect, { replaceUrl: true }).then(() => {
+        this.sessionService.loginRedirect = undefined;
+      });
+    } else {
+      this.router.navigateByUrl("/home", { replaceUrl: true });
+    }
   }
   
   private async joinGroup(group_id: string) {
@@ -197,5 +220,24 @@ export class LoginPage {
     await this.dataService.joinGroup(group_id);
     this.alertService.presentConfirmPopup("GROUP_MANAGEMENT_PAGE.ADDED_GROUP_ALERT");
     await loading.dismiss();
+  }
+
+
+  private async goToRecipePage(recipe_id: string, onDismissCallback?: Function) {
+    this.navigationService.setRoot(NavigationPath.Recipe,
+      {
+        queryParams: { id: recipe_id },
+        dismissCallback: onDismissCallback
+      }
+    );
+  }
+
+  private async goToUserPage(user_id: string, onDismissCallback?: Function) {
+    this.navigationService.setRoot(NavigationPath.User,
+      {
+        queryParams: { id: user_id },
+        dismissCallback: onDismissCallback
+      }
+    );
   }
 }

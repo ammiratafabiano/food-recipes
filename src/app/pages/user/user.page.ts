@@ -61,7 +61,7 @@ export class UserPage implements OnInit {
 
   async onShareClicked() {
     if (!this.user) return;
-    const link = environment.siteUrl + '/user?id=' + this.user.id;
+    const link = environment.siteUrl + '?user=' + this.user.id;
     navigator.clipboard.writeText(link);
     const text = this.translateService.instant("COMMON.CLIPBOARD");
     this.alertService.presentInfoPopup(text);

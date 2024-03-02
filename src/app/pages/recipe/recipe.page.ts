@@ -79,7 +79,7 @@ export class RecipePage implements OnInit {
 
   async onShareClicked() {
     if (!this.recipe) return;
-    const link = environment.siteUrl + '/recipe?id=' + this.recipe.id;
+    const link = environment.siteUrl + '?recipe=' + this.recipe.id;
     navigator.clipboard.writeText(link);
     const text = this.translateService.instant("COMMON.CLIPBOARD");
     this.alertService.presentInfoPopup(text);
