@@ -1,6 +1,6 @@
-import { Recipe } from "./recipe.model";
+import { Recipe } from './recipe.model';
 
-export class Day {
-    name: string = "";
-    recipes: Recipe[] = [];
+export interface Day {
+  name: string;
+  recipes: Recipe[];
 }

@@ -1,6 +1,4 @@
-import { TimeUnit, WeightUnit } from "./unit.enum";
-
-export class Food {
-    id!: string;
-    name!: string;
+export interface Food {
+  id: string;
+  name: string;
 }

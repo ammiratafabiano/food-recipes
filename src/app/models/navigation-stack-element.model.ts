@@ -1,7 +1,7 @@
-import { NavigationData } from "./navigation-data.model";
+import { NavigationData } from './navigation-data.model';
 
-export class NavigationStackElement {
-    from!: string;
-    to!: string;
-    data?: NavigationData;
+export interface NavigationStackElement {
+  from: string;
+  to: string;
+  data?: NavigationData;
 }

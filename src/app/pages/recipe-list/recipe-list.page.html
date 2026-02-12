@@ -13,47 +13,57 @@
     </ion-toolbar>
   </ion-header>
 
-  <ng-container *ngIf="displayRecipes != undefined">
+  @if (displayRecipes() != undefined) {
     <h2 class="ion-padding">
       {{ 'RECIPE_LIST_PAGE.YOURS' | translate }}
     </h2>
-    <ion-label class="ion-padding" *ngIf="displayRecipes.length == 0">
-      {{ 'RECIPE_LIST_PAGE.NO_DATA' | translate }}
-    </ion-label>
-    <ion-list lines="inset" inset="true" *ngIf="displayRecipes.length > 0">
-      <ion-item-sliding *ngFor="let recipe of displayRecipes">
-        <ion-item button (click)="onRecipeClicked(recipe)">
-          <ion-label>{{ recipe.name }}</ion-label>
-        </ion-item>
-        <ion-item-options side="end">
-          <ion-item-option (click)="onAddToPlanningClicked(recipe)">
-            {{ 'COMMON.PLANNINGS.ADD_TO_PLANNING.BUTTON' | translate }}
-          </ion-item-option>
-        </ion-item-options>
-      </ion-item-sliding>
-    </ion-list>
-  </ng-container>
+    @if (displayRecipes()!.length == 0) {
+      <ion-label class="ion-padding">
+        {{ 'RECIPE_LIST_PAGE.NO_DATA' | translate }}
+      </ion-label>
+    } @else {
+      <ion-list lines="inset" inset="true">
+        @for (recipe of displayRecipes(); track trackByRecipe($index, recipe)) {
+          <ion-item-sliding>
+            <ion-item button (click)="onRecipeClicked(recipe)">
+              <ion-label>{{ recipe.name }}</ion-label>
+            </ion-item>
+            <ion-item-options side="end">
+              <ion-item-option (click)="onAddToPlanningClicked(recipe)">
+                {{ 'COMMON.PLANNINGS.ADD_TO_PLANNING.BUTTON' | translate }}
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        }
+      </ion-list>
+    }
+  }
 
-  <ng-container *ngIf="displayOthersRecipes != undefined">
+  @if (displayOthersRecipes() != undefined) {
     <h2 class="ion-padding">
       {{ 'RECIPE_LIST_PAGE.OTHERS' | translate }}
     </h2>
-    <ion-label class="ion-padding" *ngIf="displayOthersRecipes.length == 0">
-      {{ 'RECIPE_LIST_PAGE.NO_DATA_OTHERS' | translate }}
-    </ion-label>
-    <ion-list lines="inset" inset="true" *ngIf="displayOthersRecipes.length > 0">
-      <ion-item-sliding *ngFor="let recipe of displayOthersRecipes">
-        <ion-item button (click)="onRecipeClicked(recipe)">
-          <ion-label>{{ recipe.name }}</ion-label>
-        </ion-item>
-        <ion-item-options side="end">
-          <ion-item-option (click)="onAddToPlanningClicked(recipe)">
-            {{ 'COMMON.PLANNINGS.ADD_TO_PLANNING.BUTTON' | translate }}
-          </ion-item-option>
-        </ion-item-options>
-      </ion-item-sliding>
-    </ion-list>
-  </ng-container>
+    @if (displayOthersRecipes()!.length == 0) {
+      <ion-label class="ion-padding">
+        {{ 'RECIPE_LIST_PAGE.NO_DATA_OTHERS' | translate }}
+      </ion-label>
+    } @else {
+      <ion-list lines="inset" inset="true">
+        @for (recipe of displayOthersRecipes(); track trackByRecipe($index, recipe)) {
+          <ion-item-sliding>
+            <ion-item button (click)="onRecipeClicked(recipe)">
+              <ion-label>{{ recipe.name }}</ion-label>
+            </ion-item>
+            <ion-item-options side="end">
+              <ion-item-option (click)="onAddToPlanningClicked(recipe)">
+                {{ 'COMMON.PLANNINGS.ADD_TO_PLANNING.BUTTON' | translate }}
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        }
+      </ion-list>
+    }
+  }
 
 </ion-content>
 
@@ -75,10 +85,11 @@
           </ion-header>
           <ion-content class="ion-padding">
             <div>
-              <ion-chip *ngFor="let recipeTypeFilter of recipeTypeFilters" (click)="onTypeClicked(recipeTypeFilter)"
-              [ngClass]="{'disabled': !recipeTypeFilter.enabled}">
-                {{ 'COMMON.RECIPE_TYPES.' + recipeTypeFilter.type | translate }}
-              </ion-chip>
+              @for (recipeTypeFilter of recipeTypeFilters(); track trackByRecipeType($index, recipeTypeFilter)) {
+                <ion-chip (click)="onTypeClicked(recipeTypeFilter)" [class.disabled]="!recipeTypeFilter.enabled">
+                  {{ 'COMMON.RECIPE_TYPES.' + recipeTypeFilter.type | translate }}
+                </ion-chip>
+              }
             </div>
           </ion-content>
         </ng-template>

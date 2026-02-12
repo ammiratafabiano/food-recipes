@@ -16,9 +16,11 @@
             [placeholder]="'LOGIN_PAGE.EMAIL' | translate"
             formControlName="email">
           </ion-input>
-          <ion-note slot="error" *ngIf="(email.dirty || email.touched) && email.errors">
-            {{ 'LOGIN_PAGE.EMAIL_ERROR' | translate }}
-          </ion-note>
+          @if ((email.dirty || email.touched) && email.errors) {
+            <ion-note slot="error">
+              {{ 'LOGIN_PAGE.EMAIL_ERROR' | translate }}
+            </ion-note>
+          }
         </ion-item>
         <ion-item>
           <ion-label position="stacked">
@@ -29,9 +31,11 @@
             [placeholder]="'LOGIN_PAGE.PASSWORD' | translate"
             formControlName="password">
           </ion-input>
-          <ion-note slot="error" *ngIf="(password.dirty || password.touched) && password.errors">
-            {{ 'LOGIN_PAGE.PASSWORD' | translate }}
-          </ion-note>
+          @if ((password.dirty || password.touched) && password.errors) {
+            <ion-note slot="error">
+              {{ 'LOGIN_PAGE.PASSWORD' | translate }}
+            </ion-note>
+          }
         </ion-item>
         <ion-button type="submit" expand="block" strong="true" [disabled]="!credentials.valid">
           {{ 'LOGIN_PAGE.LOGIN_BUTTON' | translate }}

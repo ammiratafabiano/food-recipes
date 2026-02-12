@@ -1,6 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { LoadingController } from '@ionic/angular';
-import { NavigationPath, SettingsNavigationPath } from 'src/app/models/navigation-path.enum';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { LoadingService } from 'src/app/services/loading.service';
+import {
+  NavigationPath,
+  SettingsNavigationPath,
+} from 'src/app/models/navigation-path.enum';
 import { UserData } from 'src/app/models/user-data.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
@@ -10,33 +19,37 @@ import { NavigationService } from 'src/app/services/navigation.service';
   selector: 'app-settings',
   templateUrl: './settings.page.html',
   styleUrls: ['./settings.page.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsPage implements OnInit {
+  private readonly authService = inject(AuthService);
+  private readonly navigationService = inject(NavigationService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly dataService = inject(DataService);
 
-  userData: UserData | undefined;
+  readonly userData = signal<UserData | undefined>(undefined);
 
-  constructor(
-    private readonly authService: AuthService,
-    private readonly navigationService: NavigationService,
-    private readonly loadingController: LoadingController,
-    private readonly dataService: DataService
-  ) { }
+  constructor() {}
 
   ngOnInit() {
-    this.userData = this.authService.getCurrentUser();
+    this.userData.set(this.authService.getCurrentUser());
     this.getUserStats();
   }
 
   private async getUserStats() {
-    const loading = await this.loadingController.create()
-    await loading.present()
-    if (this.userData) this.userData.stats = await this.dataService.getUserStats();
-    await loading.dismiss();
+    await this.loadingService.withLoader(async () => {
+      const user = this.userData();
+      if (user) {
+        const stats = await this.dataService.getUserStats();
+        this.userData.set({ ...user, stats });
+      }
+    });
   }
 
   async handleRefresh(event: any) {
     await this.getUserStats();
-    event.target.complete();
+    const target = event.target as HTMLIonRefresherElement | null;
+    target?.complete();
   }
 
   async onGroupManagementClicked() {
@@ -45,15 +58,15 @@ export class SettingsPage implements OnInit {
 
   async onLogoutClicked() {
     await this.authService.signOut();
-    this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Login],
+    this.navigationService.setRoot(
+      [NavigationPath.Base, NavigationPath.Login],
       {
-        animationDirection: "back"
-      }
+        animationDirection: 'back',
+      },
     );
   }
 
   async onDeleteClicked() {
     this.navigationService.push(SettingsNavigationPath.DeleteUser);
   }
-
 }

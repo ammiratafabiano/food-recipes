@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ title || 'ITEM_SELECTION_PAGE.DEFAULT_TITLE' | translate }}</ion-title>
+    <ion-title>{{ title() || ('ITEM_SELECTION_PAGE.DEFAULT_TITLE' | translate) }}</ion-title>
   </ion-toolbar>
   <ion-toolbar>
     <ion-searchbar (ionInput)="searchbarInput($event)"></ion-searchbar>
@@ -14,11 +14,14 @@
 
 <ion-content color="light" class="ion-padding">
   <ion-list id="modal-list" [inset]="true">
-    <ion-item *ngFor="let item of filteredItems; trackBy: trackItems" (click)="onItemClicked(item)">
-      {{ item.text }}
-    </ion-item>
-    <ion-item *ngIf="filteredItems.length == 0" color="primary" (click)="onCustomItemClicked()">
-      {{ 'ITEM_SELECTION_PAGE.CUSTOM_ITEM' | translate: {'item':customElement} }}
-    </ion-item>
+    @for (item of filteredItems(); track trackByItem($index, item)) {
+      <ion-item (click)="onItemClicked(item)">
+        {{ item.text }}
+      </ion-item>
+    } @empty {
+      <ion-item color="primary" (click)="onCustomItemClicked()">
+        {{ 'ITEM_SELECTION_PAGE.CUSTOM_ITEM' | translate: ({ item: customElement() }) }}
+      </ion-item>
+    }
   </ion-list>
 </ion-content>

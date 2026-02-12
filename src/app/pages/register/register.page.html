@@ -23,9 +23,11 @@
             [placeholder]="'REGISTER_PAGE.EMAIL' | translate"
             formControlName="email">
           </ion-input>
-          <ion-note slot="error" *ngIf="(email.dirty || email.touched) && email.errors">
-            {{ 'REGISTER_PAGE.EMAIL_ERROR' | translate }}
-          </ion-note>
+          @if ((email.dirty || email.touched) && email.errors) {
+            <ion-note slot="error">
+              {{ 'REGISTER_PAGE.EMAIL_ERROR' | translate }}
+            </ion-note>
+          }
         </ion-item>
         <ion-item>
           <ion-label position="stacked">
@@ -36,16 +38,18 @@
             [placeholder]="'REGISTER_PAGE.PASSWORD' | translate"
             formControlName="password">
           </ion-input>
-          <ion-note
-            slot="error"
-            *ngIf="(password.dirty || password.touched) && password.errors?.required">
-            {{ 'REGISTER_PAGE.PASSWORD_GENERIC_ERROR' | translate }}
-          </ion-note>
-          <ion-note
-            slot="error"
-            *ngIf="(password.dirty || password.touched) && password.errors?.minlength">
-            {{ 'REGISTER_PAGE.PASSWORD_LENGTH_ERROR' | translate }}
-          </ion-note>
+          @if (password.dirty || password.touched) {
+            @if (password.errors?.required) {
+              <ion-note slot="error">
+                {{ 'REGISTER_PAGE.PASSWORD_GENERIC_ERROR' | translate }}
+              </ion-note>
+            }
+            @if (password.errors?.minlength) {
+              <ion-note slot="error">
+                {{ 'REGISTER_PAGE.PASSWORD_LENGTH_ERROR' | translate }}
+              </ion-note>
+            }
+          }
         </ion-item>
         <ion-button type="submit" expand="block" strong="true" [disabled]="!credentials.valid">
           {{ 'REGISTER_PAGE.SUBMIT_BUTTON' | translate }}

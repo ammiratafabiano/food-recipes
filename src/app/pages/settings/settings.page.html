@@ -18,31 +18,35 @@
   </ion-refresher>
 
   <div class="content">
-    <ion-card *ngIf="userData">
-      <ion-card-header>
-        <ion-avatar>
-          <img [src]="userData.avatar_url" referrerpolicy="no-referrer"/>
-        </ion-avatar>
-        <ion-card-title>{{ userData.name }}</ion-card-title>
-        <ion-card-subtitle>{{ userData.email }}</ion-card-subtitle>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-item lines="none" *ngIf="userData.stats">
-          <ion-label>
-            <h3>Followers</h3>
-            <p>{{ userData.stats.followers != undefined ? userData.stats.followers : '/' }}</p>
-          </ion-label>
-          <ion-label>
-            <h3>Followed</h3>
-            <p>{{ userData.stats.followed != undefined ? userData.stats.followed : '/' }}</p>
-          </ion-label>
-          <ion-label>
-            <h3>Saved</h3>
-            <p>{{ userData.stats.saved != undefined ? userData.stats.saved : '/' }}</p>
-          </ion-label>
-        </ion-item>
-      </ion-card-content>
-    </ion-card>
+    @if (userData(); as userData) {
+      <ion-card>
+        <ion-card-header>
+          <ion-avatar>
+            <img [src]="userData.avatar_url" referrerpolicy="no-referrer"/>
+          </ion-avatar>
+          <ion-card-title>{{ userData.name }}</ion-card-title>
+          <ion-card-subtitle>{{ userData.email }}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          @if (userData.stats) {
+            <ion-item lines="none">
+              <ion-label>
+                <h3>Followers</h3>
+                <p>{{ userData.stats.followers != undefined ? userData.stats.followers : '/' }}</p>
+              </ion-label>
+              <ion-label>
+                <h3>Followed</h3>
+                <p>{{ userData.stats.followed != undefined ? userData.stats.followed : '/' }}</p>
+              </ion-label>
+              <ion-label>
+                <h3>Saved</h3>
+                <p>{{ userData.stats.saved != undefined ? userData.stats.saved : '/' }}</p>
+              </ion-label>
+            </ion-item>
+          }
+        </ion-card-content>
+      </ion-card>
+    }
 
     <ion-list lines="inset" inset="true" >
       <ion-item button (click)="onGroupManagementClicked()">

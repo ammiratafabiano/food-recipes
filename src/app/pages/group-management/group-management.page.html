@@ -11,25 +11,29 @@
 
 <ion-content>
 
-  <section class="ion-padding" *ngIf="(dataLoaded | async) && group">
-    <h1>
-      {{ 'GROUP_MANAGEMENT_PAGE.LEAVE_GROUP' | translate }}
-    </h1>
-    <ion-label>{{ 'GROUP_MANAGEMENT_PAGE.GROUP_ID' | translate }} {{ group.id }}</ion-label>
-    <ion-list>
-      <ion-item *ngFor="let user of group.users">
-        {{ user }}
-      </ion-item>
-    </ion-list>
-    <ion-button (click)="onLeaveGroupClicked()">
-      {{ 'GROUP_MANAGEMENT_PAGE.LEAVE_GROUP_BUTTON' | translate }}
-    </ion-button>
-    <ion-button (click)="onShareClicked()">
-      <ion-icon slot="icon-only" name="share-social-outline"></ion-icon>
-    </ion-button>
-  </section>
+  @if (dataLoaded() && group(); as groupData) {
+    <section class="ion-padding">
+      <h1>
+        {{ 'GROUP_MANAGEMENT_PAGE.LEAVE_GROUP' | translate }}
+      </h1>
+      <ion-label>{{ 'GROUP_MANAGEMENT_PAGE.GROUP_ID' | translate }} {{ groupData.id }}</ion-label>
+      <ion-list>
+        @for (user of groupData.users; track trackByUserId($index, user)) {
+          <ion-item>
+            {{ user }}
+          </ion-item>
+        }
+      </ion-list>
+      <ion-button (click)="onLeaveGroupClicked()">
+        {{ 'GROUP_MANAGEMENT_PAGE.LEAVE_GROUP_BUTTON' | translate }}
+      </ion-button>
+      <ion-button (click)="onShareClicked()">
+        <ion-icon slot="icon-only" name="share-social-outline"></ion-icon>
+      </ion-button>
+    </section>
+  }
 
-  <ng-container *ngIf="(dataLoaded | async) && !group">
+  @if (dataLoaded() && !group()) {
     <p class="ion-padding">{{ 'COMMON.PLANNINGS.NO_GROUP_ERROR' | translate }}</p>
     
     <div class="ion-padding">
@@ -59,6 +63,6 @@
         {{ 'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON' | translate }}
       </ion-button>
     </div>
-  </ng-container>
+  }
 
 </ion-content>

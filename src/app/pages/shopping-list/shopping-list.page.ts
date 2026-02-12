@@ -1,48 +1,50 @@
-import { Component } from '@angular/core';
-import { LoadingController } from '@ionic/angular';
-import * as moment from 'moment';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
+import { LoadingService } from 'src/app/services/loading.service';
+import dayjs from 'dayjs';
 import { Ingredient } from 'src/app/models/ingredient.model';
 import { DataService } from 'src/app/services/data.service';
+import { trackById } from 'src/app/utils/track-by';
 
 @Component({
   selector: 'app-shopping-list',
   templateUrl: 'shopping-list.page.html',
-  styleUrls: ['shopping-list.page.scss']
+  styleUrls: ['shopping-list.page.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShoppingList {
+  private readonly dataService = inject(DataService);
+  private readonly loadingService = inject(LoadingService);
 
-  shoppingList?: Ingredient[];
+  readonly shoppingList = signal<Ingredient[] | undefined>(undefined);
 
-  constructor(
-    private readonly dataService: DataService,
-    private readonly loadingController: LoadingController
-  ) {}
+  readonly trackByIngredient = trackById;
+
+  constructor() {}
 
   ionViewDidEnter() {
     this.getData();
   }
 
   private async getData() {
-    const loading = await this.loadingController.create();
-    await loading.present();
-    this.getShoppingList().finally(async () => {
-      await loading.dismiss();
+    await this.loadingService.withLoader(async () => {
+      await this.getShoppingList();
     });
   }
 
   async getShoppingList(startDate?: string) {
-    if (!startDate) startDate = moment().startOf('week').format("YYYY-MM-DD");
-    return this.dataService.getShoppingList(startDate).then(response => {
-      if (response && response.length > 0) {
-        this.shoppingList = response;
-      } else {
-        this.shoppingList = [];
-      }
-    })
+    if (!startDate) startDate = dayjs().startOf('week').format('YYYY-MM-DD');
+    const response = await this.dataService.getShoppingList(startDate);
+    this.shoppingList.set(response && response.length > 0 ? response : []);
   }
 
   async handleRefresh(event: any) {
     await this.getShoppingList();
-    event.target.complete();
+    const target = event.target as HTMLIonRefresherElement | null;
+    target?.complete();
   }
 }

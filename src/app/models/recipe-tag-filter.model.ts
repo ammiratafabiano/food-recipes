@@ -1,4 +1,4 @@
-export class RecipeTagFilter {
-    tag: string | undefined;
-    enabled = true; 
+export interface RecipeTagFilter {
+  tag: string | undefined;
+  enabled: boolean;
 }

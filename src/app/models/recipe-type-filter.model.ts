@@ -1,6 +1,6 @@
-import { RecipeType } from "./recipe-type.enum";
+import { RecipeType } from './recipe-type.enum';
 
-export class RecipeTypeFilter {
-    type: RecipeType = RecipeType.Other;
-    enabled = true; 
+export interface RecipeTypeFilter {
+  type: RecipeType;
+  enabled: boolean;
 }

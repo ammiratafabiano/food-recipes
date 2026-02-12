@@ -1,17 +1,27 @@
-import { Meal } from "./meal.model";
-import { Recipe } from "./recipe.model";
-import { WeekDay } from "./weekDay.enum";
+import { Meal } from './meal.model';
+import { Recipe } from './recipe.model';
+import { WeekDay } from './weekDay.enum';
 
-export class Planning {
-    startDate: string = "";
-    recipes: PlannedRecipe[] = [];
+export interface Planning {
+  startDate: string;
+  recipes: PlanningItem[];
 }
 
-export class PlannedRecipe {
-    id?: string;
-    user_id?: string;
-    recipe?: Recipe;
-    week?: string;
-    day?: WeekDay;
-    meal?: Meal;
+export type PlanningItem = PlannedRecipe | PlanningSeparator;
+
+export interface PlanningSeparator {
+  kind: 'separator';
+  day: WeekDay;
+}
+
+export interface PlannedRecipe {
+  kind: 'recipe';
+  id: string;
+  user_id: string;
+  recipe_id: string;
+  recipe_name: string;
+  recipe: Recipe;
+  week?: string;
+  day?: WeekDay;
+  meal?: Meal;
 }

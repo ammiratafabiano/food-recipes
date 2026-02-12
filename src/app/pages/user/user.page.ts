@@ -1,9 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { LoadingController } from '@ionic/angular';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { LoadingService } from 'src/app/services/loading.service';
 import { TranslateService } from '@ngx-translate/core';
-import { take } from 'rxjs';
-import { NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
+import { RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { UserData } from 'src/app/models/user-data.model';
 import { AlertService } from 'src/app/services/alert.service';
@@ -11,91 +17,98 @@ import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { environment } from 'src/environments/environment';
+import { trackById } from 'src/app/utils/track-by';
 
 @Component({
   selector: 'app-user',
   templateUrl: './user.page.html',
   styleUrls: ['./user.page.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserPage implements OnInit {
-  
-  user?: UserData;
+  private readonly dataService = inject(DataService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly navigationService = inject(NavigationService);
+  private readonly authService = inject(AuthService);
+  private readonly alertService = inject(AlertService);
+  private readonly translateService = inject(TranslateService);
 
-  isUserLogged = false;
+  readonly id = input<string>();
 
-  constructor(
-    private readonly dataService: DataService,
-    private readonly loadingController: LoadingController,
-    private readonly navigationService: NavigationService,
-    private readonly route: ActivatedRoute,
-    private readonly authService: AuthService,
-    private readonly alertService: AlertService,
-    private readonly translateService: TranslateService
-  ) { }
+  readonly user = signal<UserData | undefined>(undefined);
+  readonly isUserLogged = computed(() => !!this.authService.currentUser());
+
+  readonly trackByRecipe = trackById;
 
   ngOnInit() {
-    this.route.queryParams.pipe(take(1)).subscribe(params => {
-      if (!this.user && params && params["id"]) {
-        const user_id = params["id"];
-        this.getData(user_id);
-      } else {
-        this.navigationService.pop();
-      }
-    });
-    this.isUserLogged = !!this.authService.getCurrentUser();
+    const userId = this.id();
+    if (userId) {
+      this.getData(userId);
+    } else {
+      this.navigationService.pop();
+    }
   }
 
   private async getData(id: string) {
-    const loading = await this.loadingController.create()
-    await loading.present()
-    this.user = await this.dataService.getUser(id);
-    if (this.user) {
-      this.user.recipes = await this.dataService.getRecipeList(this.user.id) || [];
-    }
-    await loading.dismiss();
+    await this.loadingService.withLoader(async () => {
+      const userData = await this.dataService.getUser(id);
+      if (userData) {
+        userData.recipes =
+          (await this.dataService.getRecipeList(userData.id)) || [];
+      }
+      this.user.set(userData);
+    });
   }
-  
+
   async onBackClicked() {
     this.navigationService.goToPreviousPage();
   }
 
   async onShareClicked() {
-    if (!this.user) return;
-    const link = environment.siteUrl + '?user=' + this.user.id;
+    const user = this.user();
+    if (!user) return;
+    const link = environment.siteUrl + '?user=' + user.id;
     navigator.clipboard.writeText(link);
-    const text = this.translateService.instant("COMMON.CLIPBOARD");
+    const text = this.translateService.instant('COMMON.CLIPBOARD');
     this.alertService.presentInfoPopup(text);
   }
 
   async onFollowClicked() {
-    if (!this.user) return;
-    const loading = await this.loadingController.create()
-    await loading.present()
-    const result = await this.dataService.addFollower(this.user.id);
-    if (result) {
-      this.user.isFollowed = true;
-    }
-    await loading.dismiss();
+    const user = this.user();
+    if (!user) return;
+    await this.loadingService.withLoader(async () => {
+      const result = await this.dataService.addFollower(user.id);
+      if (result) {
+        this.user.set({ ...user, isFollowed: true });
+      }
+    });
   }
 
   async onUnfollowClicked() {
-    if (!this.user) return;
-    const loading = await this.loadingController.create()
-    await loading.present()
-    const result = await this.dataService.deleteFollower(this.user.id);
-    if (result) {
-      this.user.isFollowed = false;
-    }
-    await loading.dismiss();
+    const user = this.user();
+    if (!user) return;
+    await this.loadingService.withLoader(async () => {
+      const result = await this.dataService.deleteFollower(user.id);
+      if (result) {
+        this.user.set({ ...user, isFollowed: false });
+      }
+    });
   }
 
   async onRecipeClicked(recipe: Recipe) {
-    if (!this.user) return;
+    const user = this.user();
+    if (!user) return;
     return this.navigationService.push(RecipeListNavigationPath.Recipe, {
       queryParams: {
-        id: recipe.id
+        id: recipe.id,
       },
-      dismissCallback: (params: any) => params?.needToRefresh && this.user && this.getData(this.user.id)
+      dismissCallback: (params?: unknown) => {
+        const typedParams = params as { needToRefresh?: boolean } | undefined;
+        if (typedParams?.needToRefresh && user) {
+          return this.getData(user.id);
+        }
+        return Promise.resolve();
+      },
     });
   }
 }

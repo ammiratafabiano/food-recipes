@@ -1,4 +1,4 @@
-export class Group {
-    id!: string;
-    users: string[] = [];
+export interface Group {
+  id: string;
+  users: string[];
 }

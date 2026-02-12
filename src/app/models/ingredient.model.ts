@@ -1,6 +1,6 @@
-import { Food } from "./food.model";
-import { Quantity } from "./quantity.model";
+import { Food } from './food.model';
+import { Quantity } from './quantity.model';
 
-export class Ingredient extends Food {
-    quantity: Quantity = new Quantity;
+export interface Ingredient extends Food {
+  quantity: Quantity;
 }

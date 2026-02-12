@@ -1,105 +1,89 @@
-import { Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import type { OnInit } from '@angular/core';
+import { SearchbarCustomEvent } from '@ionic/angular';
 import { Item } from 'src/app/models/item.model';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { trackByValue } from 'src/app/utils/track-by';
 
 @Component({
   selector: 'app-item-selection',
   templateUrl: './item-selection.page.html',
   styleUrls: ['./item-selection.page.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ItemSelectionPage implements OnInit {
+  private readonly navigationService = inject(NavigationService);
 
-  items: Item[] = [];
-  selectedItems: string[] = [];
-  title?: string;
-  
-  filteredItems: Item[] = [];
-  workingSelectedValues: string[] = [];
+  readonly items = signal<Item[]>([]);
+  readonly title = signal<string | undefined>(undefined);
+  readonly searchQuery = signal<string>('');
 
-  customElement = "";
+  readonly filteredItems = computed(() => {
+    const items = this.items();
+    const query = this.searchQuery().toLowerCase().trim();
+    if (!query) {
+      return [...items];
+    }
+    return items.filter((item) => {
+      return item.text.toLowerCase().includes(query);
+    });
+  });
 
-  constructor(private readonly navigationService: NavigationService) {
-    
-  }
+  readonly customElement = computed(() => {
+    const query = this.searchQuery();
+    return query ? this.getCustomItem(query) : '';
+  });
+
+  readonly trackByItem = trackByValue;
+
+  constructor() {}
 
   ngOnInit() {
-    this.items = this.navigationService.getParams<{title?: string, items: Item[], selectedItem: string[]}>()?.items || this.navigationService.pop();
-    this.title = this.navigationService.getParams<{title?: string, items: Item[], selectedItem: string[]}>()?.title;
-    this.selectedItems = this.navigationService.getParams<{title?: string, items: Item[], selectedItems: string[]}>()?.selectedItems || [];
-    this.filteredItems = [...this.items];
-    this.workingSelectedValues = [...this.selectedItems];
+    const params = this.navigationService.getParams<{
+      title?: string;
+      items: Item[];
+      selectedItems?: string[];
+    }>();
+    if (!params?.items) {
+      this.navigationService.pop();
+      return;
+    }
+    this.items.set(params.items);
+    this.title.set(params.title);
   }
-  
-  trackItems(index: number, item: Item) {
-    return item.value;
-  }
-  
+
   onBackClicked() {
     return this.navigationService.pop();
   }
-  
+
   onItemClicked(item: Item) {
     return this.navigationService.pop(item);
   }
 
   onCustomItemClicked() {
-    const custom: Item = { text: this.customElement, value: "", custom: true };
+    const custom: Item = {
+      text: this.customElement(),
+      value: '',
+      custom: true,
+    };
 
     return this.navigationService.pop(custom);
   }
-  
-  searchbarInput(ev: any) {
-    this.filterList(ev.target.value);
-  }
-  
-  /**
-   * Update the rendered view with
-   * the provided search query. If no
-   * query is provided, all data
-   * will be rendered.
-   */
-  filterList(searchQuery: string | undefined) {
-    /**
-     * If no search query is defined,
-     * return all options.
-     */
-    if (searchQuery === undefined) {
-      this.filteredItems = [...this.items];
-    } else {
-      /**
-       * Otherwise, normalize the search
-       * query and check to see which items
-       * contain the search query as a substring.
-       */
-      const normalizedQuery = searchQuery.toLowerCase(); 
-      this.filteredItems = this.items.filter(item => {
-        return item.text.toLowerCase().includes(normalizedQuery);
-      });
-    }
 
-    this.customElement = searchQuery ? this.getCustomItem(searchQuery) : "";
+  searchbarInput(ev: SearchbarCustomEvent) {
+    this.searchQuery.set(ev.detail?.value || '');
   }
 
   private getCustomItem(search: string) {
     const words = search.split(/\s+/);
-    return words.reduce((a,b)=> a + " " + b.charAt(0).toUpperCase() + b.slice(1), "").trim();
+    return words
+      .reduce((a, b) => a + ' ' + b.charAt(0).toUpperCase() + b.slice(1), '')
+      .trim();
   }
-  /* TODO multiple selection
-  isChecked(value: string) {
-    return this.workingSelectedValues.find(item => item === value);
-  }
-  
-  checkboxChange(ev: any) {
-    const { checked, value } = ev.detail;
-    
-    if (checked) {
-      this.workingSelectedValues = [
-        ...this.workingSelectedValues,
-        value
-      ]
-    } else {
-      this.workingSelectedValues = this.workingSelectedValues.filter(item => item !== value);
-    }
-  }*/
 }

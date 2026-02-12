@@ -1,107 +1,104 @@
-import { Injectable } from '@angular/core'
-import { AuthResponse, createClient, OAuthResponse, SupabaseClient, User } from '@supabase/supabase-js'
-import { BehaviorSubject, debounce, Observable, of, timer } from 'rxjs'
-import { environment } from '../../environments/environment'
-import { UserData } from '../models/user-data.model'
+import { inject, Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
+import { UserData } from '../models/user-data.model';
+import { SessionService } from './session.service';
+
+export interface AuthError {
+  message: string;
+}
+
+export interface AuthResponse<T = { user: UserData }> {
+  data: T;
+  error: AuthError | null;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private supabase: SupabaseClient
-  private currentUser = new BehaviorSubject<User | 0 | undefined>(undefined)
+  private readonly sessionService = inject(SessionService);
+
+  readonly currentUser = signal<UserData | 0 | undefined>(undefined);
+
+  private readonly mockUser: UserData = {
+    id: 'user1',
+    name: 'Chef Mario',
+    email: 'mario@chef.com',
+    avatar_url: 'https://example.com/mario.jpg',
+  };
 
   constructor() {
-    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey)
-
-    this.supabase.auth.onAuthStateChange((event, sess) => {
-      let user;
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        user = sess?.user;
-      }
-      this.setCurrentUser(user);
-    })
-
-    // Trigger initial session load
-    this.loadUser()
+    // Trigger initial session load (no remote auth provider)
+    this.loadUser();
   }
 
   async loadUser() {
-    if (this.currentUser.value) {
-      // User is already set, no need to do anything else
-      return
+    if (this.currentUser()) return;
+    const storedUser = this.sessionService.storedUser();
+    if (storedUser) {
+      this.currentUser.set(storedUser);
+      return;
     }
-    const user = await this.supabase.auth.getUser()
-
-    this.setCurrentUser(user.data.user || 0);
+    // Mimic "not authenticated" state on startup
+    this.currentUser.set(0);
   }
 
-  private setCurrentUser(user: User | 0 | undefined) {
-    this.currentUser.next(user);
-  }
-
-  getCurrentUserAsync(): Observable<User | 0 | undefined> {
-    return this.currentUser.asObservable();
+  getCurrentUserAsync(): Observable<UserData | 0 | undefined> {
+    return toObservable(this.currentUser);
   }
 
   getCurrentUser(): UserData | undefined {
-    if (this.currentUser.value) {
-      return {
-        id: this.currentUser.value.id,
-        name: this.currentUser.value.user_metadata.full_name,
-        email: this.currentUser.value.user_metadata.email,
-        avatar_url: this.currentUser.value.user_metadata.avatar_url
-      }
-    } else {
-      return undefined;
-    }
+    const value = this.currentUser();
+    return value !== 0 && value !== undefined ? value : undefined;
   }
 
-  signUp(credentials: { email: string, password: string }) {
-    return this.supabase.auth.signUp(credentials)
+  signUp(credentials: { email: string; password: string }) {
+    // Simulate successful sign up
+    return Promise.resolve({
+      data: { user: this.mockUser },
+      error: null,
+    } as AuthResponse);
   }
 
-  signIn(credentials: { email: string, password: string }): Promise<AuthResponse> {
-    return this.supabase.auth.signInWithPassword(credentials)
+  signIn(credentials: {
+    email: string;
+    password: string;
+  }): Promise<AuthResponse> {
+    this.currentUser.set(this.mockUser);
+    this.sessionService.setStoredUser(this.mockUser);
+    return Promise.resolve({ data: { user: this.mockUser }, error: null });
   }
 
   signInWithEmail(email: string): Promise<AuthResponse> {
-    return this.supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: environment.callbackUrl,
-      }
-    })
+    this.currentUser.set(this.mockUser);
+    this.sessionService.setStoredUser(this.mockUser);
+    return Promise.resolve({ data: { user: this.mockUser }, error: null });
   }
 
-  signInWithFacebook(): Promise<OAuthResponse> {
-    return this.supabase.auth.signInWithOAuth({
-      provider: 'facebook',
-      options: {
-        redirectTo: environment.callbackUrl
-      }
-    })
+  signInWithFacebook(): Promise<AuthResponse> {
+    this.currentUser.set(this.mockUser);
+    this.sessionService.setStoredUser(this.mockUser);
+    return Promise.resolve({ data: { user: this.mockUser }, error: null });
   }
 
-  signInWithGoogle(): Promise<OAuthResponse> {
-    return this.supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: environment.callbackUrl
-      }
-    })
+  signInWithGoogle(): Promise<AuthResponse> {
+    this.currentUser.set(this.mockUser);
+    this.sessionService.setStoredUser(this.mockUser);
+    return Promise.resolve({ data: { user: this.mockUser }, error: null });
   }
-  
-  sendPwReset(email: string): Promise<any> {
-    return this.supabase.auth.resetPasswordForEmail(email)
+
+  sendPwReset(email: string): Promise<AuthResponse<{}>> {
+    return Promise.resolve({ data: {}, error: null });
   }
 
   resetUser() {
-    this.setCurrentUser(undefined);
+    this.sessionService.setStoredUser(undefined);
+    this.currentUser.set(undefined);
   }
 
-  signOut(): Promise<any> {
+  signOut(): Promise<void> {
     this.resetUser();
-    return this.supabase.auth.signOut()
+    return Promise.resolve();
   }
 }

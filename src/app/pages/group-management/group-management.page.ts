@@ -1,10 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { LoadingController } from '@ionic/angular';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
 import { Group } from 'src/app/models/group.model';
 import { AlertService } from 'src/app/services/alert.service';
 import { DataService } from 'src/app/services/data.service';
+import { LoadingService } from 'src/app/services/loading.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { environment } from 'src/environments/environment';
 
@@ -12,33 +16,34 @@ import { environment } from 'src/environments/environment';
   selector: 'app-group-management',
   templateUrl: './group-management.page.html',
   styleUrls: ['./group-management.page.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GroupManagementPage{
+export class GroupManagementPage {
+  private readonly dataService = inject(DataService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly navigationService = inject(NavigationService);
+  private readonly translateService = inject(TranslateService);
+  private readonly alertService = inject(AlertService);
 
   newGroupId?: string;
-  group?: Group;
+  readonly group = signal<Group | undefined>(undefined);
+  readonly dataLoaded = signal<boolean>(false);
 
-  dataLoaded = new Subject<boolean>();
+  readonly trackByUserId = (_: number, userId: string) => userId;
 
-  constructor(
-    private readonly dataService: DataService,
-    private readonly loadingController: LoadingController,
-    private readonly navigationService: NavigationService,
-    private readonly translateService: TranslateService,
-    private readonly alertService: AlertService
-  ) { }
+  constructor() {}
 
   ionViewDidEnter() {
-    this.dataLoaded.next(false);
+    this.dataLoaded.set(false);
     this.getGroup();
   }
 
   private async getGroup() {
-    const loading = await this.loadingController.create();
-    await loading.present();
-    this.group = await this.dataService.retrieveGroup();
-    await loading.dismiss();
-    this.dataLoaded.next(true);
+    await this.loadingService.withLoader(async () => {
+      const group = await this.dataService.retrieveGroup();
+      this.group.set(group);
+    });
+    this.dataLoaded.set(true);
   }
 
   async onBackClicked() {
@@ -46,33 +51,38 @@ export class GroupManagementPage{
   }
 
   async onCreateGroupClicked() {
-    const loading = await this.loadingController.create();
-    await loading.present();
-    this.group = await this.dataService.createGroup();
-    await loading.dismiss();
+    await this.loadingService.withLoader(async () => {
+      const group = await this.dataService.createGroup();
+      this.group.set(group);
+    });
   }
 
   async onJoinGroupClicked() {
-    if (!this.newGroupId) return;
-    const loading = await this.loadingController.create();
-    await loading.present();
-    this.group = await this.dataService.joinGroup(this.newGroupId);
-    await loading.dismiss();
+    const groupId = this.newGroupId;
+    if (!groupId) return;
+    await this.loadingService.withLoader(async () => {
+      const group = await this.dataService.joinGroup(groupId);
+      this.group.set(group);
+    });
+    this.newGroupId = undefined;
   }
 
   async onLeaveGroupClicked() {
-    if (!this.group?.id) return;
-    const loading = await this.loadingController.create();
-    await loading.present();
-    this.group = await this.dataService.leaveGroup(this.group.id);
-    await loading.dismiss();
+    const group = this.group();
+    if (!group) return;
+    await this.loadingService.withLoader(async () => {
+      await this.dataService.leaveGroup(group.id);
+      const newGroup = await this.dataService.retrieveGroup();
+      this.group.set(newGroup);
+    });
   }
 
   async onShareClicked() {
-    if (!this.group) return;
-    const link = environment.siteUrl + '?group=' + this.group.id;
+    const group = this.group();
+    if (!group) return;
+    const link = environment.siteUrl + '?group=' + group.id;
     navigator.clipboard.writeText(link);
-    const text = this.translateService.instant("COMMON.CLIPBOARD");
+    const text = this.translateService.instant('COMMON.CLIPBOARD');
     this.alertService.presentInfoPopup(text);
   }
 }

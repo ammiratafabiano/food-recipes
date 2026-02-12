@@ -13,33 +13,46 @@
     </ion-toolbar>
   </ion-header>
 
-  <ng-container *ngIf="(dataLoaded | async) && group">
+  @if (dataLoaded() && group()) {
     <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
   
-    <ion-list class="ion-margin-top">
-      <ion-reorder-group [disabled]="false" (ionItemReorder)="handleReorder($any($event))">
-        <ng-container *ngFor="let planned of planning?.recipes">
-          <ion-item-sliding>
-            <ion-item [lines]="planned.recipe ? 'inset' : 'none'" (click)="planned.recipe && onPlannedRecipeClicked(planned)">
-              <ion-label *ngIf="!planned.id" class="delimiter">{{ 'COMMON.WEEK_DAYS.' + planned.day | translate }}</ion-label>
-              <ion-label *ngIf="planned.id">{{ planned?.recipe?.name }}</ion-label>
-              <ion-label *ngIf="planned.id && planned?.meal" color="medium" slot="end">{{ 'COMMON.MEAL_TYPE.' + planned?.meal | translate }}</ion-label>
-              <ion-reorder slot="end" *ngIf="planned.id"></ion-reorder>
-            </ion-item>
-            <ion-item-options side="end" *ngIf="planned.id">
-              <ion-item-option color="danger" (click)="onRemoveRecipeClicked(planned)">
-                {{ 'PLANNING_PAGE.DELETE_RECIPE_BUTTON' | translate }}
-              </ion-item-option>
-            </ion-item-options>
-          </ion-item-sliding>
-        </ng-container>
-      </ion-reorder-group>
-    </ion-list>
-  </ng-container>
+    @if (planning(); as p) {
+      <ion-list class="ion-margin-top">
+        <ion-reorder-group [disabled]="false" (ionItemReorder)="handleReorder($any($event))">
+          @for (planned of p.recipes; track trackByPlanned($index, planned)) {
+            <ion-item-sliding>
+              <ion-item [lines]="planned.kind === 'recipe' ? 'inset' : 'none'" (click)="planned.kind === 'recipe' && onPlannedRecipeClicked(planned)">
+                @if (planned.kind === 'separator') {
+                  <ion-label class="delimiter">{{ 'COMMON.WEEK_DAYS.' + planned.day | translate }}</ion-label>
+                }
+                @if (planned.kind === 'recipe') {
+                  <ion-label>{{ planned?.recipe?.name }}</ion-label>
+                }
+                @if (planned.kind === 'recipe' && planned?.meal) {
+                  <ion-label color="medium" slot="end">{{ 'COMMON.MEAL_TYPE.' + planned?.meal | translate }}</ion-label>
+                }
+                @if (planned.kind === 'recipe') {
+                  <ion-reorder slot="end"></ion-reorder>
+                }
+              </ion-item>
+              
+              @if (planned.kind === 'recipe') {
+                <ion-item-options side="end">
+                  <ion-item-option color="danger" (click)="onRemoveRecipeClicked(planned)">
+                    {{ 'PLANNING_PAGE.DELETE_RECIPE_BUTTON' | translate }}
+                  </ion-item-option>
+                </ion-item-options>
+              }
+            </ion-item-sliding>
+          }
+        </ion-reorder-group>
+      </ion-list>
+    }
+  }
 
-  <ng-container *ngIf="(dataLoaded | async) && !group">
+  @if (dataLoaded() && !group()) {
     <p class="ion-padding">{{ 'COMMON.PLANNINGS.NO_GROUP_ERROR' | translate }}</p>
     
     <div class="ion-padding">
@@ -47,20 +60,22 @@
         {{ 'COMMON.PLANNINGS.GO_TO_GROUP_MANAGEMENT_BUTTON' | translate }}
       </ion-button>
     </div>
-  </ng-container>
+  }
 
 </ion-content>
 
-<ion-footer *ngIf="(dataLoaded | async) && group && planning">
-  <ion-toolbar>
-    <div class="bar-container">
-      <ion-button fill="clear" (click)="onPlanningBackClicked()">
-        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
-      </ion-button>
-      <ion-label>{{ planning.startDate | date }}</ion-label>
-      <ion-button fill="clear" (click)="onPlanningForwardClicked()">
-        <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
-      </ion-button>
-    </div>
-  </ion-toolbar>
-</ion-footer>
+@if (dataLoaded() && group() && planning(); as p) {
+  <ion-footer>
+    <ion-toolbar>
+      <div class="bar-container">
+        <ion-button fill="clear" (click)="onPlanningBackClicked()">
+          <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+        </ion-button>
+        <ion-label>{{ p.startDate | date }}</ion-label>
+        <ion-button fill="clear" (click)="onPlanningForwardClicked()">
+          <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+}

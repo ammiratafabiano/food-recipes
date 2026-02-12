@@ -1,127 +1,192 @@
-import { Component } from '@angular/core';
-import { ActionSheetController, LoadingController, ModalController } from '@ionic/angular';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { ActionSheetController, SearchbarCustomEvent } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import * as moment from 'moment';
-import { HomeNavigationPath, NavigationPath, RecipeListNavigationPath, SettingsNavigationPath } from 'src/app/models/navigation-path.enum';
+import dayjs from 'dayjs';
+import {
+  HomeNavigationPath,
+  NavigationPath,
+  RecipeListNavigationPath,
+  SettingsNavigationPath,
+} from 'src/app/models/navigation-path.enum';
 import { RecipeTagFilter } from 'src/app/models/recipe-tag-filter.model';
 import { RecipeTypeFilter } from 'src/app/models/recipe-type-filter.model';
 import { RecipeType } from 'src/app/models/recipe-type.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { AlertService } from 'src/app/services/alert.service';
 import { DataService } from 'src/app/services/data.service';
+import { LoadingService } from 'src/app/services/loading.service';
 import { NavigationService } from 'src/app/services/navigation.service';
+import {
+  createRecipeTagFilter,
+  createRecipeTypeFilter,
+} from 'src/app/utils/model-factories';
+import { trackById, trackByType } from 'src/app/utils/track-by';
 
 @Component({
   selector: 'app-recipe-list',
   templateUrl: 'recipe-list.page.html',
-  styleUrls: ['recipe-list.page.scss']
+  styleUrls: ['recipe-list.page.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecipeListPage {
+  private readonly dataService = inject(DataService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly translateService = inject(TranslateService);
+  private readonly actionSheetCtrl = inject(ActionSheetController);
+  private readonly navigationService = inject(NavigationService);
+  private readonly alertService = inject(AlertService);
 
-  recipes?: Recipe[];
-  displayRecipes?: Recipe[];
+  readonly recipes = signal<Recipe[] | undefined>(undefined);
+  readonly othersRecipes = signal<Recipe[] | undefined>(undefined);
 
-  othersRecipes?: Recipe[];
-  displayOthersRecipes?: Recipe[];
+  readonly searchQuery = signal<string>('');
+
+  readonly displayRecipes = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    const recipes = this.recipes();
+    const activeFilters = this.recipeTypeFilters()
+      .filter((f) => f.enabled)
+      .map((f) => f.type);
+
+    return recipes?.filter((x) => {
+      const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
+      const matchFilter =
+        activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
+      return matchQuery && matchFilter;
+    });
+  });
+
+  readonly displayOthersRecipes = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    const recipes = this.othersRecipes();
+    const activeFilters = this.recipeTypeFilters()
+      .filter((f) => f.enabled)
+      .map((f) => f.type);
+
+    return recipes?.filter((x) => {
+      const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
+      const matchFilter =
+        activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
+      return matchQuery && matchFilter;
+    });
+  });
 
   // Filters
-  recipeTypeFilters: RecipeTypeFilter[] = [];
-  recipeTagFilters: RecipeTagFilter[] = [];
+  readonly recipeTypeFilters = signal<RecipeTypeFilter[]>([]);
+  readonly recipeTagFilters = signal<RecipeTagFilter[]>([]);
 
-  constructor(
-    private readonly dataService: DataService,
-    private readonly loadingController: LoadingController,
-    private readonly translateService: TranslateService,
-    private readonly actionSheetCtrl: ActionSheetController,
-    private readonly navigationService: NavigationService,
-    private readonly alertService: AlertService
-  ) {
+  readonly trackByRecipe = trackById;
+  readonly trackByRecipeType = trackByType;
+
+  constructor() {
     this.getData();
   }
 
   private async getData() {
-    const loading = await this.loadingController.create();
-    await loading.present();
-    this.recipes = await this.dataService.getRecipeList() || [];
-    this.displayRecipes = this.recipes;
-    this.othersRecipes = await this.dataService.getSavedRecipeList() || [];
-    this.displayOthersRecipes = this.othersRecipes;
-    this.initFilters();
-    await loading.dismiss();
+    await this.loadingService.withLoader(async () => {
+      const recipes = (await this.dataService.getRecipeList()) || [];
+      const othersRecipes = (await this.dataService.getSavedRecipeList()) || [];
+      this.recipes.set(recipes);
+      this.othersRecipes.set(othersRecipes);
+      this.initFilters();
+    });
   }
 
   private initFilters() {
-    const allRecipes = (this.recipes || []).concat(this.othersRecipes || []);
+    const allRecipes = (this.recipes() || []).concat(this.othersRecipes() || []);
     // Init types
-    this.recipeTypeFilters = [];
-    Object.values(RecipeType).forEach(x => {
-      if (allRecipes.find(y => y.type == x)) {
-        let recipeTypeFilter = new RecipeTypeFilter();
-        recipeTypeFilter.type = x;
-        this.recipeTypeFilters.push(recipeTypeFilter);
+    const newTypeFilters: RecipeTypeFilter[] = [];
+    Object.values(RecipeType).forEach((x) => {
+      if (allRecipes.find((y) => y.type == x)) {
+        newTypeFilters.push(createRecipeTypeFilter({ type: x }));
       }
     });
+    this.recipeTypeFilters.set(newTypeFilters);
+
     // Init tags
-    this.recipeTagFilters = [];
-    allRecipes.forEach(x => {
-      x?.tags?.forEach(y => {
-        if (!this.recipeTagFilters.find(z => z.tag == y)) {
-          let recipeTagFilter = new RecipeTagFilter();
-          recipeTagFilter.tag = y;
-          this.recipeTagFilters.push(recipeTagFilter);
+    const newTagFilters: RecipeTagFilter[] = [];
+    allRecipes.forEach((x) => {
+      x?.tags?.forEach((y) => {
+        if (!newTagFilters.find((z) => z.tag == y)) {
+          newTagFilters.push(createRecipeTagFilter({ tag: y }));
         }
       });
     });
+    this.recipeTagFilters.set(newTagFilters);
   }
 
   onTypeClicked(recipeType: RecipeTypeFilter) {
-    recipeType.enabled = !recipeType.enabled;
+    this.recipeTypeFilters.update((filters) =>
+      filters.map((f) =>
+        f.type === recipeType.type ? { ...f, enabled: !f.enabled } : f,
+      ),
+    );
   }
-  
-  onSearchChange(event: any) {
-    const query = event.target.value.toLowerCase().trim();
-    this.displayRecipes = this.recipes?.filter(x => x.name.toLowerCase().indexOf(query) > -1);
-    this.displayOthersRecipes = this.othersRecipes?.filter(x => x.name.toLowerCase().indexOf(query) > -1);
+
+  onSearchChange(event: SearchbarCustomEvent) {
+    this.searchQuery.set(event.detail?.value || '');
   }
 
   async onRecipeClicked(recipe: Recipe) {
-    this.navigationService.push(RecipeListNavigationPath.Recipe,
-      {
-        queryParams: { id: recipe.id },
-        dismissCallback: (params: any) => params?.needToRefresh && this.getData()
-      }
-    );
+    this.navigationService.push(RecipeListNavigationPath.Recipe, {
+      queryParams: { id: recipe.id },
+      dismissCallback: (params?: unknown) => {
+        const typedParams = params as { needToRefresh?: boolean } | undefined;
+        if (typedParams?.needToRefresh) {
+          return this.getData();
+        }
+        return Promise.resolve();
+      },
+    });
   }
 
   async onAddClicked() {
-    this.navigationService.push(RecipeListNavigationPath.AddRecipe,
-      {
-        dismissCallback: (params: any) => params?.needToRefresh && this.getData()
-      }
-    );
+    this.navigationService.push(RecipeListNavigationPath.AddRecipe, {
+      dismissCallback: (params?: unknown) => {
+        const typedParams = params as { needToRefresh?: boolean } | undefined;
+        if (typedParams?.needToRefresh) {
+          return this.getData();
+        }
+        return Promise.resolve();
+      },
+    });
   }
 
   async onAddToPlanningClicked(recipe: Recipe) {
     if (!recipe) return;
-  
+
     const actionSheet = await this.actionSheetCtrl.create({
-      header: this.translateService.instant("COMMON.PLANNINGS.ADD_TO_PLANNING.CHOICE"),
+      header: this.translateService.instant(
+        'COMMON.PLANNINGS.ADD_TO_PLANNING.CHOICE',
+      ),
       buttons: [
         {
-          text: this.translateService.instant("COMMON.PLANNINGS.ADD_TO_PLANNING.THIS_WEEK"),
+          text: this.translateService.instant(
+            'COMMON.PLANNINGS.ADD_TO_PLANNING.THIS_WEEK',
+          ),
           data: {
-            action: moment().startOf('week').format("YYYY-MM-DD"),
-          }
+            action: dayjs().startOf('week').format('YYYY-MM-DD'),
+          },
         },
         {
-          text: this.translateService.instant("COMMON.PLANNINGS.ADD_TO_PLANNING.NEXT_WEEK"),
+          text: this.translateService.instant(
+            'COMMON.PLANNINGS.ADD_TO_PLANNING.NEXT_WEEK',
+          ),
           data: {
-            action: moment().startOf('week').add(1,'week').format("YYYY-MM-DD"),
-          }
+            action: dayjs().startOf('week').add(1, 'week').format('YYYY-MM-DD'),
+          },
         },
         {
-          text: this.translateService.instant("COMMON.PLANNINGS.ADD_TO_PLANNING.CANCEL"),
-          role: 'cancel'
+          text: this.translateService.instant(
+            'COMMON.PLANNINGS.ADD_TO_PLANNING.CANCEL',
+          ),
+          role: 'cancel',
         },
       ],
     });
@@ -129,26 +194,38 @@ export class RecipeListPage {
     await actionSheet.present();
     const result = await actionSheet.onDidDismiss();
     if (result?.data?.action) {
-      const res = await this.dataService.addToPlanning(recipe, result.data.action);
+      const res = await this.dataService.addToPlanning(
+        recipe,
+        result.data.action,
+      );
       if (res) {
-        this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],
+        this.navigationService.setRoot(
+          [
+            NavigationPath.Base,
+            NavigationPath.Home,
+            HomeNavigationPath.Planning,
+          ],
           {
             queryParams: {
-              week: result?.data?.action
-            }
-          }
+              week: result?.data?.action,
+            },
+          },
         );
       } else {
         this.alertService.presentAlertPopup(
-          "COMMON.GENERIC_ALERT.ERROR_HEADER",
-          "COMMON.PLANNINGS.NO_GROUP_ERROR",
+          'COMMON.GENERIC_ALERT.ERROR_HEADER',
+          'COMMON.PLANNINGS.NO_GROUP_ERROR',
           () => {
-            this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Settings, SettingsNavigationPath.GroupManagement]);
+            this.navigationService.setRoot([
+              NavigationPath.Base,
+              NavigationPath.Home,
+              HomeNavigationPath.Settings,
+              SettingsNavigationPath.GroupManagement,
+            ]);
           },
-          "COMMON.PLANNINGS.GO_TO_GROUP_MANAGEMENT_BUTTON"
+          'COMMON.PLANNINGS.GO_TO_GROUP_MANAGEMENT_BUTTON',
         );
       }
     }
   }
-
 }

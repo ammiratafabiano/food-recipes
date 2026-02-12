@@ -1,4 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ActionSheetController, LoadingController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -6,60 +12,79 @@ import { Cuisine } from 'src/app/models/cuisine.enum';
 import { Difficulty } from 'src/app/models/difficulty.enum';
 import { Ingredient } from 'src/app/models/ingredient.model';
 import { Item } from 'src/app/models/item.model';
-import { AddRecipeNavigationPath, HomeNavigationPath, NavigationPath, RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
+import {
+  AddRecipeNavigationPath,
+  HomeNavigationPath,
+  NavigationPath,
+  RecipeListNavigationPath,
+} from 'src/app/models/navigation-path.enum';
 import { RecipeType } from 'src/app/models/recipe-type.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { Step } from 'src/app/models/step.model';
 import { TimeUnit, WeightUnit } from 'src/app/models/unit.enum';
 import { DataService } from 'src/app/services/data.service';
+import { LoadingService } from 'src/app/services/loading.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { SessionService } from 'src/app/services/session.service';
+import {
+  createIngredient,
+  createRecipe,
+  createStep,
+} from 'src/app/utils/model-factories';
+import { trackById, trackByIndex } from 'src/app/utils/track-by';
 
 @Component({
   selector: 'app-add-recipe',
   templateUrl: './add-recipe.page.html',
   styleUrls: ['./add-recipe.page.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddRecipePage implements OnInit {
+  private readonly dataService = inject(DataService);
+  private readonly loadingController = inject(LoadingController);
+  private readonly loadingService = inject(LoadingService);
+  private readonly navigationService = inject(NavigationService);
+  private readonly translateService = inject(TranslateService);
+  private readonly sessionService = inject(SessionService);
+  private readonly actionSheetCtrl = inject(ActionSheetController);
 
-  typeList: RecipeType[] = Object.values(RecipeType);
-  difficultyList: Difficulty[] = Object.values(Difficulty);
-  weightUnitList: WeightUnit[] = Object.values(WeightUnit);
-  timeUnitList: TimeUnit[] = Object.values(TimeUnit);
-  foodList?: Ingredient[];
+  readonly typeList: RecipeType[] = Object.values(RecipeType);
+  readonly difficultyList: Difficulty[] = Object.values(Difficulty);
+  readonly weightUnitList: WeightUnit[] = Object.values(WeightUnit);
+  readonly timeUnitList: TimeUnit[] = Object.values(TimeUnit);
+  readonly foodList = signal<Ingredient[] | undefined>(undefined);
 
-  selectedRecipe: Recipe = new Recipe();
+  readonly selectedRecipe = signal<Recipe>(createRecipe());
 
-  isEdit = false;
+  readonly isEdit = signal<boolean>(false);
   stepsOfImagesToDelete: Step[] = [];
 
-  constructor(
-    private readonly dataService: DataService,
-    private readonly loadingController: LoadingController,
-    private readonly navigationService: NavigationService,
-    private readonly translateService: TranslateService,
-    private readonly sessionService: SessionService,
-    private readonly actionSheetCtrl: ActionSheetController
-  ) { }
+  readonly trackByIngredient = trackById;
+  readonly trackByStep = trackByIndex;
+  readonly trackByOption = (_: number, option: string | number) => option;
+
+  constructor() {}
 
   ngOnInit() {
-    const recipeToEdit = this.navigationService.getParams<{recipe:Recipe}>()?.recipe;
+    const recipeToEdit = this.navigationService.getParams<{ recipe: Recipe }>()
+      ?.recipe;
     if (recipeToEdit) {
-      this.isEdit = true;
-      this.selectedRecipe = recipeToEdit;
+      this.isEdit.set(true);
+      this.selectedRecipe.set(recipeToEdit);
     }
     this.getData();
   }
 
   private async getData() {
-    this.foodList = this.sessionService.foodList;
-    if (!this.foodList) {
-      const loading = await this.loadingController.create()
-      await loading.present()
-      this.dataService.getFoodList().then(response => {
-        this.foodList = response;
-        if (this.foodList) this.sessionService.foodList = this.foodList;
-      }).finally(() => loading.dismiss());
+    const foodList = this.sessionService.foodList();
+    if (!foodList) {
+      await this.loadingService.withLoader(async () => {
+        const food = await this.dataService.getFoodList();
+        if (food) this.sessionService.setFoodList(food);
+        this.foodList.set(food);
+      });
+    } else {
+      this.foodList.set(foodList);
     }
   }
 
@@ -67,170 +92,214 @@ export class AddRecipePage implements OnInit {
     return this.navigationService.pop();
   }
 
-  async onVariantChange(event: any) {
-    this.selectedRecipe.variantId = event.target.checked ? this.selectedRecipe.id : undefined;
-    this.selectedRecipe.variantName = event.target.checked ? this.selectedRecipe.name : undefined;
+  async onVariantChange(event: CustomEvent<{ checked?: boolean }>) {
+    const checked = !!event.detail?.checked;
+    this.selectedRecipe.update((recipe) => ({
+      ...recipe,
+      variantId: checked ? recipe.id : undefined,
+      variantName: checked ? recipe.name : undefined,
+    }));
   }
 
   async onAddCuisineClicked() {
-    this.navigationService.push(AddRecipeNavigationPath.ItemSelection,
-      {
-        params: {
-          items: Object.values(Cuisine).map(x => { return {
-            text: this.translateService.instant("COMMON.CUISINE_TYPES." + x),
-            value: x
-          }})
-        },
-        dismissCallback: (item: Item) => {
-          if (item) {
-            this.selectedRecipe.cuisine = item.value;
-          }
+    this.navigationService.push(AddRecipeNavigationPath.ItemSelection, {
+      params: {
+        items: Object.values(Cuisine).map((x) => {
+          return {
+            text: this.translateService.instant('COMMON.CUISINE_TYPES.' + x),
+            value: x,
+          };
+        }),
+      },
+      dismissCallback: (item: Item) => {
+        if (item) {
+          this.selectedRecipe.update((recipe) => ({
+            ...recipe,
+            cuisine: item.value as Cuisine,
+          }));
         }
-      }
-    );
+      },
+    });
   }
 
   async onAddIngredientClicked(index?: number) {
-    const loading = await this.loadingController.create()
-    await loading.present()
-    this.navigationService.push(AddRecipeNavigationPath.ItemSelection,
-      {
-        params: {
-          items: this.foodList?.map(x => { return {value: x.id, text: x.name} })
-        },
-        presentCallback: () => {
-          loading.dismiss();
-        },
-        dismissCallback: async (item: Item) => {
-          const food = await this.mapSelectedIngredient(item);
-          if (index != undefined) {
-            food && this.selectedRecipe.ingredients.splice(index, 1, food);
-          } else {
-            food && this.selectedRecipe.ingredients.push(food);
-          }
+    const loading = await this.loadingController.create();
+    await loading.present();
+    this.navigationService.push(AddRecipeNavigationPath.ItemSelection, {
+      params: {
+        items: this.foodList()?.map((x) => {
+          return { value: x.id, text: x.name };
+        }),
+      },
+      presentCallback: () => {
+        loading.dismiss();
+      },
+      dismissCallback: async (item: Item) => {
+        const food = await this.mapSelectedIngredient(item);
+        if (food) {
+          this.selectedRecipe.update((recipe) => {
+            const ingredients = [...recipe.ingredients];
+            if (index != undefined) {
+              ingredients.splice(index, 1, food);
+            } else {
+              ingredients.push(food);
+            }
+            return { ...recipe, ingredients };
+          });
         }
-      }
-    );
+      },
+    });
   }
 
-  private async mapSelectedIngredient(item?: Item): Promise<Ingredient | undefined> {
+  private async mapSelectedIngredient(
+    item?: Item,
+  ): Promise<Ingredient | undefined> {
     let food: Ingredient | undefined;
     if (item?.custom) {
       food = await this.addCustomFood(item.text);
     } else if (item) {
-      food = new Ingredient();
-      food.id = item.value;
-      food.name = item.text;
+      food = createIngredient({ id: item.value, name: item.text });
     }
     return food;
   }
 
   private async addCustomFood(name: string) {
-    const loading = await this.loadingController.create()
-    await loading.present()
-    return this.dataService.addCustomFood(name).finally(() => loading.dismiss());
+    return this.loadingService.withLoader(() =>
+      this.dataService.addCustomFood(name),
+    );
   }
 
-  async onIngredientUnitClicked(selectedIngredient: Ingredient) {  
+  async onIngredientUnitClicked(selectedIngredient: Ingredient) {
     const actionSheet = await this.actionSheetCtrl.create({
-      header: this.translateService.instant("ADD_RECIPE_PAGE.UNIT_PLACEHOLDER"),
+      header: this.translateService.instant('ADD_RECIPE_PAGE.UNIT_PLACEHOLDER'),
       buttons: [
-        ...this.weightUnitList.map(x => {
+        ...this.weightUnitList.map((x) => {
           return {
-            text: this.translateService.instant("COMMON.WEIGHT_UNITS." + x),
+            text: this.translateService.instant('COMMON.WEIGHT_UNITS.' + x),
             data: {
-              action: x
-            }
-          }
+              action: x,
+            },
+          };
         }),
         {
-          text: this.translateService.instant("ADD_RECIPE_PAGE.UNIT_RESET"),
+          text: this.translateService.instant('ADD_RECIPE_PAGE.UNIT_RESET'),
           data: {
-            action: undefined
+            action: undefined,
           },
-          role: 'cancel'
-        }
+          role: 'cancel',
+        },
       ],
     });
     await actionSheet.present();
     const result = await actionSheet.onDidDismiss();
     if (result?.data) {
       selectedIngredient.quantity.unit = result.data.action;
+      // Trigger signal update
+      this.selectedRecipe.update((recipe) => ({ ...recipe }));
     }
   }
 
   removeStepImage(step: Step) {
     const copiedStep = Object.assign({}, step);
-    if (this.isEdit && !copiedStep.imageToUpload && copiedStep.imageUrl)
+    if (this.isEdit() && !copiedStep.imageToUpload && copiedStep.imageUrl)
       this.stepsOfImagesToDelete.push(copiedStep);
   }
 
   onAddStepClicked() {
-    const last = this.selectedRecipe.steps.length > 0 && this.selectedRecipe.steps[this.selectedRecipe.steps.length - 1]
-    if (!last || (last?.imageUrl || last?.text)) {
-      this.selectedRecipe.steps.push(new Step());
-    }
+    this.selectedRecipe.update((recipe) => {
+      const steps = [...recipe.steps];
+      const last = steps.length > 0 && steps[steps.length - 1];
+      if (!last || last?.imageUrl || last?.text) {
+        steps.push(createStep());
+      }
+      return { ...recipe, steps };
+    });
   }
 
   onRemoveIngredientClicked(index: number) {
-    this.selectedRecipe.ingredients.splice(index, 1);
+    this.selectedRecipe.update((recipe) => {
+      const ingredients = [...recipe.ingredients];
+      ingredients.splice(index, 1);
+      return { ...recipe, ingredients };
+    });
   }
 
   onRemoveStepImage(index: number) {
-    this.removeStepImage(this.selectedRecipe.steps[index]);
-    this.selectedRecipe.steps[index].imageUrl = undefined;
-    this.selectedRecipe.steps[index].imageToUpload = false;
+    this.selectedRecipe.update((recipe) => {
+      const steps = [...recipe.steps];
+      this.removeStepImage(steps[index]);
+      steps[index] = {
+        ...steps[index],
+        imageUrl: undefined,
+        imageToUpload: false,
+      };
+      return { ...recipe, steps };
+    });
   }
 
   onRemoveStepClicked(index: number) {
-    this.removeStepImage(this.selectedRecipe.steps[index]);
-    this.selectedRecipe.steps.splice(index, 1);
-    
+    this.selectedRecipe.update((recipe) => {
+      const steps = [...recipe.steps];
+      this.removeStepImage(steps[index]);
+      steps.splice(index, 1);
+      return { ...recipe, steps };
+    });
   }
 
-  onStepImageChange(event: any, step: Step) {
-    const file = event.target.files[0];
+  onStepImageChange(event: Event, step: Step) {
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0];
+    if (!file) return;
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
-      event.target.value = null;
+      if (input) input.value = '';
       this.removeStepImage(step);
       step.imageUrl = reader.result?.toString();
       step.imageToUpload = true;
+      // Trigger update
+      this.selectedRecipe.update((recipe) => ({ ...recipe }));
     };
   }
 
   async onConfirmClicked() {
-    const loading = await this.loadingController.create()
-    await loading.present()
-    this.dataService.addRecipe(this.selectedRecipe).then(
-      () => { // Success
+    await this.loadingService.withLoader(async () => {
+      try {
+        await this.dataService.addRecipe(this.selectedRecipe());
         this.navigationService.pop({ needToRefresh: true });
-      },
-      () => { // Error
+      } catch {
         this.navigationService.pop();
       }
-    ).finally(() => loading.dismiss());
+    });
   }
 
   async onConfirmEditClicked() {
-    const loading = await this.loadingController.create()
-    await loading.present()
-    this.dataService.editRecipe(this.selectedRecipe, this.stepsOfImagesToDelete).then(
-      () => { // Success
+    await this.loadingService.withLoader(async () => {
+      try {
+        await this.dataService.editRecipe(
+          this.selectedRecipe(),
+          this.stepsOfImagesToDelete,
+        );
         this.navigationService.pop({ needToRefresh: true });
-      },
-      () => { // Error
+      } catch {
         this.navigationService.pop();
       }
-    ).finally(() => loading.dismiss());
+    });
   }
 
   async onCancelClicked() {
-    return this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.RecipeList, RecipeListNavigationPath.Recipe], {
-      queryParams: {
-        id: this.selectedRecipe.id
-      }
-    });
+    return this.navigationService.setRoot(
+      [
+        NavigationPath.Base,
+        NavigationPath.Home,
+        HomeNavigationPath.RecipeList,
+        RecipeListNavigationPath.Recipe,
+      ],
+      {
+        queryParams: {
+          id: this.selectedRecipe().id,
+        },
+      },
+    );
   }
 }

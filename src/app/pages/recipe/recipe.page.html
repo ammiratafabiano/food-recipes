@@ -2,20 +2,26 @@
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button (click)="onBackClicked()">
-        <ion-icon slot="icon-only" [name]="isUserLogged ? 'chevron-back-outline' : 'home-outline'">></ion-icon>
+        <ion-icon slot="icon-only" [name]="isUserLogged() ? 'chevron-back-outline' : 'home-outline'"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title>{{ 'RECIPE_PAGE.TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="onSaveClicked()" *ngIf="recipe && !isMine && !recipe.isAdded && isUserLogged">
-        <ion-icon slot="icon-only" name="bookmark-outline"></ion-icon>
-      </ion-button>
-      <ion-button (click)="onUnsaveClicked()" *ngIf="recipe && !isMine && recipe.isAdded && isUserLogged">
-        <ion-icon slot="icon-only" name="bookmark"></ion-icon>
-      </ion-button>
-      <ion-button (click)="onEditClicked()" *ngIf="isMine && isUserLogged">
-        <ion-icon slot="icon-only" name="create"></ion-icon>
-      </ion-button>
+      @if (recipe() && !isMine() && !recipe()!.isAdded && isUserLogged()) {
+        <ion-button (click)="onSaveClicked()">
+          <ion-icon slot="icon-only" name="bookmark-outline"></ion-icon>
+        </ion-button>
+      }
+      @if (recipe() && !isMine() && recipe()!.isAdded && isUserLogged()) {
+        <ion-button (click)="onUnsaveClicked()">
+          <ion-icon slot="icon-only" name="bookmark"></ion-icon>
+        </ion-button>
+      }
+      @if (isMine() && isUserLogged()) {
+        <ion-button (click)="onEditClicked()">
+          <ion-icon slot="icon-only" name="create"></ion-icon>
+        </ion-button>
+      }
       <ion-button (click)="onShareClicked()">
         <ion-icon slot="icon-only" name="share-social-outline"></ion-icon>
       </ion-button>
@@ -25,83 +31,122 @@
 
 <ion-content>
   <!-- Title-->
-  <h1 class="ion-padding-horizontal" *ngIf="recipe?.name">{{ recipe?.name }}</h1>
-  <p class="ion-padding-horizontal" *ngIf="recipe?.userName">
-    {{ 'RECIPE_PAGE.OWNER' | translate }}
-    <a *ngIf="!isMine" (click)="onOwnerClicked()">{{ recipe?.userName }}</a>
-    <a *ngIf="isMine" (click)="onSelfClicked()">{{ recipe?.userName }}</a>
-  </p>
-  <p class="ion-padding-horizontal" *ngIf="recipe?.variantId">
-    {{ 'RECIPE_PAGE.VARIANT' | translate }}
-    <a (click)="onVariantClicked()">
-      {{ recipe?.variantName || 'COMMON.RECIPE' | translate }}
-    </a>
-  </p>
-  <p class="ion-padding" *ngIf="recipe?.description">{{ recipe?.description }}</p>
+  @if (recipe()?.name) {
+    <h1 class="ion-padding-horizontal">{{ recipe()?.name }}</h1>
+  }
+  @if (recipe()?.userName) {
+    <p class="ion-padding-horizontal">
+      {{ 'RECIPE_PAGE.OWNER' | translate }}
+      @if (!isMine()) {
+        <a (click)="onOwnerClicked()">{{ recipe()?.userName }}</a>
+      }
+      @if (isMine()) {
+        <a (click)="onSelfClicked()">{{ recipe()?.userName }}</a>
+      }
+    </p>
+  }
+  @if (recipe()?.variantId) {
+    <p class="ion-padding-horizontal">
+      {{ 'RECIPE_PAGE.VARIANT' | translate }}
+      <a (click)="onVariantClicked()">
+        {{ recipe()?.variantName || 'COMMON.RECIPE' | translate }}
+      </a>
+    </p>
+  }
+  @if (recipe()?.description) {
+    <p class="ion-padding">{{ recipe()?.description }}</p>
+  }
   <!-- Metadata -->
-  <ion-item lines="full" *ngIf="recipe?.type">
-    <ion-icon name="nutrition" slot="start"></ion-icon>
-    <ion-label>{{ 'COMMON.RECIPE_TYPE' | translate }}</ion-label>
-    <ion-label>{{ 'COMMON.RECIPE_TYPES.' + recipe?.type | translate }}</ion-label>
-  </ion-item>
-  <ion-item lines="full" *ngIf="recipe?.cuisine">
-    <ion-icon name="earth-outline" slot="start"></ion-icon>
-    <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
-    <ion-label>{{ 'COMMON.CUISINE_TYPES.' + recipe?.cuisine | translate }}</ion-label>
-  </ion-item>
-  <ion-item lines="full" *ngIf="recipe?.time?.value">
-    <ion-icon name="timer" slot="start"></ion-icon>
-    <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>
-    <ion-label>{{ recipe?.time?.value }} {{ 'COMMON.TIME_UNITS.' + recipe?.time?.unit | translate }}</ion-label>
-  </ion-item>
-  <ion-item lines="full" *ngIf="recipe?.difficulty">
-    <ion-icon name="podium" slot="start"></ion-icon>
-    <ion-label>{{ 'COMMON.DIFFICULTY' | translate }}</ion-label>
-    <ion-label>{{ 'COMMON.DIFFICULTY_LEVEL.' + recipe?.difficulty | translate }}</ion-label>
-  </ion-item>
-  <!-- Ingredients-->
-  <h3 class="ion-padding-horizontal" *ngIf="recipe?.ingredients">
-    {{ 'COMMON.INGREDIENTS' | translate }}
-  </h3>
-  <ion-item *ngIf="recipe">
-    <ion-label>{{ 'RECIPE_PAGE.SERVINGS' | translate }}</ion-label>
-    <ion-input [value]="currentMultiplier" (ionChange)="onMultiplierChange($event)" (ionBlur)="onMultiplierBlur($event)" type="number" min="1"></ion-input>
-  </ion-item>
-  <ion-list lines="inset" inset="true">
-    <ion-item *ngFor="let ingredient of recipe?.ingredients">
-      <ion-label *ngIf="ingredient.quantity.value" class="quantity-label">
-        {{ ingredient.quantity.value * multiplier }}{{ 'COMMON.WEIGHT_UNITS.' + ingredient.quantity.unit | translate }}
-      </ion-label>
-      <ion-label *ngIf="!ingredient.quantity.value" class="quantity-label">
-        {{ 'COMMON.MISSING_QUANTITY' | translate }}
-      </ion-label>
-      <ion-label>{{ ingredient.name }}</ion-label>
+  @if (recipe()?.type) {
+    <ion-item lines="full">
+      <ion-icon name="nutrition" slot="start"></ion-icon>
+      <ion-label>{{ 'COMMON.RECIPE_TYPE' | translate }}</ion-label>
+      <ion-label>{{ 'COMMON.RECIPE_TYPES.' + recipe()?.type | translate }}</ion-label>
     </ion-item>
+  }
+  @if (recipe()?.cuisine) {
+    <ion-item lines="full">
+      <ion-icon name="earth-outline" slot="start"></ion-icon>
+      <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
+      <ion-label>{{ 'COMMON.CUISINE_TYPES.' + recipe()?.cuisine | translate }}</ion-label>
+    </ion-item>
+  }
+  @if (recipe()?.time?.value) {
+    <ion-item lines="full">
+      <ion-icon name="timer" slot="start"></ion-icon>
+      <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>
+      <ion-label>{{ recipe()?.time?.value }} {{ 'COMMON.TIME_UNITS.' + recipe()?.time?.unit | translate }}</ion-label>
+    </ion-item>
+  }
+  @if (recipe()?.difficulty) {
+    <ion-item lines="full">
+      <ion-icon name="podium" slot="start"></ion-icon>
+      <ion-label>{{ 'COMMON.DIFFICULTY' | translate }}</ion-label>
+      <ion-label>{{ 'COMMON.DIFFICULTY_LEVEL.' + recipe()?.difficulty | translate }}</ion-label>
+    </ion-item>
+  }
+  <!-- Ingredients-->
+  @if (recipe()?.ingredients) {
+    <h3 class="ion-padding-horizontal">
+      {{ 'COMMON.INGREDIENTS' | translate }}
+    </h3>
+  }
+  @if (recipe()) {
+    <ion-item>
+      <ion-label>{{ 'RECIPE_PAGE.SERVINGS' | translate }}</ion-label>
+      <ion-input [value]="currentMultiplier()" (ionChange)="onMultiplierChange($event)" type="number" min="1"></ion-input>
+    </ion-item>
+  }
+  <ion-list lines="inset" inset="true">
+    @for (ingredient of recipe()?.ingredients; track trackByIngredient($index, ingredient)) {
+      <ion-item>
+        @if (ingredient.quantity.value) {
+          <ion-label class="quantity-label">
+            {{ ingredient.quantity.value * multiplier() }}{{ 'COMMON.WEIGHT_UNITS.' + ingredient.quantity.unit | translate }}
+          </ion-label>
+        } @else {
+          <ion-label class="quantity-label">
+            {{ 'COMMON.MISSING_QUANTITY' | translate }}
+          </ion-label>
+        }
+        <ion-label>{{ ingredient.name }}</ion-label>
+      </ion-item>
+    }
   </ion-list>
   <!-- Steps-->
-  <h3 class="ion-padding-horizontal" *ngIf="recipe?.steps">
-    {{ 'COMMON.STEPS' | translate }}
-  </h3>
-  <ion-card *ngFor="let step of recipe?.steps; let i = index">
-    <img *ngIf="step.imageUrl" [src]="step.imageUrl" />
-    <ion-card-header>
-      <ion-card-title>{{ i+1 }}</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      {{ step.text }}
-    </ion-card-content>
-  </ion-card>
+  @if (recipe()?.steps) {
+    <h3 class="ion-padding-horizontal">
+      {{ 'COMMON.STEPS' | translate }}
+    </h3>
+  }
+  @for (step of recipe()?.steps; track trackByStep($index)) {
+    <ion-card>
+      @if (step.imageUrl) {
+        <img [src]="step.imageUrl" />
+      }
+      <ion-card-header>
+        <ion-card-title>{{ $index + 1 }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        {{ step.text }}
+      </ion-card-content>
+    </ion-card>
+  }
 
-  <ion-item class="ion-padding-top" lines="none" *ngIf="recipe && isMine && isUserLogged" (click)="onDeleteClicked()">
-    <ion-label color="danger">{{ 'RECIPE_PAGE.DELETE_BUTTON' | translate }} </ion-label>
-  </ion-item>
+  @if (recipe() && isMine() && isUserLogged()) {
+    <ion-item class="ion-padding-top" lines="none" (click)="onDeleteClicked()">
+      <ion-label color="danger">{{ 'RECIPE_PAGE.DELETE_BUTTON' | translate }} </ion-label>
+    </ion-item>
+  }
   
 </ion-content>
 
-<ion-footer class="ion-padding" *ngIf="recipe && isUserLogged">
-  <ion-toolbar>
-    <ion-button expand="block" (click)="onAddToPlanningClicked()">
-      {{ 'COMMON.PLANNINGS.ADD_TO_PLANNING.BUTTON' | translate }}
-    </ion-button>
-  </ion-toolbar>
-</ion-footer>
+@if (recipe() && isUserLogged()) {
+  <ion-footer class="ion-padding">
+    <ion-toolbar>
+      <ion-button expand="block" (click)="onAddToPlanningClicked()">
+        {{ 'COMMON.PLANNINGS.ADD_TO_PLANNING.BUTTON' | translate }}
+      </ion-button>
+    </ion-toolbar>
+  </ion-footer>
+}

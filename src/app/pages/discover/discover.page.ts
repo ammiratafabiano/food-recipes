@@ -1,48 +1,45 @@
-import { Component } from '@angular/core';
-import { LoadingController } from '@ionic/angular';
-import { HomeNavigationPath, NavigationPath } from 'src/app/models/navigation-path.enum';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { LoadingService } from 'src/app/services/loading.service';
+import {
+  HomeNavigationPath,
+  NavigationPath,
+} from 'src/app/models/navigation-path.enum';
 import { UserData } from 'src/app/models/user-data.model';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { trackById } from 'src/app/utils/track-by';
 
 @Component({
   selector: 'app-discover',
   templateUrl: './discover.page.html',
   styleUrls: ['./discover.page.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DiscoverPage {
+  private readonly dataService = inject(DataService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly navigationService = inject(NavigationService);
 
-  users?: UserData[];
+  readonly users = signal<UserData[] | undefined>(undefined);
 
-  constructor(
-    private readonly dataService: DataService,
-    private readonly loadingController: LoadingController,
-    private readonly navigationService: NavigationService
-  ) {
+  readonly trackByUser = trackById;
+
+  constructor() {
     this.getData();
   }
 
   private async getData() {
-    const loading = await this.loadingController.create();
-    await loading.present();
-    this.dataService.getUsers().then(response => {
-      if (response && response.length > 0) {
-        this.users = response;
-      } else {
-        this.users = [];
-      }
-    }).finally(async () => {
-      await loading.dismiss();
+    await this.loadingService.withLoader(async () => {
+      const response = await this.dataService.getUsers();
+      this.users.set(response && response.length > 0 ? response : []);
     });
   }
 
   async onUserClicked(user: UserData) {
-    this.navigationService.setRoot([NavigationPath.Base, NavigationPath.User],
-      {
-        queryParams: {
-          id: user.id
-        }
-      }
-    );
+    this.navigationService.setRoot([NavigationPath.Base, NavigationPath.User], {
+      queryParams: {
+        id: user.id,
+      },
+    });
   }
 }

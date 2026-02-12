@@ -1,5 +1,5 @@
-export class Step {
-    text: string = "";
-    imageUrl?: string;
-    imageToUpload = false;
+export interface Step {
+  text: string;
+  imageUrl?: string;
+  imageToUpload?: boolean;
 }
