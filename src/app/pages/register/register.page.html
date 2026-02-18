@@ -14,10 +14,9 @@
     <ion-card-content>
       <form (ngSubmit)="onSubmitClicked()" [formGroup]="credentials">
         <ion-item>
-          <ion-label position="stacked">
-            {{ 'REGISTER_PAGE.EMAIL' | translate }}
-          </ion-label>
           <ion-input
+            [label]="'REGISTER_PAGE.EMAIL' | translate"
+            labelPlacement="stacked"
             type="email"
             inputmode="email"
             [placeholder]="'REGISTER_PAGE.EMAIL' | translate"
@@ -30,10 +29,9 @@
           }
         </ion-item>
         <ion-item>
-          <ion-label position="stacked">
-            {{ 'REGISTER_PAGE.PASSWORD' | translate }}
-          </ion-label>
           <ion-input
+            [label]="'REGISTER_PAGE.PASSWORD' | translate"
+            labelPlacement="stacked"
             type="password"
             [placeholder]="'REGISTER_PAGE.PASSWORD' | translate"
             formControlName="password">

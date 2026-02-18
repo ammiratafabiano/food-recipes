@@ -5,8 +5,29 @@ import {
   OnDestroy,
   signal,
 } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { ActionSheetController } from '@ionic/angular';
 import { ItemReorderEventDetail } from '@ionic/core';
+import {
+  IonButton,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonIcon,
+  IonItem,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
+  IonLabel,
+  IonList,
+  IonRefresher,
+  IonRefresherContent,
+  IonReorder,
+  IonReorderGroup,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import dayjs from 'dayjs';
 import {
   PlannedRecipe,
@@ -17,7 +38,6 @@ import {
 import { DataService } from 'src/app/services/data.service';
 import { WeekDay } from 'src/app/models/weekDay.enum';
 import { NavigationService } from 'src/app/services/navigation.service';
-import { TranslateService } from '@ngx-translate/core';
 import { Meal } from 'src/app/models/meal.model';
 import { Group } from 'src/app/models/group.model';
 import {
@@ -33,6 +53,28 @@ import { LoadingService } from 'src/app/services/loading.service';
   templateUrl: 'planning.page.html',
   styleUrls: ['planning.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    DatePipe,
+    TranslateModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonFooter,
+    IonLabel,
+    IonList,
+    IonItem,
+    IonItemSliding,
+    IonItemOption,
+    IonItemOptions,
+    IonButton,
+    IonIcon,
+    IonRefresher,
+    IonRefresherContent,
+    IonReorderGroup,
+    IonReorder,
+  ],
 })
 export class PlanningPage implements OnDestroy {
   private readonly dataService = inject(DataService);
@@ -68,7 +110,8 @@ export class PlanningPage implements OnDestroy {
       const currentPlanning = this.planning();
       if (planned && currentPlanning) {
         const updated =
-          currentPlanning.startDate && currentPlanning.startDate == planned.week;
+          currentPlanning.startDate &&
+          currentPlanning.startDate == planned.week;
         const deleted =
           !updated &&
           currentPlanning.recipes.find(
@@ -86,10 +129,7 @@ export class PlanningPage implements OnDestroy {
       const group = await this.dataService.retrieveGroup();
       this.group.set(group);
       if (!startDate) startDate = dayjs().startOf('week').format('YYYY-MM-DD');
-      const response = await this.dataService.getPlanning(
-        startDate,
-        group,
-      );
+      const response = await this.dataService.getPlanning(startDate, group);
       this.handleResponse(response);
       this.dataLoaded.set(true);
     });

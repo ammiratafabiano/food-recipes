@@ -1,23 +1,52 @@
-import { AuthService } from './../../services/auth.service';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertInput } from '@ionic/angular';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonNote,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { filter, forkJoin, take } from 'rxjs';
-import { SessionService } from 'src/app/services/session.service';
-import { AlertService } from 'src/app/services/alert.service';
-import { TranslateService } from '@ngx-translate/core';
-import { LoggingService } from 'src/app/services/logging.service';
-import { DataService } from 'src/app/services/data.service';
-import { NavigationService } from 'src/app/services/navigation.service';
 import { NavigationPath } from 'src/app/models/navigation-path.enum';
+import { AlertService } from 'src/app/services/alert.service';
+import { AuthService } from 'src/app/services/auth.service';
+import { DataService } from 'src/app/services/data.service';
 import { LoadingService } from 'src/app/services/loading.service';
+import { LoggingService } from 'src/app/services/logging.service';
+import { NavigationService } from 'src/app/services/navigation.service';
+import { SessionService } from 'src/app/services/session.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    TranslateModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonCard,
+    IonCardContent,
+    IonItem,
+    IonInput,
+    IonNote,
+    IonButton,
+    IonIcon,
+  ],
 })
 export class LoginPage {
   private readonly fb = inject(FormBuilder);

@@ -1,11 +1,11 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoadingService {
-  private activeRequests = 0;
-  readonly isLoading = signal(false);
+  private readonly activeRequests = signal(0);
+  readonly isLoading = computed(() => this.activeRequests() > 0);
 
   withLoader<T>(task: () => Promise<T>): Promise<T> {
     this.start();
@@ -20,17 +20,10 @@ export class LoadingService {
   }
 
   start() {
-    this.activeRequests++;
-    if (this.activeRequests === 1) {
-      this.isLoading.set(true);
-    }
+    this.activeRequests.update((n) => n + 1);
   }
 
   stop() {
-    if (this.activeRequests === 0) return;
-    this.activeRequests--;
-    if (this.activeRequests === 0) {
-      this.isLoading.set(false);
-    }
+    this.activeRequests.update((n) => Math.max(0, n - 1));
   }
 }

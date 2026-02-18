@@ -1,4 +1,20 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
+import {
+  IonAvatar,
+  IonContent,
+  IonHeader,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { TranslateModule } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
 import {
   HomeNavigationPath,
@@ -14,6 +30,18 @@ import { trackById } from 'src/app/utils/track-by';
   templateUrl: './discover.page.html',
   styleUrls: ['./discover.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    TranslateModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonLabel,
+    IonList,
+    IonItem,
+    IonAvatar,
+  ],
 })
 export class DiscoverPage {
   private readonly dataService = inject(DataService);

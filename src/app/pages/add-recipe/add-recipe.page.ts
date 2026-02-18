@@ -5,9 +5,30 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ActionSheetController, LoadingController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { ActionSheetController } from '@ionic/angular';
+import {
+  IonButton,
+  IonButtons,
+  IonCheckbox,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
+  IonLabel,
+  IonList,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Cuisine } from 'src/app/models/cuisine.enum';
 import { Difficulty } from 'src/app/models/difficulty.enum';
 import { Ingredient } from 'src/app/models/ingredient.model';
@@ -38,10 +59,33 @@ import { trackById, trackByIndex } from 'src/app/utils/track-by';
   templateUrl: './add-recipe.page.html',
   styleUrls: ['./add-recipe.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    FormsModule,
+    TranslateModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonFooter,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonLabel,
+    IonItem,
+    IonList,
+    IonInput,
+    IonTextarea,
+    IonSelect,
+    IonSelectOption,
+    IonItemSliding,
+    IonItemOption,
+    IonItemOptions,
+    IonCheckbox,
+  ],
 })
 export class AddRecipePage implements OnInit {
   private readonly dataService = inject(DataService);
-  private readonly loadingController = inject(LoadingController);
   private readonly loadingService = inject(LoadingService);
   private readonly navigationService = inject(NavigationService);
   private readonly translateService = inject(TranslateService);
@@ -123,16 +167,11 @@ export class AddRecipePage implements OnInit {
   }
 
   async onAddIngredientClicked(index?: number) {
-    const loading = await this.loadingController.create();
-    await loading.present();
     this.navigationService.push(AddRecipeNavigationPath.ItemSelection, {
       params: {
         items: this.foodList()?.map((x) => {
           return { value: x.id, text: x.name };
         }),
-      },
-      presentCallback: () => {
-        loading.dismiss();
       },
       dismissCallback: async (item: Item) => {
         const food = await this.mapSelectedIngredient(item);

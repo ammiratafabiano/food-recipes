@@ -7,6 +7,19 @@ import {
 } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { SearchbarCustomEvent } from '@ionic/angular';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonItem,
+  IonList,
+  IonSearchbar,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { TranslateModule } from '@ngx-translate/core';
 import { Item } from 'src/app/models/item.model';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { trackByValue } from 'src/app/utils/track-by';
@@ -16,6 +29,20 @@ import { trackByValue } from 'src/app/utils/track-by';
   templateUrl: './item-selection.page.html',
   styleUrls: ['./item-selection.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    TranslateModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonSearchbar,
+    IonList,
+    IonItem,
+  ],
 })
 export class ItemSelectionPage implements OnInit {
   private readonly navigationService = inject(NavigationService);

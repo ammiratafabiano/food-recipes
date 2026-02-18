@@ -1,9 +1,13 @@
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-} from '@angular/core';
+  IonContent,
+  IonHeader,
+  IonItem,
+  IonLabel,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { TranslateModule } from '@ngx-translate/core';
 import { NavigationPath } from 'src/app/models/navigation-path.enum';
 import { NavigationService } from 'src/app/services/navigation.service';
 
@@ -12,13 +16,19 @@ import { NavigationService } from 'src/app/services/navigation.service';
   templateUrl: './not-found.page.html',
   styleUrls: ['./not-found.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    TranslateModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonItem,
+    IonLabel,
+  ],
 })
-export class NotFoundPage implements OnInit {
+export class NotFoundPage {
   private readonly navigationService = inject(NavigationService);
-
-  constructor() {}
-
-  ngOnInit() {}
 
   async onHomePageClicked() {
     this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Login]);

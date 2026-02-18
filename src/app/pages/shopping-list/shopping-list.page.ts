@@ -4,6 +4,18 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import {
+  IonContent,
+  IonHeader,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonRefresher,
+  IonRefresherContent,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { TranslateModule } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
 import dayjs from 'dayjs';
 import { Ingredient } from 'src/app/models/ingredient.model';
@@ -15,8 +27,21 @@ import { trackById } from 'src/app/utils/track-by';
   templateUrl: 'shopping-list.page.html',
   styleUrls: ['shopping-list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    TranslateModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonLabel,
+    IonList,
+    IonItem,
+    IonRefresher,
+    IonRefresherContent,
+  ],
 })
-export class ShoppingList {
+export class ShoppingListPage {
   private readonly dataService = inject(DataService);
   private readonly loadingService = inject(LoadingService);
 

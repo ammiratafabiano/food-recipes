@@ -4,7 +4,21 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Group } from 'src/app/models/group.model';
 import { AlertService } from 'src/app/services/alert.service';
 import { DataService } from 'src/app/services/data.service';
@@ -17,6 +31,22 @@ import { environment } from 'src/environments/environment';
   templateUrl: './group-management.page.html',
   styleUrls: ['./group-management.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    FormsModule,
+    TranslateModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonLabel,
+    IonItem,
+    IonList,
+    IonInput,
+  ],
 })
 export class GroupManagementPage {
   private readonly dataService = inject(DataService);

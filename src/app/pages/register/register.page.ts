@@ -1,17 +1,47 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { Validators, FormBuilder } from '@angular/forms';
-import { LoadingService } from 'src/app/services/loading.service';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  IonBackButton,
+  IonButton,
+  IonButtons,
+  IonCard,
+  IonCardContent,
+  IonContent,
+  IonHeader,
+  IonInput,
+  IonItem,
+  IonNote,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { TranslateModule } from '@ngx-translate/core';
 import { AlertService } from 'src/app/services/alert.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { LoadingService } from 'src/app/services/loading.service';
 import { NavigationService } from 'src/app/services/navigation.service';
-import { AuthResponse } from 'src/app/services/auth.service';
-import { UserData } from 'src/app/models/user-data.model';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    TranslateModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonCard,
+    IonCardContent,
+    IonItem,
+    IonInput,
+    IonNote,
+    IonButton,
+    IonButtons,
+    IonBackButton,
+  ],
 })
 export class RegisterPage {
   private readonly fb = inject(FormBuilder);

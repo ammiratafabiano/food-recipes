@@ -1,39 +1,46 @@
-import { inject, Injectable } from '@angular/core';
-import { NGXLogger } from 'ngx-logger';
+import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoggingService {
-  private readonly logger = inject(NGXLogger);
-
-  constructor() {}
+  private get enabled(): boolean {
+    return !environment.production;
+  }
 
   Fatal(loggingClass: string, loggingMethod: string, message: string) {
-    this.logger.fatal(loggingClass, loggingMethod, message);
+    if (this.enabled)
+      console.error(`[FATAL] ${loggingClass}.${loggingMethod}: ${message}`);
   }
 
   Error(loggingClass: string, loggingMethod: string, message: string) {
-    this.logger.error(loggingClass, loggingMethod, message);
+    if (this.enabled)
+      console.error(`[ERROR] ${loggingClass}.${loggingMethod}: ${message}`);
   }
 
   Warning(loggingClass: string, loggingMethod: string, message: string) {
-    this.logger.warn(loggingClass, loggingMethod, message);
+    if (this.enabled)
+      console.warn(`[WARN] ${loggingClass}.${loggingMethod}: ${message}`);
   }
 
   Log(loggingClass: string, loggingMethod: string, message: string) {
-    this.logger.log(loggingClass, loggingMethod, message);
+    if (this.enabled)
+      console.log(`[LOG] ${loggingClass}.${loggingMethod}: ${message}`);
   }
 
   Info(loggingClass: string, loggingMethod: string, message: string) {
-    this.logger.info(loggingClass, loggingMethod, message);
+    if (this.enabled)
+      console.info(`[INFO] ${loggingClass}.${loggingMethod}: ${message}`);
   }
 
   Debug(loggingClass: string, loggingMethod: string, message: string) {
-    this.logger.debug(loggingClass, loggingMethod, message);
+    if (this.enabled)
+      console.debug(`[DEBUG] ${loggingClass}.${loggingMethod}: ${message}`);
   }
 
   Trace(loggingClass: string, loggingMethod: string, message: string) {
-    this.logger.trace(loggingClass, loggingMethod, message);
+    if (this.enabled)
+      console.trace(`[TRACE] ${loggingClass}.${loggingMethod}: ${message}`);
   }
 }

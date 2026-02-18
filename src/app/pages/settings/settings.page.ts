@@ -5,6 +5,24 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import {
+  IonAvatar,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonContent,
+  IonHeader,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonRefresher,
+  IonRefresherContent,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { TranslateModule } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
 import {
   NavigationPath,
@@ -20,6 +38,25 @@ import { NavigationService } from 'src/app/services/navigation.service';
   templateUrl: './settings.page.html',
   styleUrls: ['./settings.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    TranslateModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonLabel,
+    IonList,
+    IonItem,
+    IonCard,
+    IonCardHeader,
+    IonCardContent,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonAvatar,
+    IonRefresher,
+    IonRefresherContent,
+  ],
 })
 export class SettingsPage implements OnInit {
   private readonly authService = inject(AuthService);

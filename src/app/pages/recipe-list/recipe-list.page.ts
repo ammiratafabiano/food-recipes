@@ -6,7 +6,25 @@ import {
   signal,
 } from '@angular/core';
 import { ActionSheetController, SearchbarCustomEvent } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
+import {
+  IonButton,
+  IonChip,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonIcon,
+  IonItem,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
+  IonLabel,
+  IonList,
+  IonPopover,
+  IonSearchbar,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import dayjs from 'dayjs';
 import {
   HomeNavigationPath,
@@ -33,6 +51,26 @@ import { trackById, trackByType } from 'src/app/utils/track-by';
   templateUrl: 'recipe-list.page.html',
   styleUrls: ['recipe-list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    TranslateModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonFooter,
+    IonLabel,
+    IonList,
+    IonItem,
+    IonItemSliding,
+    IonItemOption,
+    IonItemOptions,
+    IonButton,
+    IonIcon,
+    IonSearchbar,
+    IonPopover,
+    IonChip,
+  ],
 })
 export class RecipeListPage {
   private readonly dataService = inject(DataService);
@@ -57,7 +95,8 @@ export class RecipeListPage {
     return recipes?.filter((x) => {
       const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
       const matchFilter =
-        activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
+        activeFilters.length === 0 ||
+        (!!x.type && activeFilters.includes(x.type));
       return matchQuery && matchFilter;
     });
   });
@@ -72,7 +111,8 @@ export class RecipeListPage {
     return recipes?.filter((x) => {
       const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
       const matchFilter =
-        activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
+        activeFilters.length === 0 ||
+        (!!x.type && activeFilters.includes(x.type));
       return matchQuery && matchFilter;
     });
   });
@@ -99,7 +139,9 @@ export class RecipeListPage {
   }
 
   private initFilters() {
-    const allRecipes = (this.recipes() || []).concat(this.othersRecipes() || []);
+    const allRecipes = (this.recipes() || []).concat(
+      this.othersRecipes() || [],
+    );
     // Init types
     const newTypeFilters: RecipeTypeFilter[] = [];
     Object.values(RecipeType).forEach((x) => {

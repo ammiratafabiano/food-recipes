@@ -3,12 +3,29 @@ import {
   Component,
   computed,
   inject,
-  input,
   OnInit,
   signal,
 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import {
+  IonAvatar,
+  IonButton,
+  IonButtons,
+  IonCard,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
-import { TranslateService } from '@ngx-translate/core';
 import { RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { UserData } from 'src/app/models/user-data.model';
@@ -24,6 +41,25 @@ import { trackById } from 'src/app/utils/track-by';
   templateUrl: './user.page.html',
   styleUrls: ['./user.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    TranslateModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonLabel,
+    IonItem,
+    IonList,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonAvatar,
+  ],
 })
 export class UserPage implements OnInit {
   private readonly dataService = inject(DataService);
@@ -33,7 +69,7 @@ export class UserPage implements OnInit {
   private readonly alertService = inject(AlertService);
   private readonly translateService = inject(TranslateService);
 
-  readonly id = input<string>();
+  private readonly route = inject(ActivatedRoute);
 
   readonly user = signal<UserData | undefined>(undefined);
   readonly isUserLogged = computed(() => !!this.authService.currentUser());
@@ -41,7 +77,7 @@ export class UserPage implements OnInit {
   readonly trackByRecipe = trackById;
 
   ngOnInit() {
-    const userId = this.id();
+    const userId = this.route.snapshot.queryParamMap.get('id');
     if (userId) {
       this.getData(userId);
     } else {

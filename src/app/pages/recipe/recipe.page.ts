@@ -3,13 +3,30 @@ import {
   Component,
   computed,
   inject,
-  input,
   OnInit,
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ActionSheetController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
+import {
+  IonButton,
+  IonButtons,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import dayjs from 'dayjs';
 import {
   HomeNavigationPath,
@@ -31,6 +48,26 @@ import { trackById, trackByIndex } from 'src/app/utils/track-by';
   templateUrl: './recipe.page.html',
   styleUrls: ['./recipe.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    TranslateModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonFooter,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonLabel,
+    IonItem,
+    IonList,
+    IonInput,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+  ],
 })
 export class RecipePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -41,8 +78,6 @@ export class RecipePage implements OnInit {
   private readonly actionSheetCtrl = inject(ActionSheetController);
   private readonly navigationService = inject(NavigationService);
   private readonly authService = inject(AuthService);
-
-  readonly id = input<string>();
 
   readonly recipe = signal<Recipe | undefined>(undefined);
 
@@ -60,7 +95,7 @@ export class RecipePage implements OnInit {
   refreshOnDismiss = false;
 
   ngOnInit() {
-    const recipeId = this.id();
+    const recipeId = this.route.snapshot.queryParamMap.get('id');
     if (recipeId) {
       this.getRecipe(recipeId);
     } else {
