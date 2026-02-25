@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-local}/food-recipes-frontend:latest
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-local}/food-recipes-backend:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # Add other necessary environment variables for the backend here
+    volumes:
+      # Uncomment if using SQLite and want to persist data
+      # - ./backend/data:/app/data
+    restart: unless-stopped

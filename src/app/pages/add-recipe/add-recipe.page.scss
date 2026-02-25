@@ -1,32 +1,31 @@
-
 .step-item {
-    border-radius: 10px;
-    margin: 16px;
-    width: unset;
-    > ion-item {
-        --padding-start: 0;
-        --inner-padding-end: 0;
-        --background: transparent;
-        ion-list {
-            margin: 0;
-        }
+  border-radius: 10px;
+  margin: 16px;
+  width: unset;
+  > ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    --background: transparent;
+    ion-list {
+      margin: 0;
     }
+  }
 }
 
 .ingredient-item {
-    .clickable {
-        pointer-events: all;
-    }
-    .space-before {
-        margin-left: 8vw;
-    }
-    ion-input {
-        text-align: right;
-    }
+  .clickable {
+    pointer-events: all;
+  }
+  .space-before {
+    margin-left: 8vw;
+  }
+  ion-input {
+    text-align: right;
+  }
 }
 
 ion-footer {
-    ion-toolbar {
-        --background: transparent;
-    }
+  ion-toolbar {
+    --background: transparent;
+  }
 }

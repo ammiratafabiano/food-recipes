@@ -9,32 +9,25 @@ export const HOME_ROUTES: Routes = [
     children: [
       {
         path: HomeNavigationPath.Discover,
-        loadComponent: () =>
-          import('../discover/discover.page').then((m) => m.DiscoverPage),
+        loadComponent: () => import('../discover/discover.page').then((m) => m.DiscoverPage),
       },
       {
         path: HomeNavigationPath.RecipeList,
         loadChildren: () =>
-          import('../recipe-list/recipe-list.routes').then(
-            (m) => m.RECIPE_LIST_ROUTES,
-          ),
+          import('../recipe-list/recipe-list.routes').then((m) => m.RECIPE_LIST_ROUTES),
       },
       {
         path: HomeNavigationPath.Planning,
-        loadComponent: () =>
-          import('../planning/planning.page').then((m) => m.PlanningPage),
+        loadComponent: () => import('../planning/planning.page').then((m) => m.PlanningPage),
       },
       {
         path: HomeNavigationPath.ShoppingList,
         loadComponent: () =>
-          import('../shopping-list/shopping-list.page').then(
-            (m) => m.ShoppingListPage,
-          ),
+          import('../shopping-list/shopping-list.page').then((m) => m.ShoppingListPage),
       },
       {
         path: HomeNavigationPath.Settings,
-        loadChildren: () =>
-          import('../settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
+        loadChildren: () => import('../settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
       },
       {
         path: '',

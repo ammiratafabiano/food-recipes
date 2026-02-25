@@ -89,8 +89,7 @@ export class UserPage implements OnInit {
     await this.loadingService.withLoader(async () => {
       const userData = await this.dataService.getUser(id);
       if (userData) {
-        userData.recipes =
-          (await this.dataService.getRecipeList(userData.id)) || [];
+        userData.recipes = (await this.dataService.getRecipeList(userData.id)) || [];
       }
       this.user.set(userData);
     });

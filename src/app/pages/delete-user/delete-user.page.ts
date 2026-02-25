@@ -50,10 +50,7 @@ export class DeleteUserPage {
       async () => {
         await this.dataService.deleteUser();
         await this.authService.signOut();
-        this.navigationService.setRoot([
-          NavigationPath.Base,
-          NavigationPath.Login,
-        ]);
+        this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Login]);
       },
     );
   }

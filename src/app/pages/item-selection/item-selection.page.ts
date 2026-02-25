@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { SearchbarCustomEvent } from '@ionic/angular';
 import {
@@ -109,8 +103,6 @@ export class ItemSelectionPage implements OnInit {
 
   private getCustomItem(search: string) {
     const words = search.split(/\s+/);
-    return words
-      .reduce((a, b) => a + ' ' + b.charAt(0).toUpperCase() + b.slice(1), '')
-      .trim();
+    return words.reduce((a, b) => a + ' ' + b.charAt(0).toUpperCase() + b.slice(1), '').trim();
   }
 }

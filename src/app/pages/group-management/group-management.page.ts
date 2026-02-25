@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   IonButton,
@@ -102,6 +97,8 @@ export class GroupManagementPage {
     if (!group) return;
     await this.loadingService.withLoader(async () => {
       await this.dataService.leaveGroup(group.id);
+      // No longer in a group → close the real-time socket
+      this.dataService.disconnectRealtime();
       const newGroup = await this.dataService.retrieveGroup();
       this.group.set(newGroup);
     });

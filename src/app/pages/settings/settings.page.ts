@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import {
   IonAvatar,
   IonCard,
@@ -24,10 +18,7 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
-import {
-  NavigationPath,
-  SettingsNavigationPath,
-} from 'src/app/models/navigation-path.enum';
+import { NavigationPath, SettingsNavigationPath } from 'src/app/models/navigation-path.enum';
 import { UserData } from 'src/app/models/user-data.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
@@ -95,12 +86,9 @@ export class SettingsPage implements OnInit {
 
   async onLogoutClicked() {
     await this.authService.signOut();
-    this.navigationService.setRoot(
-      [NavigationPath.Base, NavigationPath.Login],
-      {
-        animationDirection: 'back',
-      },
-    );
+    this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Login], {
+      animationDirection: 'back',
+    });
   }
 
   async onDeleteClicked() {

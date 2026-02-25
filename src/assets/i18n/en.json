@@ -1,35 +1,10 @@
 {
     "LOGIN_PAGE": {
         "TITLE": "Login",
-        "EMAIL": "Email",
-        "EMAIL_ERROR": "Please insert your email",
-        "PASSWORD": "Password",
-        "PASSWORD_ERROR": "Please insert your password",
-        "LOGIN_BUTTON": "Sign in",
-        "REGISTER_BUTTON": "Create account",
-        "FORGOT_PASSWORD_BUTTON": "Forgot password?",
-        "FORGOT_PASSWORD_POPUP_HEADER": "Reset password",
-        "FORGOT_PASSWORD_POPUP_MESSAGE": "Please insert your email",
-        "FORGOT_PASSWORD_POPUP_EMAIL_INPUT": "Email",
-        "FORGOT_PASSWORD_POPUP_OK_BUTTON": "Reset",
-        "FORGOT_PASSWORD_SUCCESS_HEADER": "Please check your emails for further instructions!",
-        "MAGIC_LINK_POPUP_HEADER": "Get a Magic Link",
-        "MAGIC_LINK_POPUP_MESSAGE": "We will send you a link to magically log in!",
-        "MAGIC_LINK_POPUP_EMAIL_INPUT": "Email",
-        "MAGIC_LINK_POPUP_OK_BUTTON": "Get Magic Link",
-        "MAGIC_LINK_SUCCESS_POPUP_HEADER": "Please check your emails for further instructions!",
-        "FACEBOOK_LOGIN_BUTTON": "Facebook login",
-        "GOOGLE_LOGIN_BUTTON": "Google login"
-    },
-    "REGISTER_PAGE": {
-        "TITLE": "Registration",
-        "EMAIL": "Email",
-        "EMAIL_ERROR": "Please insert a valid email",
-        "PASSWORD": "Password",
-        "PASSWORD_GENERIC_ERROR": "Please insert a password",
-        "PASSWORD_LENGTH_ERROR": "Minlength 6 characters",
-        "SUBMIT_BUTTON": "Create my account",
-        "SUBMIT_POPUP_SUCCESS_HEADER": "Per favore conferma l'email!"
+        "GOOGLE_LOGIN_BUTTON": "Google login",
+        "LOADING": "Signing in…",
+        "SIGN_IN_HINT": "Sign in with your Google account to continue",
+        "WELCOME": "Plan your meals and groceries"
     },
     "RECIPE_LIST_PAGE": {
         "TITLE": "Recipes",

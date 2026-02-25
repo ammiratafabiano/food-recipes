@@ -2,7 +2,10 @@
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button (click)="onBackClicked()">
-        <ion-icon slot="icon-only" [name]="isUserLogged() ? 'chevron-back-outline' : 'home-outline'"></ion-icon>
+        <ion-icon
+          slot="icon-only"
+          [name]="isUserLogged() ? 'chevron-back-outline' : 'home-outline'"
+        ></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title>{{ 'USER_PAGE.TITLE' | translate }}</ion-title>
@@ -15,47 +18,36 @@
 </ion-header>
 
 <ion-content>
-
   @if (user(); as u) {
-    <ion-card>
-      <ion-card-header>
-        <ion-avatar>
-          <img [src]="u.avatar_url" />
-        </ion-avatar>
-        <ion-card-title>{{ u.name }}</ion-card-title>
-        <ion-card-subtitle>{{ u.email }}</ion-card-subtitle>
-      </ion-card-header>
-      @if (isUserLogged()) {
-        @if (!u.isFollowed) {
-          <ion-button fill="clear" color="primary" (click)="onFollowClicked()">
-            {{ 'USER_PAGE.ADD_FOLLOW' | translate }}
-          </ion-button>
-        } @else {
-          <ion-button fill="clear" color="danger" (click)="onUnfollowClicked()">
-            {{ 'USER_PAGE.DELETE_FOLLOW' | translate }}
-          </ion-button>
-        }
-      }
-    </ion-card>
-  }
-
-  @if (user()?.recipes != undefined) {
-    <h2 class="ion-padding">
-      {{ 'USER_PAGE.RECIPE_LIST' | translate }}
-    </h2>
-    @if (user()?.recipes?.length == 0) {
-      <ion-label class="ion-padding">
-        {{ 'USER_PAGE.NO_DATA' | translate }}
-      </ion-label>
+  <ion-card>
+    <ion-card-header>
+      <ion-avatar>
+        <img [src]="u.avatar_url" />
+      </ion-avatar>
+      <ion-card-title>{{ u.name }}</ion-card-title>
+      <ion-card-subtitle>{{ u.email }}</ion-card-subtitle>
+    </ion-card-header>
+    @if (isUserLogged()) { @if (!u.isFollowed) {
+    <ion-button fill="clear" color="primary" (click)="onFollowClicked()">
+      {{ 'USER_PAGE.ADD_FOLLOW' | translate }}
+    </ion-button>
     } @else {
-      <ion-list lines="inset" inset="true">
-        @for (recipe of user()?.recipes; track trackByRecipe($index, recipe)) {
-          <ion-item button (click)="onRecipeClicked(recipe)">
-            <ion-label>{{ recipe.name }}</ion-label>
-          </ion-item>
-        }
-      </ion-list>
+    <ion-button fill="clear" color="danger" (click)="onUnfollowClicked()">
+      {{ 'USER_PAGE.DELETE_FOLLOW' | translate }}
+    </ion-button>
+    } }
+  </ion-card>
+  } @if (user()?.recipes !== undefined) {
+  <h2 class="ion-padding">{{ 'USER_PAGE.RECIPE_LIST' | translate }}</h2>
+  @if (user()?.recipes?.length === 0) {
+  <ion-label class="ion-padding"> {{ 'USER_PAGE.NO_DATA' | translate }} </ion-label>
+  } @else {
+  <ion-list lines="inset" inset="true">
+    @for (recipe of user()?.recipes; track trackByRecipe($index, recipe)) {
+    <ion-item button (click)="onRecipeClicked(recipe)">
+      <ion-label>{{ recipe.name }}</ion-label>
+    </ion-item>
     }
-  }
-
+  </ion-list>
+  } }
 </ion-content>

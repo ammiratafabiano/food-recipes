@@ -7,9 +7,4 @@ export const LOGIN_ROUTES: Routes = [
     path: LoginNavigationPath.Base,
     component: LoginPage,
   },
-  {
-    path: LoginNavigationPath.Register,
-    loadComponent: () =>
-      import('../register/register.page').then((m) => m.RegisterPage),
-  },
 ];

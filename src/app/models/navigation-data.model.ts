@@ -1,7 +1,4 @@
-export type NavigationQueryParams = Record<
-  string,
-  string | number | boolean | null | undefined
->;
+export type NavigationQueryParams = Record<string, string | number | boolean | null | undefined>;
 
 export interface NavigationData {
   params?: unknown;

@@ -1,8 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { UserData } from '../models/user-data.model';
 import { SessionService } from './session.service';
+import { environment } from '../../environments/environment';
 
 export interface AuthError {
   message: string;
@@ -13,34 +15,68 @@ export interface AuthResponse<T = { user: UserData }> {
   error: AuthError | null;
 }
 
+declare const google: any; // Google Identity Services global
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private readonly http = inject(HttpClient);
   private readonly sessionService = inject(SessionService);
+  private readonly apiUrl = environment.apiUrl;
 
   readonly currentUser = signal<UserData | 0 | undefined>(undefined);
 
-  private readonly mockUser: UserData = {
-    id: 'user1',
-    name: 'Chef Mario',
-    email: 'mario@chef.com',
-    avatar_url: 'https://example.com/mario.jpg',
-  };
-
   constructor() {
-    // Trigger initial session load (no remote auth provider)
     this.loadUser();
   }
 
+  /** Restore session from localStorage or validate token via /auth/me */
   async loadUser() {
     if (this.currentUser()) return;
+    const token = this.sessionService.token();
+    const refreshToken = this.sessionService.refreshToken();
     const storedUser = this.sessionService.storedUser();
-    if (storedUser) {
+
+    if (token && storedUser) {
+      // Quick restore – optionally validate token
       this.currentUser.set(storedUser);
+      try {
+        const freshUser = await firstValueFrom(this.http.get<UserData>(`${this.apiUrl}/auth/me`));
+        this.currentUser.set(freshUser);
+        this.sessionService.setStoredUser(freshUser);
+      } catch {
+        // Token expired – try to refresh
+        if (refreshToken) {
+          try {
+            const res = await firstValueFrom(
+              this.http.post<{ token: string; refreshToken: string }>(
+                `${this.apiUrl}/auth/refresh`,
+                { refreshToken },
+              ),
+            );
+            this.sessionService.setToken(res.token);
+            this.sessionService.setRefreshToken(res.refreshToken);
+
+            // Retry getting user data
+            const freshUser = await firstValueFrom(
+              this.http.get<UserData>(`${this.apiUrl}/auth/me`),
+            );
+            this.currentUser.set(freshUser);
+            this.sessionService.setStoredUser(freshUser);
+            return;
+          } catch (refreshErr) {
+            // Refresh failed
+            this.sessionService.clearSession();
+            this.currentUser.set(0);
+          }
+        } else {
+          this.sessionService.clearSession();
+          this.currentUser.set(0);
+        }
+      }
       return;
     }
-    // Mimic "not authenticated" state on startup
     this.currentUser.set(0);
   }
 
@@ -53,47 +89,106 @@ export class AuthService {
     return value !== 0 && value !== undefined ? value : undefined;
   }
 
-  signUp(credentials: { email: string; password: string }) {
-    // Simulate successful sign up
-    return Promise.resolve({
-      data: { user: this.mockUser },
-      error: null,
-    } as AuthResponse);
+  // ── Google Sign In ────────────────────────────────
+
+  async signInWithGoogle(idToken: string): Promise<AuthResponse> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<{ token: string; refreshToken: string; user: UserData }>(
+          `${this.apiUrl}/auth/google`,
+          { idToken },
+        ),
+      );
+      this.handleAuthSuccess(res.token, res.refreshToken, res.user);
+      return { data: { user: res.user }, error: null };
+    } catch (err: any) {
+      return {
+        data: { user: {} as UserData },
+        error: {
+          message: err?.error?.error || err?.message || 'Google sign in failed',
+        },
+      };
+    }
   }
 
-  signIn(credentials: {
-    email: string;
-    password: string;
-  }): Promise<AuthResponse> {
-    this.currentUser.set(this.mockUser);
-    this.sessionService.setStoredUser(this.mockUser);
-    return Promise.resolve({ data: { user: this.mockUser }, error: null });
+  /**
+   * Initialise GSI and try the One Tap automatic prompt.
+   * Returns a promise that resolves with the credential on success,
+   * or rejects if the user dismisses / the browser blocks the prompt.
+   */
+  promptGoogleOneTap(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (typeof google === 'undefined' || !google.accounts) {
+        reject(new Error('GSI SDK not loaded'));
+        return;
+      }
+
+      google.accounts.id.initialize({
+        client_id: environment.googleClientId,
+        callback: (response: any) => {
+          if (response.credential) {
+            resolve(response.credential);
+          } else {
+            reject(new Error('No credential in response'));
+          }
+        },
+      });
+
+      google.accounts.id.prompt((notification: any) => {
+        // If the One Tap UI is dismissed or not displayed, reject
+        if (
+          notification.isNotDisplayed() ||
+          notification.isSkippedMoment() ||
+          notification.isDismissedMoment()
+        ) {
+          reject(
+            new Error(
+              notification.getNotDisplayedReason?.() ||
+                notification.getSkippedReason?.() ||
+                notification.getDismissedReason?.() ||
+                'prompt_dismissed',
+            ),
+          );
+        }
+      });
+    });
   }
 
-  signInWithEmail(email: string): Promise<AuthResponse> {
-    this.currentUser.set(this.mockUser);
-    this.sessionService.setStoredUser(this.mockUser);
-    return Promise.resolve({ data: { user: this.mockUser }, error: null });
+  /** Render the Google Sign-In button as a visible fallback */
+  renderGoogleButton(elementId: string, callback: (response: any) => void): void {
+    if (typeof google === 'undefined' || !google.accounts) {
+      console.error('Google Identity Services SDK not loaded. Add the script to index.html.');
+      return;
+    }
+
+    google.accounts.id.initialize({
+      client_id: environment.googleClientId,
+      callback: callback,
+    });
+
+    const btnElement = document.getElementById(elementId);
+    if (btnElement) {
+      google.accounts.id.renderButton(btnElement, {
+        theme: 'outline',
+        size: 'large',
+        type: 'standard',
+      });
+    } else {
+      console.error(`Element with id ${elementId} not found.`);
+    }
   }
 
-  signInWithFacebook(): Promise<AuthResponse> {
-    this.currentUser.set(this.mockUser);
-    this.sessionService.setStoredUser(this.mockUser);
-    return Promise.resolve({ data: { user: this.mockUser }, error: null });
-  }
+  // ── Session helpers ───────────────────────────────
 
-  signInWithGoogle(): Promise<AuthResponse> {
-    this.currentUser.set(this.mockUser);
-    this.sessionService.setStoredUser(this.mockUser);
-    return Promise.resolve({ data: { user: this.mockUser }, error: null });
-  }
-
-  sendPwReset(email: string): Promise<AuthResponse<{}>> {
-    return Promise.resolve({ data: {}, error: null });
+  private handleAuthSuccess(token: string, refreshToken: string, user: UserData) {
+    this.sessionService.setToken(token);
+    this.sessionService.setRefreshToken(refreshToken);
+    this.sessionService.setStoredUser(user);
+    this.currentUser.set(user);
   }
 
   resetUser() {
-    this.sessionService.setStoredUser(undefined);
+    this.sessionService.clearSession();
     this.currentUser.set(undefined);
   }
 

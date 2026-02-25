@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnDestroy,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActionSheetController } from '@ionic/angular';
 import { ItemReorderEventDetail } from '@ionic/core';
@@ -87,6 +81,8 @@ export class PlanningPage implements OnDestroy {
   readonly planning = signal<Planning | undefined>(undefined);
   readonly dataLoaded = signal<boolean>(false);
 
+  private realtimeSub: import('rxjs').Subscription | null = null;
+
   trackByPlanned(index: number, item: PlanningItem) {
     return item.kind === 'recipe' ? item.id : item.day;
   }
@@ -94,29 +90,34 @@ export class PlanningPage implements OnDestroy {
   constructor() {}
 
   ngOnDestroy(): void {
-    this.dataService.unsubscribeToPlanning();
+    this.realtimeSub?.unsubscribe();
+    // Socket lives in the singleton SocketService —
+    // don't disconnect here, it would kill it for other pages too.
   }
 
   async ionViewDidEnter() {
     this.dataLoaded.set(false);
     const week = this.navigationService.getParams<{ week: string }>()?.week;
     await this.getData(week);
+
+    // Connect socket only if the user belongs to a group
     const group = this.group();
-    group && this.listenCollaboratorsChanges(group);
+    if (group) {
+      this.dataService.connectRealtime(group);
+      this.listenCollaboratorsChanges();
+    }
   }
 
-  private listenCollaboratorsChanges(group: Group) {
-    this.dataService.subscribeToPlannings(group).subscribe((planned) => {
+  private listenCollaboratorsChanges() {
+    // Unsubscribe previous subscription to avoid duplicates
+    this.realtimeSub?.unsubscribe();
+    this.realtimeSub = this.dataService.planningChanges$.subscribe((planned) => {
       const currentPlanning = this.planning();
       if (planned && currentPlanning) {
-        const updated =
-          currentPlanning.startDate &&
-          currentPlanning.startDate == planned.week;
+        const updated = currentPlanning.startDate && currentPlanning.startDate == planned.week;
         const deleted =
           !updated &&
-          currentPlanning.recipes.find(
-            (x) => x.kind === 'recipe' && x.id == planned.id,
-          );
+          currentPlanning.recipes.find((x) => x.kind === 'recipe' && x.id == planned.id);
         if (updated || deleted) {
           this.getData(currentPlanning.startDate);
         }
@@ -150,9 +151,7 @@ export class PlanningPage implements OnDestroy {
 
     response.recipes.forEach((planned) => {
       if (planned.day) {
-        const first = recipes.findIndex(
-          (x) => x.kind === 'separator' && x.day == planned.day,
-        );
+        const first = recipes.findIndex((x) => x.kind === 'separator' && x.day == planned.day);
         recipes.splice(first + 1, 0, planned);
       } else {
         recipes.unshift(planned);
@@ -177,9 +176,7 @@ export class PlanningPage implements OnDestroy {
 
       const previous = newRecipes[ev.detail.to - 1];
       const newDay =
-        ev.detail.to > 0 && previous?.kind === 'separator'
-          ? previous.day
-          : element.day;
+        ev.detail.to > 0 && previous?.kind === 'separator' ? previous.day : element.day;
 
       const updatedElement = { ...element, day: newDay };
       newRecipes[ev.detail.to] = updatedElement;
@@ -206,9 +203,7 @@ export class PlanningPage implements OnDestroy {
     const currentPlanning = this.planning();
     if (!currentPlanning) return;
     const mealIndex = (item: PlanningItem) =>
-      item.kind === 'recipe'
-        ? Object.values(Meal).findIndex((x) => x == item.meal)
-        : -1;
+      item.kind === 'recipe' ? Object.values(Meal).findIndex((x) => x == item.meal) : -1;
     const sortedRecipes = [...currentPlanning.recipes].sort((a, b) => {
       if (a.day == b.day) {
         const index1 = mealIndex(a);
@@ -236,24 +231,18 @@ export class PlanningPage implements OnDestroy {
   }
 
   async onPlanningBackClicked() {
-    const startDate = dayjs(this.planning()?.startDate)
-      .subtract(1, 'week')
-      .format('YYYY-MM-DD');
+    const startDate = dayjs(this.planning()?.startDate).subtract(1, 'week').format('YYYY-MM-DD');
     this.getData(startDate);
   }
 
   async onPlanningForwardClicked() {
-    const startDate = dayjs(this.planning()?.startDate)
-      .add(1, 'week')
-      .format('YYYY-MM-DD');
+    const startDate = dayjs(this.planning()?.startDate).add(1, 'week').format('YYYY-MM-DD');
     this.getData(startDate);
   }
 
   async onPlannedRecipeClicked(plannedRecipe: PlannedRecipe) {
     const actionSheet = await this.actionSheetCtrl.create({
-      header: this.translateService.instant(
-        'COMMON.PLANNINGS.ADD_TO_PLANNING.CHOICE',
-      ),
+      header: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.CHOICE'),
       buttons: [
         ...Object.values(Meal).map((x) => {
           return {

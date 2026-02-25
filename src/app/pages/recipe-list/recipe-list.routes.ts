@@ -9,14 +9,10 @@ export const RECIPE_LIST_ROUTES: Routes = [
   },
   {
     path: RecipeListNavigationPath.Recipe,
-    loadComponent: () =>
-      import('../recipe/recipe.page').then((m) => m.RecipePage),
+    loadComponent: () => import('../recipe/recipe.page').then((m) => m.RecipePage),
   },
   {
     path: RecipeListNavigationPath.AddRecipe,
-    loadChildren: () =>
-      import('../add-recipe/add-recipe.routes').then(
-        (m) => m.ADD_RECIPE_ROUTES,
-      ),
+    loadChildren: () => import('../add-recipe/add-recipe.routes').then((m) => m.ADD_RECIPE_ROUTES),
   },
 ];

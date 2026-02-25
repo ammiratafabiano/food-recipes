@@ -11,17 +11,13 @@ import { Recipe } from '../models/recipe.model';
 import { Step } from '../models/step.model';
 import { UserData, UserStats } from '../models/user-data.model';
 
-export const createQuantity = (
-  overrides: Partial<Quantity> = {},
-): Quantity => ({
+export const createQuantity = (overrides: Partial<Quantity> = {}): Quantity => ({
   value: undefined,
   unit: undefined,
   ...overrides,
 });
 
-export const createIngredient = (
-  overrides: Partial<Ingredient> = {},
-): Ingredient => ({
+export const createIngredient = (overrides: Partial<Ingredient> = {}): Ingredient => ({
   id: '',
   name: '',
   quantity: createQuantity(),
@@ -47,9 +43,7 @@ export const createRecipe = (overrides: Partial<Recipe> = {}): Recipe => ({
   ...overrides,
 });
 
-export const createPlanning = (
-  overrides: Partial<Planning> = {},
-): Planning => ({
+export const createPlanning = (overrides: Partial<Planning> = {}): Planning => ({
   startDate: '',
   recipes: [],
   ...overrides,
@@ -61,27 +55,21 @@ export const createGroup = (overrides: Partial<Group> = {}): Group => ({
   ...overrides,
 });
 
-export const createUserData = (
-  overrides: Partial<UserData> = {},
-): UserData => ({
+export const createUserData = (overrides: Partial<UserData> = {}): UserData => ({
   id: '',
   name: '',
   email: '',
   ...overrides,
 });
 
-export const createUserStats = (
-  overrides: Partial<UserStats> = {},
-): UserStats => ({
+export const createUserStats = (overrides: Partial<UserStats> = {}): UserStats => ({
   saved: 0,
   followers: 0,
   followed: 0,
   ...overrides,
 });
 
-export const createNavigationData = (
-  overrides: Partial<NavigationData> = {},
-): NavigationData => ({
+export const createNavigationData = (overrides: Partial<NavigationData> = {}): NavigationData => ({
   ...overrides,
 });
 

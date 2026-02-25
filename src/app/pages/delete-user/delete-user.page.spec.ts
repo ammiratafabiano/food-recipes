@@ -24,15 +24,15 @@ describe('DeleteUserPage', () => {
     sessionServiceSpy = jasmine.createSpyObj('SessionService', ['loginRedirect']);
 
     TestBed.configureTestingModule({
-      declarations: [ DeleteUserPage ],
+      declarations: [DeleteUserPage],
       imports: [IonicModule.forRoot()],
       providers: [
         { provide: AuthService, useValue: authServiceSpy },
         { provide: NavController, useValue: navCtrlSpy },
         { provide: DataService, useValue: dataServiceSpy },
         { provide: AlertController, useValue: alertControllerSpy },
-        { provide: SessionService, useValue: sessionServiceSpy }
-      ]
+        { provide: SessionService, useValue: sessionServiceSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DeleteUserPage);
@@ -54,8 +54,8 @@ describe('DeleteUserPage', () => {
       data: null,
       count: 0,
       status: 0,
-      statusText: ""
-    }
+      statusText: '',
+    };
     const deleteSpy = dataServiceSpy.deleteUser.and.returnValue(Promise.resolve(deleteReturn));
     const resetUserSpy = authServiceSpy.resetUser.and.returnValue();
     const navigateBackSpy = navCtrlSpy.navigateBack.and.returnValue(Promise.resolve(true));
@@ -73,12 +73,12 @@ describe('DeleteUserPage', () => {
       message: 'Vuoi davvero cancellare il tuo account?',
       buttons: [
         {
-          text: 'Cancel'
+          text: 'Cancel',
         },
         {
           text: 'Ok',
-          role: 'ok'
-        }
+          role: 'ok',
+        },
       ],
     });
   });

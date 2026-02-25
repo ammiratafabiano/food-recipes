@@ -1,11 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import {
-  IonIcon,
-  IonLabel,
-  IonTabBar,
-  IonTabButton,
-  IonTabs,
-} from '@ionic/angular/standalone';
+import { IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -14,13 +8,6 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrls: ['home.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [
-    TranslateModule,
-    IonTabs,
-    IonTabBar,
-    IonTabButton,
-    IonIcon,
-    IonLabel,
-  ],
+  imports: [TranslateModule, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel],
 })
 export class HomePage {}

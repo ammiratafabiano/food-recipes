@@ -53,9 +53,7 @@ export class AlertService {
       },
       {
         role: 'cancel',
-        text: this.translateService.instant(
-          'COMMON.GENERIC_ALERT.CANCEL_BUTTON',
-        ),
+        text: this.translateService.instant('COMMON.GENERIC_ALERT.CANCEL_BUTTON'),
       },
     ];
     return this.presentGenericPopup(undefined, message, undefined, buttons);
@@ -75,9 +73,7 @@ export class AlertService {
       },
       {
         role: 'cancel',
-        text: this.translateService.instant(
-          'COMMON.GENERIC_ALERT.CANCEL_BUTTON',
-        ),
+        text: this.translateService.instant('COMMON.GENERIC_ALERT.CANCEL_BUTTON'),
       },
     ];
     return this.presentGenericPopup(header, message, inputs, buttons);

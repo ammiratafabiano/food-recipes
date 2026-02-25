@@ -10,13 +10,10 @@ export const SETTINGS_ROUTES: Routes = [
   {
     path: SettingsNavigationPath.GroupManagement,
     loadComponent: () =>
-      import('../group-management/group-management.page').then(
-        (m) => m.GroupManagementPage,
-      ),
+      import('../group-management/group-management.page').then((m) => m.GroupManagementPage),
   },
   {
     path: SettingsNavigationPath.DeleteUser,
-    loadComponent: () =>
-      import('../delete-user/delete-user.page').then((m) => m.DeleteUserPage),
+    loadComponent: () => import('../delete-user/delete-user.page').then((m) => m.DeleteUserPage),
   },
 ];

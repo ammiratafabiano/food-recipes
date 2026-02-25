@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core';
 import {
   IonContent,
   IonHeader,
@@ -20,7 +15,9 @@ import { LoadingService } from 'src/app/services/loading.service';
 import dayjs from 'dayjs';
 import { Ingredient } from 'src/app/models/ingredient.model';
 import { DataService } from 'src/app/services/data.service';
+import { Group } from 'src/app/models/group.model';
 import { trackById } from 'src/app/utils/track-by';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-shopping-list',
@@ -41,7 +38,7 @@ import { trackById } from 'src/app/utils/track-by';
     IonRefresherContent,
   ],
 })
-export class ShoppingListPage {
+export class ShoppingListPage implements OnDestroy {
   private readonly dataService = inject(DataService);
   private readonly loadingService = inject(LoadingService);
 
@@ -49,21 +46,40 @@ export class ShoppingListPage {
 
   readonly trackByIngredient = trackById;
 
+  private group: Group | undefined;
+  private invalidateSub: Subscription | null = null;
+
   constructor() {}
 
   ionViewDidEnter() {
     this.getData();
   }
 
+  ngOnDestroy() {
+    this.invalidateSub?.unsubscribe();
+  }
+
   private async getData() {
     await this.loadingService.withLoader(async () => {
+      this.group = await this.dataService.retrieveGroup();
       await this.getShoppingList();
+
+      // Subscribe to real-time only if the user belongs to a group
+      // The socket is already managed by SocketService (singleton);
+      // we just listen — no new connection is created here.
+      if (this.group) {
+        this.dataService.connectRealtime(this.group);
+        this.invalidateSub?.unsubscribe();
+        this.invalidateSub = this.dataService.shoppingListInvalidate$.subscribe(() => {
+          this.getShoppingList();
+        });
+      }
     });
   }
 
   async getShoppingList(startDate?: string) {
     if (!startDate) startDate = dayjs().startOf('week').format('YYYY-MM-DD');
-    const response = await this.dataService.getShoppingList(startDate);
+    const response = await this.dataService.getShoppingList(startDate, this.group?.id);
     this.shoppingList.set(response && response.length > 0 ? response : []);
   }
 

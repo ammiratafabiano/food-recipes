@@ -1,8 +1,6 @@
 export const environment = {
   production: true,
-  supabaseUrl: "https://jilboxtwlbsfhysvpgqv.supabase.co",
-  supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImppbGJveHR3bGJzZmh5c3ZwZ3F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzU4OTAxNTAsImV4cCI6MTk5MTQ2NjE1MH0.AhVWQ6sWmh5asMJ4XaLXQKswrmNENCbmpjC1pR7KeQI",
-  siteUrl: "https://recipes.ammiratafabiano.dev",
-  callbackUrl: "https://recipes.ammiratafabiano.dev",
-  imagesPathUrl: "/storage/v1/object/public/steps"
-}
+  apiUrl: 'https://api.recipes.ammiratafabiano.dev',
+  googleClientId: '944834541951-fo75ek6gkutu5hh86tghmqlciua5hme9.apps.googleusercontent.com',
+  siteUrl: 'https://recipes.ammiratafabiano.dev',
+};

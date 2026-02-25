@@ -9,8 +9,8 @@ describe('GroupManagementPage', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ GroupManagementPage ],
-      imports: [IonicModule.forRoot()]
+      declarations: [GroupManagementPage],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(GroupManagementPage);

@@ -9,8 +9,8 @@ describe('UserPage', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ UserPage ],
-      imports: [IonicModule.forRoot()]
+      declarations: [UserPage],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(UserPage);

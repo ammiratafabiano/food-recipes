@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActionSheetController, SearchbarCustomEvent } from '@ionic/angular';
 import {
   IonButton,
@@ -40,10 +34,7 @@ import { AlertService } from 'src/app/services/alert.service';
 import { DataService } from 'src/app/services/data.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { NavigationService } from 'src/app/services/navigation.service';
-import {
-  createRecipeTagFilter,
-  createRecipeTypeFilter,
-} from 'src/app/utils/model-factories';
+import { createRecipeTagFilter, createRecipeTypeFilter } from 'src/app/utils/model-factories';
 import { trackById, trackByType } from 'src/app/utils/track-by';
 
 @Component({
@@ -95,8 +86,7 @@ export class RecipeListPage {
     return recipes?.filter((x) => {
       const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
       const matchFilter =
-        activeFilters.length === 0 ||
-        (!!x.type && activeFilters.includes(x.type));
+        activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
       return matchQuery && matchFilter;
     });
   });
@@ -111,8 +101,7 @@ export class RecipeListPage {
     return recipes?.filter((x) => {
       const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
       const matchFilter =
-        activeFilters.length === 0 ||
-        (!!x.type && activeFilters.includes(x.type));
+        activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
       return matchQuery && matchFilter;
     });
   });
@@ -139,9 +128,7 @@ export class RecipeListPage {
   }
 
   private initFilters() {
-    const allRecipes = (this.recipes() || []).concat(
-      this.othersRecipes() || [],
-    );
+    const allRecipes = (this.recipes() || []).concat(this.othersRecipes() || []);
     // Init types
     const newTypeFilters: RecipeTypeFilter[] = [];
     Object.values(RecipeType).forEach((x) => {
@@ -165,9 +152,7 @@ export class RecipeListPage {
 
   onTypeClicked(recipeType: RecipeTypeFilter) {
     this.recipeTypeFilters.update((filters) =>
-      filters.map((f) =>
-        f.type === recipeType.type ? { ...f, enabled: !f.enabled } : f,
-      ),
+      filters.map((f) => (f.type === recipeType.type ? { ...f, enabled: !f.enabled } : f)),
     );
   }
 
@@ -204,30 +189,22 @@ export class RecipeListPage {
     if (!recipe) return;
 
     const actionSheet = await this.actionSheetCtrl.create({
-      header: this.translateService.instant(
-        'COMMON.PLANNINGS.ADD_TO_PLANNING.CHOICE',
-      ),
+      header: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.CHOICE'),
       buttons: [
         {
-          text: this.translateService.instant(
-            'COMMON.PLANNINGS.ADD_TO_PLANNING.THIS_WEEK',
-          ),
+          text: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.THIS_WEEK'),
           data: {
             action: dayjs().startOf('week').format('YYYY-MM-DD'),
           },
         },
         {
-          text: this.translateService.instant(
-            'COMMON.PLANNINGS.ADD_TO_PLANNING.NEXT_WEEK',
-          ),
+          text: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.NEXT_WEEK'),
           data: {
             action: dayjs().startOf('week').add(1, 'week').format('YYYY-MM-DD'),
           },
         },
         {
-          text: this.translateService.instant(
-            'COMMON.PLANNINGS.ADD_TO_PLANNING.CANCEL',
-          ),
+          text: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.CANCEL'),
           role: 'cancel',
         },
       ],
@@ -236,17 +213,10 @@ export class RecipeListPage {
     await actionSheet.present();
     const result = await actionSheet.onDidDismiss();
     if (result?.data?.action) {
-      const res = await this.dataService.addToPlanning(
-        recipe,
-        result.data.action,
-      );
+      const res = await this.dataService.addToPlanning(recipe, result.data.action);
       if (res) {
         this.navigationService.setRoot(
-          [
-            NavigationPath.Base,
-            NavigationPath.Home,
-            HomeNavigationPath.Planning,
-          ],
+          [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],
           {
             queryParams: {
               week: result?.data?.action,

@@ -1,35 +1,10 @@
 {
     "LOGIN_PAGE": {
         "TITLE": "Login",
-        "EMAIL": "Email",
-        "EMAIL_ERROR": "Inserisci l'email",
-        "PASSWORD": "Password",
-        "PASSWORD_ERROR": "Inserisci la password",
-        "LOGIN_BUTTON": "Entra",
-        "REGISTER_BUTTON": "Crea account",
-        "FORGOT_PASSWORD_BUTTON": "Password dimenticata?",
-        "FORGOT_PASSWORD_POPUP_HEADER": "Reset della password",
-        "FORGOT_PASSWORD_POPUP_MESSAGE": "Per favore inserisci l'email",
-        "FORGOT_PASSWORD_POPUP_EMAIL_INPUT": "Email",
-        "FORGOT_PASSWORD_POPUP_OK_BUTTON": "Reset",
-        "FORGOT_PASSWORD_SUCCESS_POPUP_HEADER": "Per favore controlla l'email per ulteriori istruzioni!",
-        "MAGIC_LINK_POPUP_HEADER": "Ottieni un Magic Link",
-        "MAGIC_LINK_POPUP_MESSAGE": "Vi invieremo un link per effettuare magicamente il login!",
-        "MAGIC_LINK_POPUP_EMAIL_INPUT": "Email",
-        "MAGIC_LINK_POPUP_OK_BUTTON": "Ottieni Magic Link",
-        "MAGIC_LINK_SUCCESS_POPUP_HEADER": "Per favore controlla l'email per ulteriori istruzioni!",
-        "FACEBOOK_LOGIN_BUTTON": "Entra con Facebook",
-        "GOOGLE_LOGIN_BUTTON": "Entra con Google"
-    },
-    "REGISTER_PAGE": {
-        "TITLE": "Registrazione",
-        "EMAIL": "Email",
-        "EMAIL_ERROR": "Inserisci una email valida",
-        "PASSWORD": "Password",
-        "PASSWORD_GENERIC_ERROR": "Inserisci una password",
-        "PASSWORD_LENGTH_ERROR": "Lunghezza minima 6 caratteri",
-        "SUBMIT_BUTTON": "Registrati",
-        "SUBMIT_POPUP_SUCCESS_HEADER": "Please confirm your email now!"
+        "GOOGLE_LOGIN_BUTTON": "Entra con Google",
+        "LOADING": "Accesso in corso…",
+        "SIGN_IN_HINT": "Accedi con il tuo account Google per continuare",
+        "WELCOME": "Pianifica i tuoi pasti e la spesa"
     },
     "DISCOVER_PAGE": {
         "TITLE": "Scopri",

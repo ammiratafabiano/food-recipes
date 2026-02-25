@@ -17,15 +17,7 @@ import { NavigationService } from 'src/app/services/navigation.service';
   styleUrls: ['./not-found.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [
-    TranslateModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonItem,
-    IonLabel,
-  ],
+  imports: [TranslateModule, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel],
 })
 export class NotFoundPage {
   private readonly navigationService = inject(NavigationService);

@@ -9,8 +9,8 @@ describe('ItemSelectionPage', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ ItemSelectionPage ],
-      imports: [IonicModule.forRoot()]
+      declarations: [ItemSelectionPage],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ItemSelectionPage);

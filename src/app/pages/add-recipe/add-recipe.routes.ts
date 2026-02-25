@@ -10,8 +10,6 @@ export const ADD_RECIPE_ROUTES: Routes = [
   {
     path: AddRecipeNavigationPath.ItemSelection,
     loadComponent: () =>
-      import('../item-selection/item-selection.page').then(
-        (m) => m.ItemSelectionPage,
-      ),
+      import('../item-selection/item-selection.page').then((m) => m.ItemSelectionPage),
   },
 ];

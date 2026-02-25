@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
   IonAvatar,
   IonContent,
@@ -16,10 +11,7 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
-import {
-  HomeNavigationPath,
-  NavigationPath,
-} from 'src/app/models/navigation-path.enum';
+import { HomeNavigationPath, NavigationPath } from 'src/app/models/navigation-path.enum';
 import { UserData } from 'src/app/models/user-data.model';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';

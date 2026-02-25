@@ -7,10 +7,16 @@ import { UserData } from '../models/user-data.model';
 })
 export class SessionService {
   private readonly SESSION_USER_KEY = 'sessionUser';
+  private readonly SESSION_TOKEN_KEY = 'sessionToken';
+  private readonly SESSION_REFRESH_TOKEN_KEY = 'sessionRefreshToken';
   private readonly LOGIN_REDIRECT_KEY = 'loginRedirect';
 
   readonly foodList = signal<Ingredient[] | undefined>(undefined);
   readonly storedUser = signal<UserData | undefined>(this.getInitialUser());
+  readonly token = signal<string | undefined>(this.getStorage(this.SESSION_TOKEN_KEY) ?? undefined);
+  readonly refreshToken = signal<string | undefined>(
+    this.getStorage(this.SESSION_REFRESH_TOKEN_KEY) ?? undefined,
+  );
   readonly loginRedirect = signal<string | undefined>(
     this.getStorage(this.LOGIN_REDIRECT_KEY) ?? undefined,
   );
@@ -36,9 +42,25 @@ export class SessionService {
     this.setStorage(this.SESSION_USER_KEY, v ? JSON.stringify(v) : undefined);
   }
 
+  setToken(v: string | undefined) {
+    this.token.set(v);
+    this.setStorage(this.SESSION_TOKEN_KEY, v);
+  }
+
+  setRefreshToken(v: string | undefined) {
+    this.refreshToken.set(v);
+    this.setStorage(this.SESSION_REFRESH_TOKEN_KEY, v);
+  }
+
   setLoginRedirect(v: string | undefined) {
     this.loginRedirect.set(v);
     this.setStorage(this.LOGIN_REDIRECT_KEY, v);
+  }
+
+  clearSession() {
+    this.setStoredUser(undefined);
+    this.setToken(undefined);
+    this.setRefreshToken(undefined);
   }
 
   private setStorage(key: string, value: string | null | undefined) {
@@ -51,11 +73,7 @@ export class SessionService {
 
   private getStorage(key: string) {
     const valueToRet = window.localStorage.getItem(key);
-    if (
-      valueToRet !== 'undefined' &&
-      valueToRet !== undefined &&
-      valueToRet !== ''
-    ) {
+    if (valueToRet !== 'undefined' && valueToRet !== undefined && valueToRet !== '') {
       return valueToRet;
     } else {
       return undefined;

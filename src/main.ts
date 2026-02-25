@@ -6,21 +6,10 @@ import {
   withComponentInputBinding,
   withPreloading,
 } from '@angular/router';
-import {
-  HttpClient,
-  provideHttpClient,
-  withInterceptors,
-} from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideServiceWorker } from '@angular/service-worker';
-import {
-  importProvidersFrom,
-  isDevMode,
-  provideZonelessChangeDetection,
-} from '@angular/core';
-import {
-  IonicRouteStrategy,
-  provideIonicAngular,
-} from '@ionic/angular/standalone';
+import { importProvidersFrom, isDevMode, provideZonelessChangeDetection } from '@angular/core';
+import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -55,6 +44,7 @@ import {
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 import { loadingInterceptor } from './app/interceptors/loading.interceptor';
+import { authInterceptor } from './app/interceptors/auth.interceptor';
 
 addIcons({
   add,
@@ -92,12 +82,8 @@ bootstrapApplication(AppComponent, {
     provideZonelessChangeDetection(),
     provideIonicAngular(),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideRouter(
-      routes,
-      withPreloading(PreloadAllModules),
-      withComponentInputBinding(),
-    ),
-    provideHttpClient(withInterceptors([loadingInterceptor])),
+    provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
+    provideHttpClient(withInterceptors([authInterceptor, loadingInterceptor])),
     importProvidersFrom(
       TranslateModule.forRoot({
         loader: {

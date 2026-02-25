@@ -4,10 +4,7 @@ import { NavController } from '@ionic/angular';
 import { LoggingService } from './logging.service';
 import { NavigationData } from '../models/navigation-data.model';
 import { NavigationStackElement } from '../models/navigation-stack-element.model';
-import {
-  createNavigationData,
-  createNavigationStackElement,
-} from '../utils/model-factories';
+import { createNavigationData, createNavigationStackElement } from '../utils/model-factories';
 
 @Injectable({
   providedIn: 'root',
@@ -35,11 +32,7 @@ export class NavigationService {
    * @returns void
    */
   push(path: string, navigationData?: NavigationData): Promise<void> {
-    this.logService.Info(
-      'NavigationService',
-      'push',
-      'page=' + JSON.stringify(path),
-    );
+    this.logService.Info('NavigationService', 'push', 'page=' + JSON.stringify(path));
     const from = this.currentUrl.split('/');
     const to = [...from, path];
     if (navigationData) {
@@ -77,8 +70,7 @@ export class NavigationService {
     let navigationData: NavigationData | undefined;
     if (toRemoveIndex > -1) {
       const removedList = this.stack.splice(toRemoveIndex);
-      navigationData =
-        removedList && removedList[0] ? removedList[0].data : undefined;
+      navigationData = removedList && removedList[0] ? removedList[0].data : undefined;
     }
     return this.navController.navigateBack(to).then(() => {
       navigationData?.dismissCallback && navigationData.dismissCallback(params);
@@ -96,15 +88,8 @@ export class NavigationService {
    * @param navigationData The navigation data (optional)
    * @returns void
    */
-  setRoot(
-    path: string | string[],
-    navigationData?: NavigationData,
-  ): Promise<void> {
-    this.logService.Info(
-      'NavigationService',
-      'setRoot',
-      'page=' + JSON.stringify(path),
-    );
+  setRoot(path: string | string[], navigationData?: NavigationData): Promise<void> {
+    this.logService.Info('NavigationService', 'setRoot', 'page=' + JSON.stringify(path));
     const from = this.currentUrl.split('/');
     const to = Array.isArray(path) ? path : [path];
     const options = {
@@ -132,9 +117,7 @@ export class NavigationService {
       );
     };
     if (navigationData?.animationDirection == 'forward') {
-      return this.navController
-        .navigateForward(to, options)
-        .then(successCallback);
+      return this.navController.navigateForward(to, options).then(successCallback);
     } else if (navigationData?.animationDirection == 'back') {
       return this.navController.navigateBack(to, options).then(successCallback);
     } else {

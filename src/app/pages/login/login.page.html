@@ -1,70 +1,24 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>{{ 'LOGIN_PAGE.TITLE' | translate }}</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content scrollY="false">
-  <ion-card>
-    <ion-card-content>
-      <form (ngSubmit)="login()" [formGroup]="credentials">
-        <ion-item>
-          <ion-input
-            [label]="'LOGIN_PAGE.EMAIL' | translate"
-            labelPlacement="stacked"
-            type="email"
-            inputmode="email"
-            [placeholder]="'LOGIN_PAGE.EMAIL' | translate"
-            formControlName="email">
-          </ion-input>
-          @if ((email.dirty || email.touched) && email.errors) {
-            <ion-note slot="error">
-              {{ 'LOGIN_PAGE.EMAIL_ERROR' | translate }}
-            </ion-note>
-          }
-        </ion-item>
-        <ion-item>
-          <ion-input
-            [label]="'LOGIN_PAGE.PASSWORD' | translate"
-            labelPlacement="stacked"
-            type="password"
-            [placeholder]="'LOGIN_PAGE.PASSWORD' | translate"
-            formControlName="password">
-          </ion-input>
-          @if ((password.dirty || password.touched) && password.errors) {
-            <ion-note slot="error">
-              {{ 'LOGIN_PAGE.PASSWORD' | translate }}
-            </ion-note>
-          }
-        </ion-item>
-        <ion-button type="submit" expand="block" strong="true" [disabled]="!credentials.valid">
-          {{ 'LOGIN_PAGE.LOGIN_BUTTON' | translate }}
-        </ion-button>
+  <div class="login-wrapper">
+    <!-- App Logo / Splash -->
+    <div class="splash-container">
+      <img src="assets/icons/icon-192x192.png" alt="Food Recipes Logo" class="app-logo" />
+      <h1 class="app-title">Food Recipes</h1>
+      <p class="app-subtitle">{{ 'LOGIN_PAGE.WELCOME' | translate }}</p>
+    </div>
 
-        <div class="ion-margin-top">
-          <ion-button
-            type="button"
-            expand="block"
-            color="primary"
-            fill="outline"
-            routerLink="register">
-            <ion-icon name="person-outline" slot="start"></ion-icon>
-            {{ 'LOGIN_PAGE.REGISTER_BUTTON' | translate }}
-          </ion-button>
-          <ion-button type="button" expand="block" color="secondary" (click)="onForgotPasswordCLicked()">
-            <ion-icon name="key-outline" slot="start"></ion-icon>
-            {{ 'LOGIN_PAGE.FORGOT_PASSWORD_BUTTON' | translate }}
-          </ion-button>
-          <ion-button type="button" expand="block" color="primary" (click)="onFacebookLoginClicked()">
-            <ion-icon name="logo-facebook" slot="start"></ion-icon>
-            {{ 'LOGIN_PAGE.FACEBOOK_LOGIN_BUTTON' | translate }}
-          </ion-button>
-          <ion-button type="button" expand="block" color="warning" (click)="onGoogleLoginClicked()">
-            <ion-icon name="logo-google" slot="start"></ion-icon>
-            {{ 'LOGIN_PAGE.GOOGLE_LOGIN_BUTTON' | translate }}
-          </ion-button>
-        </div>
-      </form>
-    </ion-card-content>
-  </ion-card>
+    <!-- Loading state: auto One Tap in progress -->
+    @if (!showFallbackButton()) {
+    <div class="loading-container">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p class="login-hint">{{ 'LOGIN_PAGE.LOADING' | translate }}</p>
+    </div>
+    }
+
+    <!-- Fallback: Google button (shown only when One Tap fails) -->
+    <div class="button-container" [hidden]="!showFallbackButton()">
+      <p class="login-hint">{{ 'LOGIN_PAGE.SIGN_IN_HINT' | translate }}</p>
+      <div id="google-btn-container"></div>
+    </div>
+  </div>
 </ion-content>

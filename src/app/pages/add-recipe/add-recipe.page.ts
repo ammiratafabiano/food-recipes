@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActionSheetController } from '@ionic/angular';
 import {
@@ -47,11 +41,7 @@ import { DataService } from 'src/app/services/data.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { SessionService } from 'src/app/services/session.service';
-import {
-  createIngredient,
-  createRecipe,
-  createStep,
-} from 'src/app/utils/model-factories';
+import { createIngredient, createRecipe, createStep } from 'src/app/utils/model-factories';
 import { trackById, trackByIndex } from 'src/app/utils/track-by';
 
 @Component({
@@ -110,8 +100,7 @@ export class AddRecipePage implements OnInit {
   constructor() {}
 
   ngOnInit() {
-    const recipeToEdit = this.navigationService.getParams<{ recipe: Recipe }>()
-      ?.recipe;
+    const recipeToEdit = this.navigationService.getParams<{ recipe: Recipe }>()?.recipe;
     if (recipeToEdit) {
       this.isEdit.set(true);
       this.selectedRecipe.set(recipeToEdit);
@@ -190,9 +179,7 @@ export class AddRecipePage implements OnInit {
     });
   }
 
-  private async mapSelectedIngredient(
-    item?: Item,
-  ): Promise<Ingredient | undefined> {
+  private async mapSelectedIngredient(item?: Item): Promise<Ingredient | undefined> {
     let food: Ingredient | undefined;
     if (item?.custom) {
       food = await this.addCustomFood(item.text);
@@ -203,9 +190,7 @@ export class AddRecipePage implements OnInit {
   }
 
   private async addCustomFood(name: string) {
-    return this.loadingService.withLoader(() =>
-      this.dataService.addCustomFood(name),
-    );
+    return this.loadingService.withLoader(() => this.dataService.addCustomFood(name));
   }
 
   async onIngredientUnitClicked(selectedIngredient: Ingredient) {
@@ -315,10 +300,7 @@ export class AddRecipePage implements OnInit {
   async onConfirmEditClicked() {
     await this.loadingService.withLoader(async () => {
       try {
-        await this.dataService.editRecipe(
-          this.selectedRecipe(),
-          this.stepsOfImagesToDelete,
-        );
+        await this.dataService.editRecipe(this.selectedRecipe(), this.stepsOfImagesToDelete);
         this.navigationService.pop({ needToRefresh: true });
       } catch {
         this.navigationService.pop();

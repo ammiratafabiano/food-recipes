@@ -88,9 +88,7 @@ export class RecipePage implements OnInit {
   readonly currentMultiplier = signal<number>(1);
 
   readonly isUserLogged = computed(() => !!this.authService.currentUser());
-  readonly isMine = computed(
-    () => this.authService.getCurrentUser()?.id == this.recipe()?.userId,
-  );
+  readonly isMine = computed(() => this.authService.getCurrentUser()?.id == this.recipe()?.userId);
 
   refreshOnDismiss = false;
 
@@ -115,10 +113,7 @@ export class RecipePage implements OnInit {
     });
     const currentRecipe = this.recipe();
     if (!currentRecipe) {
-      this.navigationService.setRoot([
-        NavigationPath.Base,
-        NavigationPath.NotFound,
-      ]);
+      this.navigationService.setRoot([NavigationPath.Base, NavigationPath.NotFound]);
     }
   }
 
@@ -186,14 +181,11 @@ export class RecipePage implements OnInit {
   }
 
   async onVariantClicked() {
-    this.navigationService.setRoot(
-      [NavigationPath.Base, NavigationPath.Recipe],
-      {
-        queryParams: {
-          id: this.recipe()?.variantId,
-        },
+    this.navigationService.setRoot([NavigationPath.Base, NavigationPath.Recipe], {
+      queryParams: {
+        id: this.recipe()?.variantId,
       },
-    );
+    });
   }
 
   async onSelfClicked() {
@@ -204,26 +196,19 @@ export class RecipePage implements OnInit {
     ]);
   }
 
-  async onMultiplierChange(
-    event: CustomEvent<{ value?: string | number | null }>,
-  ) {
+  async onMultiplierChange(event: CustomEvent<{ value?: string | number | null }>) {
     const currentRecipe = this.recipe();
     if (!currentRecipe) return;
     const value = event.detail?.value;
     const newCurrentMultiplier = value ? Number(value) : currentRecipe.servings;
     this.currentMultiplier.set(newCurrentMultiplier);
-    this.multiplier.set(
-      newCurrentMultiplier ? newCurrentMultiplier / currentRecipe.servings : 1,
-    );
+    this.multiplier.set(newCurrentMultiplier ? newCurrentMultiplier / currentRecipe.servings : 1);
   }
 
-  async onMultiplierBlur(
-    event: CustomEvent<{ value?: string | number | null }>,
-  ) {
+  async onMultiplierBlur(event: CustomEvent<{ value?: string | number | null }>) {
     const value = event.detail?.value;
     const currentRecipe = this.recipe();
-    if (!value && currentRecipe)
-      this.currentMultiplier.set(currentRecipe.servings);
+    if (!value && currentRecipe) this.currentMultiplier.set(currentRecipe.servings);
   }
 
   async onAddToPlanningClicked() {
@@ -231,30 +216,22 @@ export class RecipePage implements OnInit {
     if (!currentRecipe) return;
 
     const actionSheet = await this.actionSheetCtrl.create({
-      header: this.translateService.instant(
-        'COMMON.PLANNINGS.ADD_TO_PLANNING.CHOICE',
-      ),
+      header: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.CHOICE'),
       buttons: [
         {
-          text: this.translateService.instant(
-            'COMMON.PLANNINGS.ADD_TO_PLANNING.THIS_WEEK',
-          ),
+          text: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.THIS_WEEK'),
           data: {
             action: dayjs().startOf('week').format('YYYY-MM-DD'),
           },
         },
         {
-          text: this.translateService.instant(
-            'COMMON.PLANNINGS.ADD_TO_PLANNING.NEXT_WEEK',
-          ),
+          text: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.NEXT_WEEK'),
           data: {
             action: dayjs().startOf('week').add(1, 'week').format('YYYY-MM-DD'),
           },
         },
         {
-          text: this.translateService.instant(
-            'COMMON.PLANNINGS.ADD_TO_PLANNING.CANCEL',
-          ),
+          text: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.CANCEL'),
           role: 'cancel',
         },
       ],
@@ -263,17 +240,10 @@ export class RecipePage implements OnInit {
     await actionSheet.present();
     const result = await actionSheet.onDidDismiss();
     if (result?.data?.action) {
-      const res = await this.dataService.addToPlanning(
-        currentRecipe,
-        result.data.action,
-      );
+      const res = await this.dataService.addToPlanning(currentRecipe, result.data.action);
       if (res) {
         this.navigationService.setRoot(
-          [
-            NavigationPath.Base,
-            NavigationPath.Home,
-            HomeNavigationPath.Planning,
-          ],
+          [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],
           {
             queryParams: {
               week: result?.data?.action,
@@ -299,13 +269,10 @@ export class RecipePage implements OnInit {
   }
 
   async onDeleteClicked() {
-    return this.alertService.presentConfirmPopup(
-      'RECIPE_PAGE.DELETE_POPUP_CONFIRM_MESSAGE',
-      () => {
-        const currentRecipe = this.recipe();
-        currentRecipe && this.dataService.deleteRecipe(currentRecipe);
-        this.navigationService.pop({ needToRefresh: true });
-      },
-    );
+    return this.alertService.presentConfirmPopup('RECIPE_PAGE.DELETE_POPUP_CONFIRM_MESSAGE', () => {
+      const currentRecipe = this.recipe();
+      currentRecipe && this.dataService.deleteRecipe(currentRecipe);
+      this.navigationService.pop({ needToRefresh: true });
+    });
   }
 }

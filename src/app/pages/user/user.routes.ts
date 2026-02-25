@@ -9,7 +9,6 @@ export const USER_ROUTES: Routes = [
   },
   {
     path: UserNavigationPath.Recipe,
-    loadComponent: () =>
-      import('../recipe/recipe.page').then((m) => m.RecipePage),
+    loadComponent: () => import('../recipe/recipe.page').then((m) => m.RecipePage),
   },
 ];

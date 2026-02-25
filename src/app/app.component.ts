@@ -41,11 +41,7 @@ export class AppComponent {
 
   private handleAndroidBackButton() {
     this.platform.backButton.subscribeWithPriority(10, () => {
-      this.loggingService.Info(
-        'AppComponent',
-        'Hardware Back Button',
-        'pressed',
-      );
+      this.loggingService.Info('AppComponent', 'Hardware Back Button', 'pressed');
       this.navigationService.pop();
     });
   }

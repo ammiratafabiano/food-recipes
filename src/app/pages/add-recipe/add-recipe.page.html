@@ -6,165 +6,211 @@
       </ion-button>
     </ion-buttons>
     @if (!isEdit() || selectedRecipe().variantId) {
-      <ion-title>{{ 'ADD_RECIPE_PAGE.TITLE' | translate }}</ion-title>
+    <ion-title>{{ 'ADD_RECIPE_PAGE.TITLE' | translate }}</ion-title>
+    } @if (isEdit() && !selectedRecipe().variantId) {
+    <ion-title>{{ 'ADD_RECIPE_PAGE.EDIT_TITLE' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onCancelClicked()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     }
-    @if (isEdit() && !selectedRecipe().variantId) {
-      <ion-title>{{ 'ADD_RECIPE_PAGE.EDIT_TITLE' | translate }}</ion-title>
-      <ion-buttons slot="end">
-        <ion-button (click)="onCancelClicked()">
-          <ion-icon slot="icon-only" name="close"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    }
-
   </ion-toolbar>
 </ion-header>
 
 @if (selectedRecipe(); as recipe) {
-  <ion-content>
-    <ion-list lines="inset" inset="true">
-      <ion-item>
-        <ion-label>{{ 'COMMON.RECIPE' | translate }}</ion-label>
-        <ion-input [(ngModel)]="recipe.name" [placeholder]="'ADD_RECIPE_PAGE.NAME_PLACEHOLDER' | translate" slot="end"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label>{{ 'COMMON.RECIPE_TYPE' | translate }}</ion-label>
-        <ion-select [(ngModel)]="recipe.type" interface="action-sheet" [placeholder]="'ADD_RECIPE_PAGE.RECIPE_TYPE_PLACEHOLDER' | translate">
-          @for (option of typeList; track trackByOption($index, option)) {
-            <ion-select-option [value]="option">
-              {{ 'COMMON.RECIPE_TYPES.' + option | translate }}
-            </ion-select-option>
-          }
-        </ion-select>
-      </ion-item>
-      <ion-item>
-        <ion-label>{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
-        <ion-textarea [(ngModel)]="recipe.description" [autoGrow]="true" [placeholder]="'ADD_RECIPE_PAGE.DESCRIPTION_PLACEHOLDER' | translate" slot="end"></ion-textarea>
-      </ion-item>
-      <ion-item>
-        <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
-        <ion-input [value]="recipe.cuisine ? ('COMMON.CUISINE_TYPES.' + recipe.cuisine | translate) : undefined"
-          (click)="onAddCuisineClicked()" [placeholder]="'COMMON.CUISINE' | translate" slot="end"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>
-        <ion-input [(ngModel)]="recipe.time.value" type="number" [placeholder]="'ADD_RECIPE_PAGE.TIME_QUANTITY_PLACEHOLDER' | translate" slot="end"></ion-input>
-        <ion-select [(ngModel)]="recipe.time.unit" interface="action-sheet" [placeholder]="'ADD_RECIPE_PAGE.UNIT_PLACEHOLDER' | translate" slot="end">
-          @for (option of timeUnitList; track trackByOption($index, option)) {
-            <ion-select-option [value]="option">
-              {{ 'COMMON.TIME_UNITS.' + option | translate }}
-            </ion-select-option>
-          }
-        </ion-select>
-      </ion-item>
-      <ion-item>
-        <ion-label>{{ 'COMMON.DIFFICULTY' | translate }}</ion-label>
-        <ion-select [(ngModel)]="recipe.difficulty" interface="action-sheet" [placeholder]="'ADD_RECIPE_PAGE.DIFFICULTY_PLACEHOLDER' | translate">
-          @for (option of difficultyList; track trackByOption($index, option)) {
-            <ion-select-option [value]="option">
-              {{ 'COMMON.DIFFICULTY_LEVEL.' + option | translate }}
-            </ion-select-option>
-          }
-        </ion-select>
-      </ion-item>
-    </ion-list>
+<ion-content>
+  <ion-list lines="inset" inset="true">
+    <ion-item>
+      <ion-label>{{ 'COMMON.RECIPE' | translate }}</ion-label>
+      <ion-input
+        [(ngModel)]="recipe.name"
+        [placeholder]="'ADD_RECIPE_PAGE.NAME_PLACEHOLDER' | translate"
+        slot="end"
+      ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'COMMON.RECIPE_TYPE' | translate }}</ion-label>
+      <ion-select
+        [(ngModel)]="recipe.type"
+        interface="action-sheet"
+        [placeholder]="'ADD_RECIPE_PAGE.RECIPE_TYPE_PLACEHOLDER' | translate"
+      >
+        @for (option of typeList; track trackByOption($index, option)) {
+        <ion-select-option [value]="option">
+          {{ 'COMMON.RECIPE_TYPES.' + option | translate }}
+        </ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
+      <ion-textarea
+        [(ngModel)]="recipe.description"
+        [autoGrow]="true"
+        [placeholder]="'ADD_RECIPE_PAGE.DESCRIPTION_PLACEHOLDER' | translate"
+        slot="end"
+      ></ion-textarea>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
+      <ion-input
+        [value]="recipe.cuisine ? ('COMMON.CUISINE_TYPES.' + recipe.cuisine | translate) : undefined"
+        (click)="onAddCuisineClicked()"
+        [placeholder]="'COMMON.CUISINE' | translate"
+        slot="end"
+      ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>
+      <ion-input
+        [(ngModel)]="recipe.time.value"
+        type="number"
+        [placeholder]="'ADD_RECIPE_PAGE.TIME_QUANTITY_PLACEHOLDER' | translate"
+        slot="end"
+      ></ion-input>
+      <ion-select
+        [(ngModel)]="recipe.time.unit"
+        interface="action-sheet"
+        [placeholder]="'ADD_RECIPE_PAGE.UNIT_PLACEHOLDER' | translate"
+        slot="end"
+      >
+        @for (option of timeUnitList; track trackByOption($index, option)) {
+        <ion-select-option [value]="option">
+          {{ 'COMMON.TIME_UNITS.' + option | translate }}
+        </ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'COMMON.DIFFICULTY' | translate }}</ion-label>
+      <ion-select
+        [(ngModel)]="recipe.difficulty"
+        interface="action-sheet"
+        [placeholder]="'ADD_RECIPE_PAGE.DIFFICULTY_PLACEHOLDER' | translate"
+      >
+        @for (option of difficultyList; track trackByOption($index, option)) {
+        <ion-select-option [value]="option">
+          {{ 'COMMON.DIFFICULTY_LEVEL.' + option | translate }}
+        </ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+  </ion-list>
 
-    <p class="ion-padding">
-      {{ 'COMMON.INGREDIENTS' | translate }}
-    </p>
-    <ion-list lines="inset" inset="true">
-      <ion-item>
-        <ion-label>{{ 'ADD_RECIPE_PAGE.SERVINGS' | translate }}</ion-label>
-        <ion-input [(ngModel)]="recipe.servings" [placeholder]="'ADD_RECIPE_PAGE.SERVINGS' | translate"></ion-input>
+  <p class="ion-padding">{{ 'COMMON.INGREDIENTS' | translate }}</p>
+  <ion-list lines="inset" inset="true">
+    <ion-item>
+      <ion-label>{{ 'ADD_RECIPE_PAGE.SERVINGS' | translate }}</ion-label>
+      <ion-input
+        [(ngModel)]="recipe.servings"
+        [placeholder]="'ADD_RECIPE_PAGE.SERVINGS' | translate"
+      ></ion-input>
+    </ion-item>
+  </ion-list>
+  <ion-list lines="inset" inset="true">
+    @for (selected of recipe.ingredients; track trackByIngredient($index, selected)) {
+    <ion-item-sliding>
+      <ion-item class="ingredient-item">
+        <ion-label class="clickable">
+          {{ selected.name || 'ADD_RECIPE_PAGE.INGREDIENTS_PLACEHOLDER' | translate }}
+        </ion-label>
+        <ion-input
+          [(ngModel)]="selected.quantity.value"
+          type="number"
+          [placeholder]="'ADD_RECIPE_PAGE.INGREDIENTS_QUANTITY_PLACEHOLDER' | translate"
+        ></ion-input>
+        <ion-label class="clickable space-before" (click)="onIngredientUnitClicked(selected)">
+          @if (selected.quantity.unit) {
+          <span> {{ 'COMMON.WEIGHT_UNITS.' + selected.quantity.unit | translate }} </span>
+          } @else {
+          <span> {{ 'ADD_RECIPE_PAGE.UNIT_PLACEHOLDER' | translate }} </span>
+          }
+        </ion-label>
       </ion-item>
-    </ion-list>
-    <ion-list lines="inset" inset="true">
-      @for (selected of recipe.ingredients; track trackByIngredient($index, selected)) {
-        <ion-item-sliding>
-          <ion-item class="ingredient-item">
-            <ion-label class="clickable">
-              {{ selected.name || 'ADD_RECIPE_PAGE.INGREDIENTS_PLACEHOLDER' | translate }}
-            </ion-label>
-            <ion-input [(ngModel)]="selected.quantity.value" type="number" [placeholder]="'ADD_RECIPE_PAGE.INGREDIENTS_QUANTITY_PLACEHOLDER' | translate"></ion-input>
-            <ion-label class="clickable space-before" (click)="onIngredientUnitClicked(selected)">
-              @if (selected.quantity.unit) {
-                <span>
-                  {{ 'COMMON.WEIGHT_UNITS.' + selected.quantity.unit | translate }}
-                </span>
-              } @else {
-                <span>
-                  {{ 'ADD_RECIPE_PAGE.UNIT_PLACEHOLDER' | translate }}
-                </span>
-              }
-            </ion-label>
-          </ion-item>
-          <ion-item-options side="end" class="step-container-no-padding">
-            <ion-item-option color="danger" (click)="onRemoveIngredientClicked($index)">Rimuovi</ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
-      }
-      <ion-button fill="clear" (click)="onAddIngredientClicked()">
-        <ion-icon slot="icon-only" name="add-circle"></ion-icon>
-      </ion-button>
-    </ion-list>
-
-    <p class="ion-padding">
-      {{ 'COMMON.STEPS' | translate }}
-    </p>
-    @for (selected of selectedRecipe().steps; track trackByStep($index)) {
-      <ion-item-sliding class="step-item">
-        <ion-item>
-          <ion-list lines="inset" inset="true">
-            <ion-item>
-              <ion-label>{{ 'COMMON.STEP_INDEX' | translate : ({ i: $index + 1 }) }}</ion-label>
-            </ion-item>
-            <ion-item>
-              <ion-label>{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
-              <ion-textarea [(ngModel)]="selected.text" [autoGrow]="true" [placeholder]="'ADD_RECIPE_PAGE.DESCRIPTION_PLACEHOLDER' | translate" slot="end"></ion-textarea>
-            </ion-item>
-            @if (selected.imageUrl) {
-              <ion-item>
-                <ion-button fill="clear" (click)="onRemoveStepImage($index)">
-                  <ion-icon slot="icon-only" name="close"></ion-icon>
-                </ion-button>
-                <img [src]="selected.imageUrl" />
-              </ion-item>
-            }
-            <ion-item>
-              <input type="file" (change)="onStepImageChange($event, selected)" accept="image/*">
-            </ion-item>
-          </ion-list>
-        </ion-item>
-        <ion-item-options side="end" class="step-container-no-padding">
-          <ion-item-option color="danger" (click)="onRemoveStepClicked($index)">Rimuovi</ion-item-option>
-        </ion-item-options>
-      </ion-item-sliding>
+      <ion-item-options side="end" class="step-container-no-padding">
+        <ion-item-option color="danger" (click)="onRemoveIngredientClicked($index)"
+          >Rimuovi</ion-item-option
+        >
+      </ion-item-options>
+    </ion-item-sliding>
     }
-    <ion-list lines="inset" inset="true">
-      <ion-button fill="clear" (click)="onAddStepClicked()">
-        <ion-icon slot="icon-only" name="add-circle"></ion-icon>
-      </ion-button>
-    </ion-list>
-  </ion-content>
+    <ion-button fill="clear" (click)="onAddIngredientClicked()">
+      <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+    </ion-button>
+  </ion-list>
+
+  <p class="ion-padding">{{ 'COMMON.STEPS' | translate }}</p>
+  @for (selected of selectedRecipe().steps; track trackByStep($index)) {
+  <ion-item-sliding class="step-item">
+    <ion-item>
+      <ion-list lines="inset" inset="true">
+        <ion-item>
+          <ion-label>{{ 'COMMON.STEP_INDEX' | translate : ({ i: $index + 1 }) }}</ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-label>{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
+          <ion-textarea
+            [(ngModel)]="selected.text"
+            [autoGrow]="true"
+            [placeholder]="'ADD_RECIPE_PAGE.DESCRIPTION_PLACEHOLDER' | translate"
+            slot="end"
+          ></ion-textarea>
+        </ion-item>
+        @if (selected.imageUrl) {
+        <ion-item>
+          <ion-button fill="clear" (click)="onRemoveStepImage($index)">
+            <ion-icon slot="icon-only" name="close"></ion-icon>
+          </ion-button>
+          <img [src]="selected.imageUrl" />
+        </ion-item>
+        }
+        <ion-item>
+          <input type="file" (change)="onStepImageChange($event, selected)" accept="image/*" />
+        </ion-item>
+      </ion-list>
+    </ion-item>
+    <ion-item-options side="end" class="step-container-no-padding">
+      <ion-item-option color="danger" (click)="onRemoveStepClicked($index)"
+        >Rimuovi</ion-item-option
+      >
+    </ion-item-options>
+  </ion-item-sliding>
+  }
+  <ion-list lines="inset" inset="true">
+    <ion-button fill="clear" (click)="onAddStepClicked()">
+      <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+    </ion-button>
+  </ion-list>
+</ion-content>
 }
 
 <ion-footer class="ion-padding ion-no-border">
   <ion-toolbar>
     @if (isEdit()) {
-      <ion-item>
-        <ion-label>{{ 'COMMON.VARIANT' | translate }}</ion-label>
-        <ion-checkbox [checked]="!!selectedRecipe().variantId" (ionChange)="onVariantChange($event)"></ion-checkbox>
-      </ion-item>
-    }
-    @if (!isEdit() || selectedRecipe().variantId) {
-      <ion-button expand="block" (click)="onConfirmClicked()" [disabled]="!selectedRecipe().name || !(selectedRecipe().ingredients.length > 0)">
-        {{ 'ADD_RECIPE_PAGE.CONFIRM_BUTTON' | translate }}
-      </ion-button>
-    }
-    @if (isEdit() && !selectedRecipe().variantId) {
-      <ion-button expand="block" (click)="onConfirmEditClicked()" [disabled]="!selectedRecipe().name || !(selectedRecipe().ingredients.length > 0)">
-        {{ 'ADD_RECIPE_PAGE.CONFIRM_EDIT_BUTTON' | translate }}
-      </ion-button>
+    <ion-item>
+      <ion-label>{{ 'COMMON.VARIANT' | translate }}</ion-label>
+      <ion-checkbox
+        [checked]="!!selectedRecipe().variantId"
+        (ionChange)="onVariantChange($event)"
+      ></ion-checkbox>
+    </ion-item>
+    } @if (!isEdit() || selectedRecipe().variantId) {
+    <ion-button
+      expand="block"
+      (click)="onConfirmClicked()"
+      [disabled]="!selectedRecipe().name || !(selectedRecipe().ingredients.length > 0)"
+    >
+      {{ 'ADD_RECIPE_PAGE.CONFIRM_BUTTON' | translate }}
+    </ion-button>
+    } @if (isEdit() && !selectedRecipe().variantId) {
+    <ion-button
+      expand="block"
+      (click)="onConfirmEditClicked()"
+      [disabled]="!selectedRecipe().name || !(selectedRecipe().ingredients.length > 0)"
+    >
+      {{ 'ADD_RECIPE_PAGE.CONFIRM_EDIT_BUTTON' | translate }}
+    </ion-button>
     }
   </ion-toolbar>
 </ion-footer>

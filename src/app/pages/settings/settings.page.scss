@@ -1,22 +1,22 @@
 ion-avatar {
-    float: right;
+  float: right;
 }
 
 ion-card {
-    ion-card-content {
-        padding: 0;
-        ion-item {
-            text-align: center;
-            --background: transparent;
-        }
+  ion-card-content {
+    padding: 0;
+    ion-item {
+      text-align: center;
+      --background: transparent;
     }
+  }
 }
 
 .content {
-    display: flex;
-    flex-direction: column;
-    height: 90%;
-    .settings-list {
-        margin-top: auto;
-    }
+  display: flex;
+  flex-direction: column;
+  height: 90%;
+  .settings-list {
+    margin-top: auto;
+  }
 }

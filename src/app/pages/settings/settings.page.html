@@ -1,8 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      {{ 'SETTINGS_PAGE.TITLE' | translate }}
-    </ion-title>
+    <ion-title> {{ 'SETTINGS_PAGE.TITLE' | translate }} </ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -19,53 +17,48 @@
 
   <div class="content">
     @if (userData(); as userData) {
-      <ion-card>
-        <ion-card-header>
-          <ion-avatar>
-            <img [src]="userData.avatar_url" referrerpolicy="no-referrer"/>
-          </ion-avatar>
-          <ion-card-title>{{ userData.name }}</ion-card-title>
-          <ion-card-subtitle>{{ userData.email }}</ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-          @if (userData.stats) {
-            <ion-item lines="none">
-              <ion-label>
-                <h3>Followers</h3>
-                <p>{{ userData.stats.followers != undefined ? userData.stats.followers : '/' }}</p>
-              </ion-label>
-              <ion-label>
-                <h3>Followed</h3>
-                <p>{{ userData.stats.followed != undefined ? userData.stats.followed : '/' }}</p>
-              </ion-label>
-              <ion-label>
-                <h3>Saved</h3>
-                <p>{{ userData.stats.saved != undefined ? userData.stats.saved : '/' }}</p>
-              </ion-label>
-            </ion-item>
-          }
-        </ion-card-content>
-      </ion-card>
+    <ion-card>
+      <ion-card-header>
+        <ion-avatar>
+          <img [src]="userData.avatar_url" referrerpolicy="no-referrer" />
+        </ion-avatar>
+        <ion-card-title>{{ userData.name }}</ion-card-title>
+        <ion-card-subtitle>{{ userData.email }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        @if (userData.stats) {
+        <ion-item lines="none">
+          <ion-label>
+            <h3>Followers</h3>
+            <p>{{ userData.stats.followers !== undefined ? userData.stats.followers : '/' }}</p>
+          </ion-label>
+          <ion-label>
+            <h3>Followed</h3>
+            <p>{{ userData.stats.followed !== undefined ? userData.stats.followed : '/' }}</p>
+          </ion-label>
+          <ion-label>
+            <h3>Saved</h3>
+            <p>{{ userData.stats.saved !== undefined ? userData.stats.saved : '/' }}</p>
+          </ion-label>
+        </ion-item>
+        }
+      </ion-card-content>
+    </ion-card>
     }
 
-    <ion-list lines="inset" inset="true" >
+    <ion-list lines="inset" inset="true">
       <ion-item button (click)="onGroupManagementClicked()">
         <ion-label>{{ 'SETTINGS_PAGE.GROUP_BUTTON' | translate }}</ion-label>
       </ion-item>
     </ion-list>
-  
+
     <ion-list class="settings-list">
       <ion-item lines="none" (click)="onLogoutClicked()">
-        <ion-label color="primary">
-          {{ 'SETTINGS_PAGE.LOGOUT_BUTTON' | translate }}
-        </ion-label>
+        <ion-label color="primary"> {{ 'SETTINGS_PAGE.LOGOUT_BUTTON' | translate }} </ion-label>
       </ion-item>
       <ion-item lines="none" (click)="onDeleteClicked()">
-        <ion-label color="danger">
-          {{ 'SETTINGS_PAGE.DELETE_USER_BUTTON' | translate }}
-        </ion-label>
+        <ion-label color="danger"> {{ 'SETTINGS_PAGE.DELETE_USER_BUTTON' | translate }} </ion-label>
       </ion-item>
     </ion-list>
   </div>
-
 </ion-content>

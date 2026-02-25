@@ -1,8 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      {{ 'SHOPPING_LIST_PAGE.TITLE' | translate }}
-    </ion-title>
+    <ion-title> {{ 'SHOPPING_LIST_PAGE.TITLE' | translate }} </ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -17,31 +15,22 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  @if (shoppingList() != undefined) {
-    @if (shoppingList()!.length == 0) {
-      <ion-label class="ion-padding">
-        {{ 'SHOPPING_LIST_PAGE.NO_DATA' | translate }}
+  @if (shoppingList() !== undefined) { @if (shoppingList()!.length === 0) {
+  <ion-label class="ion-padding"> {{ 'SHOPPING_LIST_PAGE.NO_DATA' | translate }} </ion-label>
+  } @else {
+  <ion-list class="ion-margin-top">
+    @for (item of shoppingList(); track trackByIngredient($index, item)) {
+    <ion-item>
+      <ion-label> {{ item.name }} </ion-label>
+      @if (item.quantity.value) {
+      <ion-label class="quantity-label">
+        {{ item.quantity.value }}{{ 'COMMON.WEIGHT_UNITS.' + item.quantity.unit | translate }}
       </ion-label>
-    } @else {
-      <ion-list class="ion-margin-top">
-        @for (item of shoppingList(); track trackByIngredient($index, item)) {
-          <ion-item>
-            <ion-label>
-              {{ item.name }}
-            </ion-label>
-            @if (item.quantity.value) {
-              <ion-label class="quantity-label">
-                {{ item.quantity.value }}{{ 'COMMON.WEIGHT_UNITS.' + item.quantity.unit | translate }}
-              </ion-label>
-            } @else {
-              <ion-label class="quantity-label">
-                {{ 'COMMON.MISSING_QUANTITY' | translate }}
-              </ion-label>
-            }
-          </ion-item>
-        }
-      </ion-list>
+      } @else {
+      <ion-label class="quantity-label"> {{ 'COMMON.MISSING_QUANTITY' | translate }} </ion-label>
+      }
+    </ion-item>
     }
-  }
-
+  </ion-list>
+  } }
 </ion-content>

@@ -1,8 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      {{ 'DISCOVER_PAGE.TITLE' | translate }}
-    </ion-title>
+    <ion-title> {{ 'DISCOVER_PAGE.TITLE' | translate }} </ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -13,30 +11,20 @@
     </ion-toolbar>
   </ion-header>
 
-  @if (users() != undefined) {
-    @if (users() && users()!.length > 0) {
-      <p class="ion-padding">
-        {{ 'DISCOVER_PAGE.USERS' | translate }}
-      </p>
+  @if (users() !== undefined) { @if (users() && users()!.length > 0) {
+  <p class="ion-padding">{{ 'DISCOVER_PAGE.USERS' | translate }}</p>
+  } @if (users()!.length === 0) {
+  <ion-label class="ion-padding"> {{ 'DISCOVER_PAGE.NO_DATA' | translate }} </ion-label>
+  } @else {
+  <ion-list>
+    @for (user of users(); track trackByUser($index, user)) {
+    <ion-item (click)="onUserClicked(user)">
+      <ion-avatar slot="start">
+        <img [src]="user.avatar_url" referrerpolicy="no-referrer" />
+      </ion-avatar>
+      <ion-label> {{ user.name }} </ion-label>
+    </ion-item>
     }
-    @if (users()!.length == 0) {
-      <ion-label class="ion-padding">
-        {{ 'DISCOVER_PAGE.NO_DATA' | translate }}
-      </ion-label>
-    } @else {
-      <ion-list>
-        @for (user of users(); track trackByUser($index, user)) {
-          <ion-item (click)="onUserClicked(user)">
-            <ion-avatar slot="start">
-              <img [src]="user.avatar_url" referrerpolicy="no-referrer"/>
-            </ion-avatar>
-            <ion-label>
-              {{ user.name }}
-            </ion-label>
-          </ion-item>    
-        }
-      </ion-list>
-    }
-  }
-
+  </ion-list>
+  } }
 </ion-content>

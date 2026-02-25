@@ -1,48 +1,78 @@
-import express from "express";
-import { initDB } from "../db";
-import { v4 as uuidv4 } from "uuid";
-import { authenticateToken } from "../auth.middleware";
+import express from 'express';
+import { getDB } from '../db';
+import crypto from 'crypto';
+const uuidv4 = () => crypto.randomUUID();
+import { authenticateToken, JwtPayload } from '../auth.middleware';
 
 export const groupsRouter = express.Router();
 groupsRouter.use(authenticateToken);
 
-groupsRouter.post("/", async (req, res) => {
-  const user = (req as any).user;
-  const db = await initDB();
-  const id = uuidv4();
-  await db.run("INSERT INTO groups (id) VALUES (?)", id);
-  await db.run(
-    "INSERT INTO group_members (group_id, user_id) VALUES (?, ?)",
-    id,
-    user.id,
-  );
-  res.json({ id });
+groupsRouter.get('/mine', async (req, res) => {
+  try {
+    const me = (req as any).user as JwtPayload;
+    const db = await getDB();
+    const row = await db.get(
+      `SELECT g.id FROM groups_table g JOIN group_members gm ON gm.group_id = g.id WHERE gm.user_id = ? LIMIT 1`,
+      me.id,
+    );
+    if (!row) {
+      res.json(null);
+      return;
+    }
+    const members = await db.all('SELECT user_id FROM group_members WHERE group_id = ?', row.id);
+    res.json({ id: row.id, users: members.map((m: any) => m.user_id) });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-groupsRouter.get("/", async (req, res) => {
-  const db = await initDB();
-  const groups = await db.all("SELECT * FROM groups");
-  res.json(groups);
+groupsRouter.post('/', async (req, res) => {
+  try {
+    const me = (req as any).user as JwtPayload;
+    const db = await getDB();
+    const id = uuidv4();
+    await db.run('INSERT INTO groups_table (id) VALUES (?)', id);
+    await db.run('INSERT INTO group_members (group_id, user_id) VALUES (?, ?)', id, me.id);
+    res.json({ id, users: [me.id] });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-groupsRouter.post("/:id/join", async (req, res) => {
-  const user = (req as any).user;
-  const db = await initDB();
-  await db.run(
-    "INSERT INTO group_members (group_id, user_id) VALUES (?, ?)",
-    req.params.id,
-    user.id,
-  );
-  res.json({ success: true });
+groupsRouter.post('/:id/join', async (req, res) => {
+  try {
+    const me = (req as any).user as JwtPayload;
+    const db = await getDB();
+    await db.run(
+      'INSERT OR IGNORE INTO group_members (group_id, user_id) VALUES (?, ?)',
+      req.params.id,
+      me.id,
+    );
+    const members = await db.all(
+      'SELECT user_id FROM group_members WHERE group_id = ?',
+      req.params.id,
+    );
+    res.json({ id: req.params.id, users: members.map((m: any) => m.user_id) });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-groupsRouter.post("/:id/leave", async (req, res) => {
-  const user = (req as any).user;
-  const db = await initDB();
-  await db.run(
-    "DELETE FROM group_members WHERE group_id = ? AND user_id = ?",
-    req.params.id,
-    user.id,
-  );
-  res.json({ success: true });
+groupsRouter.post('/:id/leave', async (req, res) => {
+  try {
+    const me = (req as any).user as JwtPayload;
+    const db = await getDB();
+    await db.run(
+      'DELETE FROM group_members WHERE group_id = ? AND user_id = ?',
+      req.params.id,
+      me.id,
+    );
+    const members = await db.all(
+      'SELECT user_id FROM group_members WHERE group_id = ?',
+      req.params.id,
+    );
+    res.json({ id: req.params.id, users: members.map((m: any) => m.user_id) });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
