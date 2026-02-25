@@ -3,6 +3,9 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
+# Install build dependencies for native modules (like sqlite3 on ARM)
+RUN apk add --no-cache python3 make g++
+
 # Copy dependency files
 COPY package*.json ./
 
@@ -24,7 +27,9 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install only production dependencies
-RUN npm ci --omit=dev
+RUN apk add --no-cache python3 make g++ && \
+    npm ci --omit=dev && \
+    apk del python3 make g++
 
 # Copy compiled files from build stage
 COPY --from=build /app/dist ./dist
