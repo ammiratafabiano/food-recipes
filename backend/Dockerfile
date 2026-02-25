@@ -18,6 +18,9 @@ COPY . .
 # Compile TypeScript code
 RUN npm run build
 
+# Prune dev dependencies to keep only production ones
+RUN npm prune --omit=dev
+
 # Stage 2: Production execution
 FROM node:20-alpine
 
@@ -27,9 +30,9 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install only production dependencies
-RUN apk add --no-cache python3 make g++ && \
-    npm ci --omit=dev && \
-    apk del python3 make g++
+# We copy the node_modules from the build stage instead of running npm ci again
+# This avoids having to recompile native modules like sqlite3
+COPY --from=build /app/node_modules ./node_modules
 
 # Copy compiled files from build stage
 COPY --from=build /app/dist ./dist
