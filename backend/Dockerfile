@@ -1,10 +1,10 @@
 # Stage 1: Build Node.js/TypeScript backend
-FROM node:20-alpine AS build
+FROM node:20-bookworm-slim AS build
 
 WORKDIR /app
 
 # Install build dependencies for native modules (like sqlite3 on ARM)
-RUN apk add --no-cache python3 make g++
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 # Copy dependency files
 COPY package*.json ./
@@ -22,7 +22,7 @@ RUN npm run build
 RUN npm prune --omit=dev
 
 # Stage 2: Production execution
-FROM node:20-alpine
+FROM node:20-bookworm-slim
 
 WORKDIR /app
 
