@@ -27,6 +27,7 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { DecimalPipe } from '@angular/common';
 import dayjs from 'dayjs';
 import {
   HomeNavigationPath,
@@ -52,6 +53,7 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
   standalone: true,
   imports: [
     TranslateModule,
+    DecimalPipe,
     IonHeader,
     IonToolbar,
     IonTitle,
