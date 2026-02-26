@@ -35,6 +35,7 @@ import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { environment } from 'src/environments/environment';
 import { trackById } from 'src/app/utils/track-by';
+import { copyToClipboard } from 'src/app/utils/clipboard';
 
 @Component({
   selector: 'app-user',
@@ -103,9 +104,11 @@ export class UserPage implements OnInit {
     const user = this.user();
     if (!user) return;
     const link = environment.siteUrl + '?user=' + user.id;
-    navigator.clipboard.writeText(link);
-    const text = this.translateService.instant('COMMON.CLIPBOARD');
-    this.alertService.presentInfoPopup(text);
+    const ok = await copyToClipboard(link);
+    if (ok) {
+      const text = this.translateService.instant('COMMON.CLIPBOARD');
+      this.alertService.presentInfoPopup(text);
+    }
   }
 
   async onFollowClicked() {

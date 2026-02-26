@@ -42,6 +42,7 @@ import { LoadingService } from 'src/app/services/loading.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { environment } from 'src/environments/environment';
 import { trackById, trackByIndex } from 'src/app/utils/track-by';
+import { copyToClipboard } from 'src/app/utils/clipboard';
 
 @Component({
   selector: 'app-recipe',
@@ -143,9 +144,11 @@ export class RecipePage implements OnInit {
     const currentRecipe = this.recipe();
     if (!currentRecipe) return;
     const link = environment.siteUrl + '?recipe=' + currentRecipe.id;
-    navigator.clipboard.writeText(link);
-    const text = this.translateService.instant('COMMON.CLIPBOARD');
-    this.alertService.presentInfoPopup(text);
+    const ok = await copyToClipboard(link);
+    if (ok) {
+      const text = this.translateService.instant('COMMON.CLIPBOARD');
+      this.alertService.presentInfoPopup(text);
+    }
   }
 
   async onSaveClicked() {
