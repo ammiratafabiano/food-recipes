@@ -144,11 +144,9 @@ export class RecipePage implements OnInit {
     const currentRecipe = this.recipe();
     if (!currentRecipe) return;
     const link = environment.siteUrl + '?recipe=' + currentRecipe.id;
-    const ok = await copyToClipboard(link);
-    if (ok) {
-      const text = this.translateService.instant('COMMON.CLIPBOARD');
-      this.alertService.presentInfoPopup(text);
-    }
+    await copyToClipboard(link);
+    const text = this.translateService.instant('COMMON.CLIPBOARD');
+    this.alertService.presentInfoPopup(text);
   }
 
   async onSaveClicked() {

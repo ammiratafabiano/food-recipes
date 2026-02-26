@@ -109,10 +109,8 @@ export class GroupManagementPage {
     const group = this.group();
     if (!group) return;
     const link = environment.siteUrl + '?group=' + group.id;
-    const ok = await copyToClipboard(link);
-    if (ok) {
-      const text = this.translateService.instant('COMMON.CLIPBOARD');
-      this.alertService.presentInfoPopup(text);
-    }
+    await copyToClipboard(link);
+    const text = this.translateService.instant('COMMON.CLIPBOARD');
+    this.alertService.presentInfoPopup(text);
   }
 }

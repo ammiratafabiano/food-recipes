@@ -104,11 +104,9 @@ export class UserPage implements OnInit {
     const user = this.user();
     if (!user) return;
     const link = environment.siteUrl + '?user=' + user.id;
-    const ok = await copyToClipboard(link);
-    if (ok) {
-      const text = this.translateService.instant('COMMON.CLIPBOARD');
-      this.alertService.presentInfoPopup(text);
-    }
+    await copyToClipboard(link);
+    const text = this.translateService.instant('COMMON.CLIPBOARD');
+    this.alertService.presentInfoPopup(text);
   }
 
   async onFollowClicked() {
