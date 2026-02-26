@@ -11,7 +11,7 @@ services:
     container_name: food-recipes-backend
     restart: unless-stopped
     ports:
-      - "3000:3000" # Espone il backend sulla porta 3000 locale
+      - "3001:3000" # Porta host 3001 per evitare conflitti con pm2
     environment:
       - NODE_ENV=production
       - FRONTEND_URL=https://recipes.ammiratafabiano.dev
