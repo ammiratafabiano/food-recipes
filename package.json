@@ -1,75 +1,15 @@
 {
-  "name": "food-recipes",
-  "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "name": "food-recipes-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Food Recipes - Monorepo (frontend + backend)",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "lint": "ng lint",
-    "lint:fix": "ng lint --fix",
-    "format": "prettier --write \"src/**/*.{ts,html,scss}\"",
     "prepare": "husky"
   },
-  "lint-staged": {
-    "src/**/*.{ts,html}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "src/**/*.scss": [
-      "prettier --write"
-    ],
-    "backend/src/**/*.ts": [
-      "prettier --write",
-      "cd backend && eslint --fix"
-    ]
-  },
-  "private": true,
-  "dependencies": {
-    "@angular/common": "^20.0.0",
-    "@angular/core": "^20.0.0",
-    "@angular/forms": "^20.0.0",
-    "@angular/platform-browser": "^20.0.0",
-    "@angular/router": "^20.0.0",
-    "@angular/service-worker": "^20.0.0",
-    "@capacitor/app": "^6.0.0",
-    "@capacitor/core": "^6.0.0",
-    "@capacitor/haptics": "^6.0.0",
-    "@capacitor/keyboard": "^6.0.0",
-    "@capacitor/status-bar": "^6.0.0",
-    "@ionic/angular": "^8.4.0",
-    "@ngx-translate/core": "^16.0.0",
-    "@ngx-translate/http-loader": "^16.0.0",
-    "dayjs": "^1.11.13",
-    "ionicons": "^7.4.0",
-    "rxjs": "~7.8.0",
-    "socket.io-client": "^4.8.3",
-    "tslib": "^2.6.3",
-    "uuid": "^10.0.0"
-  },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^20.0.0",
-    "@angular-eslint/builder": "21.0.1",
-    "@angular-eslint/eslint-plugin": "21.0.1",
-    "@angular-eslint/eslint-plugin-template": "21.0.1",
-    "@angular-eslint/schematics": "21.0.1",
-    "@angular-eslint/template-parser": "21.0.1",
-    "@angular/cli": "^20.0.0",
-    "@angular/compiler": "^20.0.0",
-    "@angular/compiler-cli": "^20.0.0",
-    "@capacitor/cli": "^6.0.0",
-    "@types/uuid": "^10.0.0",
-    "@typescript-eslint/eslint-plugin": "7.11.0",
-    "@typescript-eslint/parser": "7.11.0",
     "eslint": "8.57.1",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.5",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "prettier": "^3.8.1",
-    "typescript": "~5.8.0"
-  },
-  "description": "An Ionic project"
+    "prettier": "^3.8.1"
+  }
 }

@@ -13,26 +13,27 @@ $RECYCLE.BIN/
 log.txt
 
 
-/.sourcemaps
-/.versions
-/coverage
-
-# Ionic
-/.ionic
-/www
-/platforms
-/plugins
-
-# Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
-
 # Node
-/node_modules
+node_modules/
 npm-debug.log
 yarn-error.log
+
+# Frontend
+frontend/www/
+frontend/.ionic
+frontend/platforms
+frontend/plugins
+frontend/.angular/
+frontend/dist/
+frontend/out-tsc/
+
+# Backend
+backend/dist/
+backend/data/*.db
+
+# Compiled output
+/tmp
+bazel-out/
 
 # IDEs and editors
 .idea/
@@ -48,10 +49,7 @@ yarn-error.log
 .vscode/*
 .history/*
 
-
 # Miscellaneous
-/.angular
-/.angular/cache
 .sass-cache/
 /connect.lock
 /coverage
