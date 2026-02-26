@@ -148,6 +148,7 @@ export class AuthService {
 
       google.accounts.id.initialize({
         client_id: environment.googleClientId,
+        use_fedcm_for_prompt: true,
         callback: (response: { credential?: string }) => {
           if (response.credential) {
             resolve(response.credential);
@@ -198,6 +199,7 @@ export class AuthService {
 
     google.accounts.id.initialize({
       client_id: environment.googleClientId,
+      use_fedcm_for_prompt: true,
       callback: callback,
     });
 
