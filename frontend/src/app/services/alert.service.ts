@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { AlertButton, AlertController, AlertInput } from '@ionic/angular';
+import { AlertButton, AlertController, AlertInput, ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
@@ -7,23 +7,19 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class AlertService {
   private readonly alertController = inject(AlertController);
+  private readonly toastController = inject(ToastController);
   private readonly translateService = inject(TranslateService);
 
   constructor() {}
 
   async presentInfoPopup(message: string) {
-    let buttons: AlertButton[] = [
-      {
-        role: 'cancel',
-        text: this.translateService.instant('COMMON.GENERIC_ALERT.OK_BUTTON'),
-      },
-    ];
-    return this.presentGenericPopup(
-      'COMMON.GENERIC_ALERT.INFO_HEADER',
+    const toast = await this.toastController.create({
       message,
-      undefined,
-      buttons,
-    );
+      duration: 2000,
+      position: 'bottom',
+      icon: 'checkmark-circle-outline',
+    });
+    await toast.present();
   }
 
   async presentAlertPopup(
