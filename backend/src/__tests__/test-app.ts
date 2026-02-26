@@ -29,7 +29,7 @@ export function buildTestApp(db: Database) {
     }
     try {
       const payload = jwt.verify(token, TEST_SECRET);
-      req.user = payload as { id: string };
+      req.user = payload as { id: string; name: string; email: string };
       next();
     } catch {
       res.status(403).json({ error: 'Invalid or expired token' });

@@ -260,7 +260,12 @@ recipesRouter.post('/', async (req, res) => {
       servings || 4,
     );
     await saveRecipeDetails(id, ingredients, steps, tags);
-    const recipe = await buildRecipe(await db.get('SELECT * FROM recipes WHERE id = ?', id), me.id);
+    const row = await db.get('SELECT * FROM recipes WHERE id = ?', id);
+    if (!row) {
+      res.status(404).json({ error: 'Recipe not found after creation' });
+      return;
+    }
+    const recipe = await buildRecipe(row, me.id);
     res.json({ data: recipe });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
