@@ -21,6 +21,7 @@ declare const google: {
       initialize: (config: {
         client_id: string;
         callback: (response: { credential?: string }) => void;
+        use_fedcm_for_prompt?: boolean;
       }) => void;
       prompt: (
         callback: (notification: {
