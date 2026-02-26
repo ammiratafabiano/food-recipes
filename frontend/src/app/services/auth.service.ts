@@ -23,16 +23,7 @@ declare const google: {
         callback: (response: { credential?: string }) => void;
         use_fedcm_for_prompt?: boolean;
       }) => void;
-      prompt: (
-        callback: (notification: {
-          isNotDisplayed: () => boolean;
-          isSkippedMoment: () => boolean;
-          isDismissedMoment: () => boolean;
-          getNotDisplayedReason?: () => string;
-          getSkippedReason?: () => string;
-          getDismissedReason?: () => string;
-        }) => void,
-      ) => void;
+      prompt: (callback?: (notification: Record<string, unknown>) => void) => void;
       renderButton: (
         element: HTMLElement | null,
         config: { theme: string; size: string; shape: string; text: string },
@@ -147,10 +138,13 @@ export class AuthService {
         return;
       }
 
+      let resolved = false;
+
       google.accounts.id.initialize({
         client_id: environment.googleClientId,
         use_fedcm_for_prompt: true,
         callback: (response: { credential?: string }) => {
+          resolved = true;
           if (response.credential) {
             resolve(response.credential);
           } else {
@@ -159,32 +153,15 @@ export class AuthService {
         },
       });
 
-      google.accounts.id.prompt(
-        (notification: {
-          isNotDisplayed: () => boolean;
-          isSkippedMoment: () => boolean;
-          isDismissedMoment: () => boolean;
-          getNotDisplayedReason?: () => string;
-          getSkippedReason?: () => string;
-          getDismissedReason?: () => string;
-        }) => {
-          // If the One Tap UI is dismissed or not displayed, reject
-          if (
-            notification.isNotDisplayed() ||
-            notification.isSkippedMoment() ||
-            notification.isDismissedMoment()
-          ) {
-            reject(
-              new Error(
-                notification.getNotDisplayedReason?.() ||
-                  notification.getSkippedReason?.() ||
-                  notification.getDismissedReason?.() ||
-                  'prompt_dismissed',
-              ),
-            );
-          }
-        },
-      );
+      google.accounts.id.prompt();
+
+      // Fallback: if no credential after timeout, reject so the caller
+      // can show the standard Google Sign-In button instead.
+      setTimeout(() => {
+        if (!resolved) {
+          reject(new Error('prompt_timeout'));
+        }
+      }, 5000);
     });
   }
 
