@@ -1,4 +1,4 @@
-# Stage 1: Build Node.js/TypeScript backend
+# Stage 1: Build TypeScript code
 FROM node:20-bookworm-slim AS build
 
 WORKDIR /app
@@ -18,27 +18,29 @@ COPY . .
 # Compile TypeScript code
 RUN npm run build
 
-# Prune dev dependencies to keep only production ones
-RUN npm prune --omit=dev
+# Stage 2: Install production dependencies (compiled for target architecture)
+FROM node:20-bookworm-slim AS production-deps
 
-# Stage 2: Production execution
+WORKDIR /app
+
+# Install build dependencies for native modules
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+
+COPY package*.json ./
+
+# Install only production dependencies – native modules are compiled fresh here
+RUN npm ci --omit=dev
+
+# Stage 3: Final production image
 FROM node:20-bookworm-slim
 
 WORKDIR /app
 
-# Copy only files needed for production dependencies installation
-COPY package*.json ./
+# Copy production dependencies (compiled for the correct architecture)
+COPY --from=production-deps /app/node_modules ./node_modules
 
-# Install only production dependencies
-# We copy the node_modules from the build stage instead of running npm ci again
-# This avoids having to recompile native modules like sqlite3
-COPY --from=build /app/node_modules ./node_modules
-
-# Copy compiled files from build stage
+# Copy compiled JS from build stage
 COPY --from=build /app/dist ./dist
-
-# (Optional) Copy data folder if using local SQLite
-# COPY data ./data
 
 # Expose backend port
 EXPOSE 3000
