@@ -83,7 +83,7 @@ export class ShoppingListPage implements OnDestroy {
     this.shoppingList.set(response && response.length > 0 ? response : []);
   }
 
-  async handleRefresh(event: any) {
+  async handleRefresh(event: Event) {
     await this.getShoppingList();
     const target = event.target as HTMLIonRefresherElement | null;
     target?.complete();

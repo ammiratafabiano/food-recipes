@@ -13,21 +13,22 @@ foodsRouter.get('/', async (req, res) => {
     const db = await getDB();
     const foods = await db.all('SELECT * FROM foods ORDER BY name');
     res.json(
-      foods.map((f: any) => ({
+      foods.map((f: { id: string; name: string; default_unit: string }) => ({
         id: f.id,
         name: f.name,
         quantity: { unit: f.default_unit },
       })),
     );
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 // ── POST /foods ─────────────────────────────────────
 foodsRouter.post('/', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const { name, defaultUnit } = req.body;
     if (!name) {
       res.status(400).json({ error: 'name is required' });
@@ -43,7 +44,8 @@ foodsRouter.post('/', async (req, res) => {
       me.id,
     );
     res.json({ id, name, quantity: { unit: defaultUnit || 'GRAM' } });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });

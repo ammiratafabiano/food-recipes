@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 
 export interface PlanningChangeEvent {
   type: 'added' | 'updated' | 'deleted';
-  payload: any;
+  payload: unknown;
 }
 
 export interface ShoppingListInvalidateEvent {
@@ -91,16 +91,16 @@ export class SocketService implements OnDestroy {
       }
     });
 
-    this.socket.on('planning:added', (data: any) =>
+    this.socket.on('planning:added', (data: unknown) =>
       this.planningChanges$.next({ type: 'added', payload: data }),
     );
-    this.socket.on('planning:updated', (data: any) =>
+    this.socket.on('planning:updated', (data: unknown) =>
       this.planningChanges$.next({ type: 'updated', payload: data }),
     );
-    this.socket.on('planning:deleted', (data: any) =>
+    this.socket.on('planning:deleted', (data: unknown) =>
       this.planningChanges$.next({ type: 'deleted', payload: data }),
     );
-    this.socket.on('shopping-list:invalidate', (data: any) =>
+    this.socket.on('shopping-list:invalidate', (data: ShoppingListInvalidateEvent) =>
       this.shoppingListInvalidate$.next(data),
     );
 

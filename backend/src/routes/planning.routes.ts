@@ -17,14 +17,14 @@ async function findUserGroupId(userId: string): Promise<string | null> {
 
 planningRouter.get('/:week', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const groupId = req.query.groupId as string | undefined;
     const db = await getDB();
 
     let userIds = [me.id];
     if (groupId) {
       const members = await db.all('SELECT user_id FROM group_members WHERE group_id = ?', groupId);
-      userIds = members.map((m: any) => m.user_id);
+      userIds = members.map((m: { user_id: string }) => m.user_id);
     }
 
     const placeholders = userIds.map(() => '?').join(',');
@@ -34,26 +34,38 @@ planningRouter.get('/:week', async (req, res) => {
       ...userIds,
     );
 
-    const items = rows.map((r: any) => ({
-      kind: 'recipe' as const,
-      id: r.id,
-      user_id: r.user_id,
-      recipe_id: r.recipe_id,
-      recipe_name: r.recipe_name || r.recipe_name_lookup || '',
-      week: r.week,
-      day: r.day,
-      meal: r.meal,
-    }));
+    const items = rows.map(
+      (r: {
+        id: string;
+        user_id: string;
+        recipe_id: string;
+        recipe_name: string;
+        recipe_name_lookup: string;
+        week: string;
+        day: string;
+        meal: string;
+      }) => ({
+        kind: 'recipe' as const,
+        id: r.id,
+        user_id: r.user_id,
+        recipe_id: r.recipe_id,
+        recipe_name: r.recipe_name || r.recipe_name_lookup || '',
+        week: r.week,
+        day: r.day,
+        meal: r.meal,
+      }),
+    );
 
     res.json({ startDate: req.params.week, recipes: items });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 planningRouter.post('/', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const { recipe_id, recipe_name, week, day, meal } = req.body;
     const db = await getDB();
     const id = uuidv4();
@@ -85,14 +97,15 @@ planningRouter.post('/', async (req, res) => {
       emitPlanningChange(groupId, 'planning:added', result);
       emitShoppingListInvalidate(groupId, week);
     }
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 planningRouter.put('/:id', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const { day, meal } = req.body;
     const db = await getDB();
     await db.run(
@@ -115,14 +128,15 @@ planningRouter.put('/:id', async (req, res) => {
       });
       emitShoppingListInvalidate(groupId, updated.week);
     }
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 planningRouter.delete('/:id', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     const item = await db.get('SELECT * FROM planning WHERE id = ?', req.params.id);
     await db.run('DELETE FROM planning WHERE id = ?', req.params.id);
@@ -134,21 +148,22 @@ planningRouter.delete('/:id', async (req, res) => {
       emitPlanningChange(groupId, 'planning:deleted', { id: req.params.id, week: item.week });
       emitShoppingListInvalidate(groupId, item.week);
     }
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 planningRouter.get('/:week/shopping-list', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const groupId = req.query.groupId as string | undefined;
     const db = await getDB();
 
     let userIds = [me.id];
     if (groupId) {
       const members = await db.all('SELECT user_id FROM group_members WHERE group_id = ?', groupId);
-      userIds = members.map((m: any) => m.user_id);
+      userIds = members.map((m: { user_id: string }) => m.user_id);
     }
 
     const placeholders = userIds.map(() => '?').join(',');
@@ -159,7 +174,10 @@ planningRouter.get('/:week/shopping-list', async (req, res) => {
       req.params.week,
       ...userIds,
     );
-    const map: Record<string, any> = {};
+    const map: Record<
+      string,
+      { id: string; name: string; quantity: { value: number; unit: string } }
+    > = {};
     for (const r of rows) {
       const key = r.name || r.food_id || uuidv4();
       if (map[key]) {
@@ -173,7 +191,8 @@ planningRouter.get('/:week/shopping-list', async (req, res) => {
       }
     }
     res.json(Object.values(map));
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });

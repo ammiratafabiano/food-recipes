@@ -15,7 +15,30 @@ export interface AuthResponse<T = { user: UserData }> {
   error: AuthError | null;
 }
 
-declare const google: any; // Google Identity Services global
+declare const google: {
+  accounts: {
+    id: {
+      initialize: (config: {
+        client_id: string;
+        callback: (response: { credential?: string }) => void;
+      }) => void;
+      prompt: (
+        callback: (notification: {
+          isNotDisplayed: () => boolean;
+          isSkippedMoment: () => boolean;
+          isDismissedMoment: () => boolean;
+          getNotDisplayedReason?: () => string;
+          getSkippedReason?: () => string;
+          getDismissedReason?: () => string;
+        }) => void,
+      ) => void;
+      renderButton: (
+        element: HTMLElement | null,
+        config: { theme: string; size: string; shape: string; text: string },
+      ) => void;
+    };
+  };
+}; // Google Identity Services global
 
 @Injectable({
   providedIn: 'root',
@@ -101,11 +124,11 @@ export class AuthService {
       );
       this.handleAuthSuccess(res.token, res.refreshToken, res.user);
       return { data: { user: res.user }, error: null };
-    } catch (err: any) {
+    } catch (err: unknown) {
       return {
         data: { user: {} as UserData },
         error: {
-          message: err?.error?.error || err?.message || 'Google sign in failed',
+          message: err instanceof Error ? err.message : 'Google sign in failed',
         },
       };
     }
@@ -125,7 +148,7 @@ export class AuthService {
 
       google.accounts.id.initialize({
         client_id: environment.googleClientId,
-        callback: (response: any) => {
+        callback: (response: { credential?: string }) => {
           if (response.credential) {
             resolve(response.credential);
           } else {
@@ -134,28 +157,40 @@ export class AuthService {
         },
       });
 
-      google.accounts.id.prompt((notification: any) => {
-        // If the One Tap UI is dismissed or not displayed, reject
-        if (
-          notification.isNotDisplayed() ||
-          notification.isSkippedMoment() ||
-          notification.isDismissedMoment()
-        ) {
-          reject(
-            new Error(
-              notification.getNotDisplayedReason?.() ||
-                notification.getSkippedReason?.() ||
-                notification.getDismissedReason?.() ||
-                'prompt_dismissed',
-            ),
-          );
-        }
-      });
+      google.accounts.id.prompt(
+        (notification: {
+          isNotDisplayed: () => boolean;
+          isSkippedMoment: () => boolean;
+          isDismissedMoment: () => boolean;
+          getNotDisplayedReason?: () => string;
+          getSkippedReason?: () => string;
+          getDismissedReason?: () => string;
+        }) => {
+          // If the One Tap UI is dismissed or not displayed, reject
+          if (
+            notification.isNotDisplayed() ||
+            notification.isSkippedMoment() ||
+            notification.isDismissedMoment()
+          ) {
+            reject(
+              new Error(
+                notification.getNotDisplayedReason?.() ||
+                  notification.getSkippedReason?.() ||
+                  notification.getDismissedReason?.() ||
+                  'prompt_dismissed',
+              ),
+            );
+          }
+        },
+      );
     });
   }
 
   /** Render the Google Sign-In button as a visible fallback */
-  renderGoogleButton(elementId: string, callback: (response: any) => void): void {
+  renderGoogleButton(
+    elementId: string,
+    callback: (response: { credential?: string }) => void,
+  ): void {
     if (typeof google === 'undefined' || !google.accounts) {
       console.error('Google Identity Services SDK not loaded. Add the script to index.html.');
       return;
@@ -171,7 +206,8 @@ export class AuthService {
       google.accounts.id.renderButton(btnElement, {
         theme: 'outline',
         size: 'large',
-        type: 'standard',
+        shape: 'rectangular',
+        text: 'signin_with',
       });
     } else {
       console.error(`Element with id ${elementId} not found.`);

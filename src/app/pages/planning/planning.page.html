@@ -18,7 +18,7 @@
 
   @if (planning(); as p) {
   <ion-list class="ion-margin-top">
-    <ion-reorder-group [disabled]="false" (ionItemReorder)="handleReorder($any($event))">
+    <ion-reorder-group [disabled]="false" (ionItemReorder)="handleReorder($event)">
       @for (planned of p.recipes; track trackByPlanned($index, planned)) {
       <ion-item-sliding>
         <ion-item

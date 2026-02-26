@@ -18,7 +18,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
   keyStore
     .verifyToken(token)
     .then((payload) => {
-      (req as any).user = payload;
+      req.user = payload;
       next();
     })
     .catch(() => {

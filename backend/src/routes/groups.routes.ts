@@ -9,7 +9,7 @@ groupsRouter.use(authenticateToken);
 
 groupsRouter.get('/mine', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     const row = await db.get(
       `SELECT g.id FROM groups_table g JOIN group_members gm ON gm.group_id = g.id WHERE gm.user_id = ? LIMIT 1`,
@@ -20,28 +20,30 @@ groupsRouter.get('/mine', async (req, res) => {
       return;
     }
     const members = await db.all('SELECT user_id FROM group_members WHERE group_id = ?', row.id);
-    res.json({ id: row.id, users: members.map((m: any) => m.user_id) });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    res.json({ id: row.id, users: members.map((m: { user_id: string }) => m.user_id) });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 groupsRouter.post('/', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     const id = uuidv4();
     await db.run('INSERT INTO groups_table (id) VALUES (?)', id);
     await db.run('INSERT INTO group_members (group_id, user_id) VALUES (?, ?)', id, me.id);
     res.json({ id, users: [me.id] });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 groupsRouter.post('/:id/join', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     await db.run(
       'INSERT OR IGNORE INTO group_members (group_id, user_id) VALUES (?, ?)',
@@ -52,15 +54,16 @@ groupsRouter.post('/:id/join', async (req, res) => {
       'SELECT user_id FROM group_members WHERE group_id = ?',
       req.params.id,
     );
-    res.json({ id: req.params.id, users: members.map((m: any) => m.user_id) });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    res.json({ id: req.params.id, users: members.map((m: { user_id: string }) => m.user_id) });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 groupsRouter.post('/:id/leave', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     await db.run(
       'DELETE FROM group_members WHERE group_id = ? AND user_id = ?',
@@ -71,8 +74,9 @@ groupsRouter.post('/:id/leave', async (req, res) => {
       'SELECT user_id FROM group_members WHERE group_id = ?',
       req.params.id,
     );
-    res.json({ id: req.params.id, users: members.map((m: any) => m.user_id) });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    res.json({ id: req.params.id, users: members.map((m: { user_id: string }) => m.user_id) });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });

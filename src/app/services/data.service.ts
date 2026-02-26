@@ -102,9 +102,9 @@ export class DataService {
 
   async getRecipeList(user_id?: string): Promise<Recipe[] | undefined> {
     try {
-      const params: any = {};
+      const params: Record<string, string> = {};
       if (user_id) {
-        params.userId = user_id;
+        params['userId'] = user_id;
       }
       return await firstValueFrom(this.http.get<Recipe[]>(`${this.api}/recipes`, { params }));
     } catch {
@@ -138,9 +138,9 @@ export class DataService {
 
   async getPlanning(week: string, group: Group | undefined): Promise<Planning | undefined> {
     try {
-      const params: any = {};
+      const params: Record<string, string> = {};
       if (group) {
-        params.groupId = group.id;
+        params['groupId'] = group.id;
       }
       const data = await firstValueFrom(
         this.http.get<{ startDate: string; recipes: PlannedRecipe[] }>(
@@ -197,8 +197,8 @@ export class DataService {
 
   async getShoppingList(week: string, groupId?: string): Promise<Ingredient[] | undefined> {
     try {
-      const params: any = {};
-      if (groupId) params.groupId = groupId;
+      const params: Record<string, string> = {};
+      if (groupId) params['groupId'] = groupId;
       return await firstValueFrom(
         this.http.get<Ingredient[]>(`${this.api}/planning/${week}/shopping-list`, { params }),
       );
@@ -264,16 +264,25 @@ export class DataService {
     return this.socketService.planningChanges.pipe(
       map((event: PlanningChangeEvent) => {
         if (!event.payload) return undefined;
+        const payload = event.payload as {
+          id: string;
+          user_id: string;
+          recipe_id: string;
+          recipe_name?: string;
+          week: string;
+          day: string;
+          meal: string;
+        };
         return {
           kind: 'recipe' as const,
-          id: event.payload.id,
-          user_id: event.payload.user_id,
-          recipe_id: event.payload.recipe_id,
-          recipe_name: event.payload.recipe_name || '',
-          recipe: undefined as any,
-          week: event.payload.week,
-          day: event.payload.day,
-          meal: event.payload.meal,
+          id: payload.id,
+          user_id: payload.user_id,
+          recipe_id: payload.recipe_id,
+          recipe_name: payload.recipe_name || '',
+          recipe: undefined as unknown as Recipe,
+          week: payload.week,
+          day: payload.day,
+          meal: payload.meal,
         } as PlannedRecipe;
       }),
     );

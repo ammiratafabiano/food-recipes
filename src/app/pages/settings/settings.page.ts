@@ -74,7 +74,7 @@ export class SettingsPage implements OnInit {
     });
   }
 
-  async handleRefresh(event: any) {
+  async handleRefresh(event: Event) {
     await this.getUserStats();
     const target = event.target as HTMLIonRefresherElement | null;
     target?.complete();

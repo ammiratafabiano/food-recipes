@@ -29,7 +29,7 @@ export function buildTestApp(db: Database) {
     }
     try {
       const payload = jwt.verify(token, TEST_SECRET);
-      (req as any).user = payload;
+      req.user = payload as { id: string };
       next();
     } catch {
       res.status(403).json({ error: 'Invalid or expired token' });
@@ -42,7 +42,7 @@ export function buildTestApp(db: Database) {
 
   planningRouter.get('/:week', async (req, res) => {
     try {
-      const me = (req as any).user;
+      const me = req.user as { id: string };
       const groupId = req.query.groupId as string | undefined;
       let userIds = [me.id];
       if (groupId) {
@@ -50,7 +50,7 @@ export function buildTestApp(db: Database) {
           'SELECT user_id FROM group_members WHERE group_id = ?',
           groupId,
         );
-        userIds = members.map((m: any) => m.user_id);
+        userIds = members.map((m: { user_id: string }) => m.user_id);
       }
       const placeholders = userIds.map(() => '?').join(',');
       const rows = await db.all(
@@ -58,25 +58,37 @@ export function buildTestApp(db: Database) {
         req.params.week,
         ...userIds,
       );
-      const items = rows.map((r: any) => ({
-        kind: 'recipe',
-        id: r.id,
-        user_id: r.user_id,
-        recipe_id: r.recipe_id,
-        recipe_name: r.recipe_name || r.recipe_name_lookup || '',
-        week: r.week,
-        day: r.day,
-        meal: r.meal,
-      }));
+      const items = rows.map(
+        (r: {
+          id: string;
+          user_id: string;
+          recipe_id: string;
+          recipe_name: string;
+          recipe_name_lookup: string;
+          week: string;
+          day: string;
+          meal: string;
+        }) => ({
+          kind: 'recipe',
+          id: r.id,
+          user_id: r.user_id,
+          recipe_id: r.recipe_id,
+          recipe_name: r.recipe_name || r.recipe_name_lookup || '',
+          week: r.week,
+          day: r.day,
+          meal: r.meal,
+        }),
+      );
       res.json({ startDate: req.params.week, recipes: items });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).json({ error: message });
     }
   });
 
   planningRouter.post('/', async (req, res) => {
     try {
-      const me = (req as any).user;
+      const me = req.user as { id: string };
       const { recipe_id, recipe_name, week, day, meal } = req.body;
       const id = crypto.randomUUID();
       await db.run(
@@ -99,8 +111,9 @@ export function buildTestApp(db: Database) {
         day,
         meal,
       });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).json({ error: message });
     }
   });
 
@@ -114,8 +127,9 @@ export function buildTestApp(db: Database) {
         req.params.id,
       );
       res.json({ success: true });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).json({ error: message });
     }
   });
 
@@ -123,14 +137,15 @@ export function buildTestApp(db: Database) {
     try {
       await db.run('DELETE FROM planning WHERE id = ?', req.params.id);
       res.json({ success: true });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).json({ error: message });
     }
   });
 
   planningRouter.get('/:week/shopping-list', async (req, res) => {
     try {
-      const me = (req as any).user;
+      const me = req.user as { id: string };
       const groupId = req.query.groupId as string | undefined;
       let userIds = [me.id];
       if (groupId) {
@@ -138,7 +153,7 @@ export function buildTestApp(db: Database) {
           'SELECT user_id FROM group_members WHERE group_id = ?',
           groupId,
         );
-        userIds = members.map((m: any) => m.user_id);
+        userIds = members.map((m: { user_id: string }) => m.user_id);
       }
       const placeholders = userIds.map(() => '?').join(',');
       const rows = await db.all(
@@ -148,7 +163,10 @@ export function buildTestApp(db: Database) {
         req.params.week,
         ...userIds,
       );
-      const map: Record<string, any> = {};
+      const map: Record<
+        string,
+        { id: string; name: string; quantity: { value: number; unit: string } }
+      > = {};
       for (const r of rows) {
         const key = r.name || r.food_id || crypto.randomUUID();
         if (map[key]) {
@@ -162,8 +180,9 @@ export function buildTestApp(db: Database) {
         }
       }
       res.json(Object.values(map));
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).json({ error: message });
     }
   });
 
@@ -173,7 +192,7 @@ export function buildTestApp(db: Database) {
 
   groupsRouter.get('/mine', async (req, res) => {
     try {
-      const me = (req as any).user;
+      const me = req.user as { id: string };
       const row = await db.get(
         `SELECT g.id FROM groups_table g JOIN group_members gm ON gm.group_id = g.id WHERE gm.user_id = ? LIMIT 1`,
         me.id,
@@ -183,27 +202,29 @@ export function buildTestApp(db: Database) {
         return;
       }
       const members = await db.all('SELECT user_id FROM group_members WHERE group_id = ?', row.id);
-      res.json({ id: row.id, users: members.map((m: any) => m.user_id) });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      res.json({ id: row.id, users: members.map((m: { user_id: string }) => m.user_id) });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).json({ error: message });
     }
   });
 
   groupsRouter.post('/', async (req, res) => {
     try {
-      const me = (req as any).user;
+      const me = req.user as { id: string };
       const id = crypto.randomUUID();
       await db.run('INSERT INTO groups_table (id) VALUES (?)', id);
       await db.run('INSERT INTO group_members (group_id, user_id) VALUES (?, ?)', id, me.id);
       res.json({ id, users: [me.id] });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).json({ error: message });
     }
   });
 
   groupsRouter.post('/:id/join', async (req, res) => {
     try {
-      const me = (req as any).user;
+      const me = req.user as { id: string };
       await db.run(
         'INSERT OR IGNORE INTO group_members (group_id, user_id) VALUES (?, ?)',
         req.params.id,
@@ -213,15 +234,16 @@ export function buildTestApp(db: Database) {
         'SELECT user_id FROM group_members WHERE group_id = ?',
         req.params.id,
       );
-      res.json({ id: req.params.id, users: members.map((m: any) => m.user_id) });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      res.json({ id: req.params.id, users: members.map((m: { user_id: string }) => m.user_id) });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).json({ error: message });
     }
   });
 
   groupsRouter.post('/:id/leave', async (req, res) => {
     try {
-      const me = (req as any).user;
+      const me = req.user as { id: string };
       await db.run(
         'DELETE FROM group_members WHERE group_id = ? AND user_id = ?',
         req.params.id,
@@ -231,9 +253,10 @@ export function buildTestApp(db: Database) {
         'SELECT user_id FROM group_members WHERE group_id = ?',
         req.params.id,
       );
-      res.json({ id: req.params.id, users: members.map((m: any) => m.user_id) });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      res.json({ id: req.params.id, users: members.map((m: { user_id: string }) => m.user_id) });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).json({ error: message });
     }
   });
 

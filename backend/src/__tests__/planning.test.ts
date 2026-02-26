@@ -124,7 +124,7 @@ describe('GET /planning/:week', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.recipes).toHaveLength(2);
-    const recipeIds = res.body.recipes.map((r: any) => r.recipe_id);
+    const recipeIds = res.body.recipes.map((r: { recipe_id: string }) => r.recipe_id);
     expect(recipeIds).toContain(recipe1.id);
     expect(recipeIds).toContain(recipe2.id);
   });
@@ -227,7 +227,9 @@ describe('PUT /planning/:id', () => {
       .get('/planning/2026-03-02')
       .set('Authorization', `Bearer ${token1}`);
 
-    const updated = check.body.recipes.find((r: any) => r.id === planId);
+    const updated = check.body.recipes.find(
+      (r: { id: string; day: string; meal: string }) => r.id === planId,
+    );
     expect(updated.day).toBe('TUE');
     expect(updated.meal).toBe('DINNER');
   });
@@ -245,7 +247,9 @@ describe('PUT /planning/:id', () => {
       .get('/planning/2026-03-02')
       .set('Authorization', `Bearer ${token1}`);
 
-    const updated = check.body.recipes.find((r: any) => r.id === planId);
+    const updated = check.body.recipes.find(
+      (r: { id: string; day: string | null; meal: string | null }) => r.id === planId,
+    );
     expect(updated.day).toBeNull();
     expect(updated.meal).toBeNull();
   });
@@ -305,7 +309,7 @@ describe('GET /planning/:week/shopping-list', () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(2);
-    const names = res.body.map((i: any) => i.name);
+    const names = res.body.map((i: { name: string }) => i.name);
     expect(names).toContain('Tomato');
     expect(names).toContain('Pasta');
   });
@@ -323,7 +327,9 @@ describe('GET /planning/:week/shopping-list', () => {
       .set('Authorization', `Bearer ${token1}`);
 
     expect(res.status).toBe(200);
-    const tomato = res.body.find((i: any) => i.name === 'Tomato');
+    const tomato = res.body.find(
+      (i: { name: string; quantity: { value: number } }) => i.name === 'Tomato',
+    );
     expect(tomato).toBeDefined();
     expect(tomato.quantity.value).toBe(350);
   });
@@ -345,7 +351,9 @@ describe('GET /planning/:week/shopping-list', () => {
       .set('Authorization', `Bearer ${token1}`);
 
     expect(res.status).toBe(200);
-    const eggs = res.body.find((i: any) => i.name === 'Eggs');
+    const eggs = res.body.find(
+      (i: { name: string; quantity: { value: number } }) => i.name === 'Eggs',
+    );
     expect(eggs).toBeDefined();
     expect(eggs.quantity.value).toBe(7);
   });

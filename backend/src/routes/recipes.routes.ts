@@ -7,7 +7,21 @@ import { authenticateToken, JwtPayload } from '../auth.middleware';
 export const recipesRouter = express.Router();
 recipesRouter.use(authenticateToken);
 
-async function buildRecipe(recipeRow: any, userId?: string) {
+async function buildRecipe(
+  recipeRow: {
+    id: string;
+    user_id: string;
+    name: string;
+    description?: string;
+    cuisine?: string;
+    type?: string;
+    time_value?: number;
+    time_unit?: string;
+    difficulty?: string;
+    servings?: number;
+  },
+  userId?: string,
+) {
   const db = await getDB();
   const ingredients = await db.all(
     'SELECT * FROM recipe_ingredients WHERE recipe_id = ? ORDER BY sort_order',
@@ -40,13 +54,24 @@ async function buildRecipe(recipeRow: any, userId?: string) {
     type: recipeRow.type || 'OTHER',
     time: { value: recipeRow.time_value, unit: recipeRow.time_unit || 'MINUTE' },
     difficulty: recipeRow.difficulty || 'EASY',
-    ingredients: ingredients.map((i: any) => ({
-      id: i.food_id || i.id,
-      name: i.name,
-      quantity: { value: i.quantity_value, unit: i.quantity_unit },
+    ingredients: ingredients.map(
+      (i: {
+        id: string;
+        food_id?: string;
+        name: string;
+        quantity_value?: number;
+        quantity_unit?: string;
+      }) => ({
+        id: i.food_id || i.id,
+        name: i.name,
+        quantity: { value: i.quantity_value, unit: i.quantity_unit },
+      }),
+    ),
+    steps: steps.map((s: { text: string; image_url?: string }) => ({
+      text: s.text,
+      imageUrl: s.image_url || '',
     })),
-    steps: steps.map((s: any) => ({ text: s.text, imageUrl: s.image_url || '' })),
-    tags: tagRows.map((t: any) => t.tag),
+    tags: tagRows.map((t: { tag: string }) => t.tag),
     servings: recipeRow.servings || 4,
     isAdded,
   };
@@ -54,8 +79,8 @@ async function buildRecipe(recipeRow: any, userId?: string) {
 
 async function saveRecipeDetails(
   recipeId: string,
-  ingredients: any[],
-  steps: any[],
+  ingredients: { id?: string; name: string; quantity?: { value?: number; unit?: string } }[],
+  steps: { text: string; imageUrl?: string }[],
   tags: string[],
 ) {
   const db = await getDB();
@@ -97,50 +122,98 @@ async function saveRecipeDetails(
 
 recipesRouter.get('/', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const userId = (req.query.userId as string) || me.id;
     const db = await getDB();
     const rows = await db.all(
       'SELECT * FROM recipes WHERE user_id = ? ORDER BY created_at DESC',
       userId,
     );
-    const recipes = await Promise.all(rows.map((r: any) => buildRecipe(r, me.id)));
+    const recipes = await Promise.all(
+      rows.map(
+        (r: {
+          id: string;
+          user_id: string;
+          name: string;
+          description?: string;
+          cuisine?: string;
+          type?: string;
+          time_value?: number;
+          time_unit?: string;
+          difficulty?: string;
+          servings?: number;
+        }) => buildRecipe(r, me.id),
+      ),
+    );
     res.json(recipes);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 recipesRouter.get('/saved', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     const rows = await db.all(
       `SELECT r.* FROM recipes r JOIN saved_recipes sr ON sr.recipe_id = r.id WHERE sr.user_id = ? ORDER BY sr.created_at DESC`,
       me.id,
     );
-    const recipes = await Promise.all(rows.map((r: any) => buildRecipe(r, me.id)));
+    const recipes = await Promise.all(
+      rows.map(
+        (r: {
+          id: string;
+          user_id: string;
+          name: string;
+          description?: string;
+          cuisine?: string;
+          type?: string;
+          time_value?: number;
+          time_unit?: string;
+          difficulty?: string;
+          servings?: number;
+        }) => buildRecipe(r, me.id),
+      ),
+    );
     res.json(recipes);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 recipesRouter.get('/discover', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     const rows = await db.all('SELECT * FROM recipes ORDER BY created_at DESC LIMIT 50');
-    const recipes = await Promise.all(rows.map((r: any) => buildRecipe(r, me.id)));
+    const recipes = await Promise.all(
+      rows.map(
+        (r: {
+          id: string;
+          user_id: string;
+          name: string;
+          description?: string;
+          cuisine?: string;
+          type?: string;
+          time_value?: number;
+          time_unit?: string;
+          difficulty?: string;
+          servings?: number;
+        }) => buildRecipe(r, me.id),
+      ),
+    );
     res.json(recipes);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 recipesRouter.get('/:id', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     const row = await db.get('SELECT * FROM recipes WHERE id = ?', req.params.id);
     if (!row) {
@@ -149,14 +222,15 @@ recipesRouter.get('/:id', async (req, res) => {
     }
     const recipe = await buildRecipe(row, me.id);
     res.json(recipe);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 recipesRouter.post('/', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const {
       name,
       description,
@@ -188,14 +262,15 @@ recipesRouter.post('/', async (req, res) => {
     await saveRecipeDetails(id, ingredients, steps, tags);
     const recipe = await buildRecipe(await db.get('SELECT * FROM recipes WHERE id = ?', id), me.id);
     res.json({ data: recipe });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 recipesRouter.put('/:id', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const {
       name,
       description,
@@ -232,8 +307,9 @@ recipesRouter.put('/:id', async (req, res) => {
     );
     await saveRecipeDetails(req.params.id, ingredients, steps, tags);
     res.json({ success: true });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
@@ -242,14 +318,15 @@ recipesRouter.delete('/:id', async (req, res) => {
     const db = await getDB();
     await db.run('DELETE FROM recipes WHERE id = ?', req.params.id);
     res.json({ success: true });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 recipesRouter.post('/:id/save', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     await db.run(
       'INSERT OR IGNORE INTO saved_recipes (user_id, recipe_id) VALUES (?, ?)',
@@ -257,14 +334,15 @@ recipesRouter.post('/:id/save', async (req, res) => {
       req.params.id,
     );
     res.json({ success: true });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 recipesRouter.delete('/:id/save', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     await db.run(
       'DELETE FROM saved_recipes WHERE user_id = ? AND recipe_id = ?',
@@ -272,7 +350,8 @@ recipesRouter.delete('/:id/save', async (req, res) => {
       req.params.id,
     );
     res.json({ success: true });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });

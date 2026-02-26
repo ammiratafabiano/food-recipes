@@ -7,21 +7,22 @@ usersRouter.use(authenticateToken);
 
 usersRouter.get('/', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     const users = await db.all(
       'SELECT id, name, email, avatar_url FROM users WHERE id != ?',
       me.id,
     );
     res.json(users);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 usersRouter.get('/:id', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     const user = await db.get(
       'SELECT id, name, email, avatar_url FROM users WHERE id = ?',
@@ -38,8 +39,9 @@ usersRouter.get('/:id', async (req, res) => {
     );
     user.isFollowed = !!followed;
     res.json(user);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
@@ -61,14 +63,15 @@ usersRouter.get('/:id/stats', async (req, res) => {
       followers: followers?.c || 0,
       followed: followed?.c || 0,
     });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 usersRouter.post('/:id/follow', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     await db.run(
       'INSERT OR IGNORE INTO followers (follower_id, followed_id) VALUES (?, ?)',
@@ -76,14 +79,15 @@ usersRouter.post('/:id/follow', async (req, res) => {
       req.params.id,
     );
     res.json({ success: true });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });
 
 usersRouter.delete('/:id/follow', async (req, res) => {
   try {
-    const me = (req as any).user as JwtPayload;
+    const me = req.user as JwtPayload;
     const db = await getDB();
     await db.run(
       'DELETE FROM followers WHERE follower_id = ? AND followed_id = ?',
@@ -91,7 +95,8 @@ usersRouter.delete('/:id/follow', async (req, res) => {
       req.params.id,
     );
     res.json({ success: true });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
   }
 });

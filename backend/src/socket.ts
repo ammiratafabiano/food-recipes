@@ -24,7 +24,7 @@ export function initSocketIO(httpServer: HttpServer) {
     if (!token) return next(new Error('Missing auth token'));
     try {
       const payload = await keyStore.verifyToken(token);
-      (socket as any).user = payload;
+      (socket as Socket & { user?: JwtPayload }).user = payload;
       next();
     } catch {
       next(new Error('Invalid or expired token'));
@@ -32,7 +32,7 @@ export function initSocketIO(httpServer: HttpServer) {
   });
 
   io.on('connection', async (socket: Socket) => {
-    const user = (socket as any).user as JwtPayload;
+    const user = (socket as Socket & { user?: JwtPayload }).user as JwtPayload;
 
     // Auto-join the user's group room (if they belong to a group)
     try {
@@ -65,7 +65,7 @@ export function initSocketIO(httpServer: HttpServer) {
 export function emitPlanningChange(
   groupId: string,
   event: 'planning:added' | 'planning:updated' | 'planning:deleted',
-  payload: any,
+  payload: unknown,
 ) {
   if (!io) return;
   io.to(`group:${groupId}`).emit(event, payload);

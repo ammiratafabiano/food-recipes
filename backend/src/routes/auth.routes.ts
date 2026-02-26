@@ -72,9 +72,10 @@ authRouter.post('/google', async (req, res) => {
       refreshToken,
       user: { id: user.id, name: user.name, email: user.email, avatar_url: user.avatar_url || '' },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Google auth error:', err);
-    res.status(401).json({ error: 'Google authentication failed: ' + (err.message || '') });
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(401).json({ error: 'Google authentication failed: ' + message });
   }
 });
 
@@ -101,7 +102,7 @@ authRouter.post('/refresh', async (req, res) => {
 
 authRouter.get('/me', authenticateToken, async (req, res) => {
   try {
-    const { id } = (req as any).user as JwtPayload;
+    const { id } = req.user as JwtPayload;
     const db = await getDB();
     const user = await db.get('SELECT id, name, email, avatar_url FROM users WHERE id = ?', id);
     if (!user) {
@@ -109,18 +110,20 @@ authRouter.get('/me', authenticateToken, async (req, res) => {
       return;
     }
     res.json(user);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message || 'Internal error' });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message || 'Internal error' });
   }
 });
 
 authRouter.delete('/me', authenticateToken, async (req, res) => {
   try {
-    const { id } = (req as any).user as JwtPayload;
+    const { id } = req.user as JwtPayload;
     const db = await getDB();
     await db.run('DELETE FROM users WHERE id = ?', id);
     res.json({ success: true });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message || 'Internal error' });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message || 'Internal error' });
   }
 });
