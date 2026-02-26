@@ -32,28 +32,28 @@ export class LoginPage {
   private readonly navigationService = inject(NavigationService);
 
   /** Show fallback Google button only when One Tap fails */
-  readonly showFallbackButton = signal(false);
+  readonly showFallbackButton = signal(true);
 
   constructor() {
     this.init();
   }
 
   async ionViewDidEnter() {
-    this.showFallbackButton.set(false);
+    // Render the fallback button immediately so the user doesn't have to wait
+    // if One Tap is blocked (e.g. in incognito mode).
+    // We use a single callback for both the button and One Tap.
+    const handleCredential = async (response: { credential?: string }) => {
+      if (response.credential) {
+        await this.handleGoogleCredential(response.credential);
+      }
+    };
 
-    // Try automatic One Tap sign-in first
-    try {
-      const credential = await this.authService.promptGoogleOneTap();
-      await this.handleGoogleCredential(credential);
-    } catch {
-      // One Tap not available or dismissed → show the button as fallback
-      this.showFallbackButton.set(true);
-      this.authService.renderGoogleButton('google-btn-container', async (response) => {
-        if (response.credential) {
-          await this.handleGoogleCredential(response.credential);
-        }
-      });
-    }
+    // Render the button
+    this.authService.renderGoogleButton('google-btn-container', handleCredential);
+
+    // Try automatic One Tap sign-in in the background
+    // It will use the same callback if it succeeds
+    this.authService.promptGoogleOneTap(handleCredential);
   }
 
   private async handleGoogleCredential(credential: string) {

@@ -20,7 +20,7 @@ import { DataService } from 'src/app/services/data.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { environment } from 'src/environments/environment';
-import { copyToClipboard } from 'src/app/utils/clipboard';
+import { shareOrCopy } from 'src/app/utils/clipboard';
 
 @Component({
   selector: 'app-group-management',
@@ -109,8 +109,10 @@ export class GroupManagementPage {
     const group = this.group();
     if (!group) return;
     const link = environment.siteUrl + '?group=' + group.id;
-    await copyToClipboard(link);
-    const text = this.translateService.instant('COMMON.CLIPBOARD');
-    this.alertService.presentInfoPopup(text);
+    const result = await shareOrCopy(link, 'Food Recipes Group');
+    if (result === 'copied') {
+      const text = this.translateService.instant('COMMON.CLIPBOARD');
+      this.alertService.presentInfoPopup(text);
+    }
   }
 }

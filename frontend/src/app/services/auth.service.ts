@@ -128,41 +128,23 @@ export class AuthService {
 
   /**
    * Initialise GSI and try the One Tap automatic prompt.
-   * Returns a promise that resolves with the credential on success,
-   * or rejects if the user dismisses / the browser blocks the prompt.
    */
-  promptGoogleOneTap(): Promise<string> {
-    return new Promise((resolve, reject) => {
-      if (typeof google === 'undefined' || !google.accounts) {
-        reject(new Error('GSI SDK not loaded'));
-        return;
-      }
+  promptGoogleOneTap(callback?: (response: { credential?: string }) => void): void {
+    if (typeof google === 'undefined' || !google.accounts) {
+      return;
+    }
 
-      let resolved = false;
-
-      google.accounts.id.initialize({
-        client_id: environment.googleClientId,
-        use_fedcm_for_prompt: true,
-        callback: (response: { credential?: string }) => {
-          resolved = true;
-          if (response.credential) {
-            resolve(response.credential);
-          } else {
-            reject(new Error('No credential in response'));
-          }
-        },
-      });
-
-      google.accounts.id.prompt();
-
-      // Fallback: if no credential after timeout, reject so the caller
-      // can show the standard Google Sign-In button instead.
-      setTimeout(() => {
-        if (!resolved) {
-          reject(new Error('prompt_timeout'));
-        }
-      }, 5000);
+    // We don't need to call initialize again if renderGoogleButton already did it,
+    // but calling it again is safe and ensures the callback is set.
+    google.accounts.id.initialize({
+      client_id: environment.googleClientId,
+      use_fedcm_for_prompt: true,
+      callback: (response: { credential?: string }) => {
+        if (callback) callback(response);
+      },
     });
+
+    google.accounts.id.prompt();
   }
 
   /** Render the Google Sign-In button as a visible fallback */
@@ -175,6 +157,7 @@ export class AuthService {
       return;
     }
 
+    // Initialize again to ensure the callback is bound to this button
     google.accounts.id.initialize({
       client_id: environment.googleClientId,
       use_fedcm_for_prompt: true,

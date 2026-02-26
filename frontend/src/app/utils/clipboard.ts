@@ -1,4 +1,31 @@
 /**
+ * Tries to use the native Web Share API (ideal for mobile).
+ * If unavailable or fails, falls back to copying to clipboard.
+ */
+export async function shareOrCopy(
+  text: string,
+  title?: string,
+): Promise<'shared' | 'copied' | 'failed' | 'cancelled'> {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: title || 'Food Recipes',
+        url: text,
+      });
+      return 'shared';
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        return 'cancelled';
+      }
+      // Fall through to clipboard
+    }
+  }
+
+  const copied = await copyToClipboard(text);
+  return copied ? 'copied' : 'failed';
+}
+
+/**
  * Copy text to the clipboard with a robust fallback for older browsers,
  * iOS Safari, and contexts where navigator.clipboard is unavailable.
  *
