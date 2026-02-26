@@ -82,7 +82,7 @@ export class AlertService {
   private async presentGenericPopup(
     header = 'COMMON.GENERIC_ALERT.WARNING_HEADER',
     message = 'COMMON.GENERIC_ALERT.MESSAGE',
-    inputs?: AlertInput[],
+    inputs: AlertInput[] = [],
     buttons?: AlertButton[],
   ): Promise<void> {
     return this.alertController
