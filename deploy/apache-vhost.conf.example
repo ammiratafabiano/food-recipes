@@ -1,0 +1,53 @@
+<VirtualHost *:80>
+    ServerName recipes.ammiratafabiano.dev
+    ServerAlias api.recipes.ammiratafabiano.dev
+
+    # Redirect all HTTP traffic to HTTPS
+    RewriteEngine on
+    RewriteCond %{SERVER_NAME} =recipes.ammiratafabiano.dev [OR]
+    RewriteCond %{SERVER_NAME} =api.recipes.ammiratafabiano.dev
+    RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [END,NE,R=permanent]
+</VirtualHost>
+
+<IfModule mod_ssl.c>
+    # ==========================================
+    # FRONTEND (recipes.ammiratafabiano.dev)
+    # ==========================================
+    <VirtualHost *:443>
+        ServerName recipes.ammiratafabiano.dev
+
+        # Proxy requests to the Docker frontend container (port 8080)
+        ProxyPreserveHost On
+        ProxyPass / http://127.0.0.1:8080/
+        ProxyPassReverse / http://127.0.0.1:8080/
+
+        # SSL Configuration (managed by Certbot)
+        SSLCertificateFile /etc/letsencrypt/live/recipes.ammiratafabiano.dev/fullchain.pem
+        SSLCertificateKeyFile /etc/letsencrypt/live/recipes.ammiratafabiano.dev/privkey.pem
+        Include /etc/letsencrypt/options-ssl-apache.conf
+    </VirtualHost>
+
+    # ==========================================
+    # BACKEND API (api.recipes.ammiratafabiano.dev)
+    # ==========================================
+    <VirtualHost *:443>
+        ServerName api.recipes.ammiratafabiano.dev
+
+        # Proxy requests to the Docker backend container (port 3000)
+        ProxyPreserveHost On
+        
+        # Enable WebSocket proxying for Socket.IO
+        RewriteEngine On
+        RewriteCond %{HTTP:Upgrade} =websocket [NC]
+        RewriteRule /(.*)           ws://127.0.0.1:3000/$1 [P,L]
+        RewriteCond %{HTTP:Upgrade} !=websocket [NC]
+        RewriteRule /(.*)           http://127.0.0.1:3000/$1 [P,L]
+
+        ProxyPassReverse / http://127.0.0.1:3000/
+
+        # SSL Configuration (managed by Certbot)
+        SSLCertificateFile /etc/letsencrypt/live/api.recipes.ammiratafabiano.dev/fullchain.pem
+        SSLCertificateKeyFile /etc/letsencrypt/live/api.recipes.ammiratafabiano.dev/privkey.pem
+        Include /etc/letsencrypt/options-ssl-apache.conf
+    </VirtualHost>
+</IfModule>
