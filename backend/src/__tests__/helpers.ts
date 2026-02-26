@@ -50,7 +50,8 @@ export async function setupTestDB(): Promise<Database> {
     );
     CREATE TABLE IF NOT EXISTS foods (
       id TEXT PRIMARY KEY, name TEXT NOT NULL, default_unit TEXT DEFAULT 'GRAM',
-      created_by TEXT, FOREIGN KEY(created_by) REFERENCES users(id) ON DELETE SET NULL
+      created_by TEXT, kcal REAL, protein REAL, fat REAL, carbs REAL, fiber REAL,
+      FOREIGN KEY(created_by) REFERENCES users(id) ON DELETE SET NULL
     );
     CREATE TABLE IF NOT EXISTS planning (
       id TEXT PRIMARY KEY, recipe_id TEXT NOT NULL, recipe_name TEXT NOT NULL DEFAULT '',
