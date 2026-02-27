@@ -24,7 +24,8 @@
       <ion-label> {{ item.name }} </ion-label>
       @if (item.quantity.value) {
       <ion-label class="quantity-label">
-        {{ item.quantity.value }}{{ 'COMMON.WEIGHT_UNITS.' + item.quantity.unit | translate }}
+        {{ item.quantity.value }}{{ item.quantity.unit ? ('COMMON.WEIGHT_UNITS.' +
+        item.quantity.unit | translate) : '' }}
       </ion-label>
       } @else {
       <ion-label class="quantity-label"> {{ 'COMMON.MISSING_QUANTITY' | translate }} </ion-label>
