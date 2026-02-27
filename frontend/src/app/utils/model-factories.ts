@@ -10,7 +10,6 @@ import { RecipeType } from '../models/recipe-type.enum';
 import { Recipe } from '../models/recipe.model';
 import { Step } from '../models/step.model';
 import { UserData, UserStats } from '../models/user-data.model';
-import { WeightUnit } from '../models/unit.enum';
 
 export const createQuantity = (overrides: Partial<Quantity> = {}): Quantity => ({
   value: undefined,
@@ -21,7 +20,7 @@ export const createQuantity = (overrides: Partial<Quantity> = {}): Quantity => (
 export const createIngredient = (overrides: Partial<Ingredient> = {}): Ingredient => ({
   id: '',
   name: '',
-  quantity: createQuantity({ unit: WeightUnit.Gram }),
+  quantity: createQuantity(),
   ...overrides,
 });
 

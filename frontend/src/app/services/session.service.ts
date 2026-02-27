@@ -10,6 +10,7 @@ export class SessionService {
   private readonly SESSION_TOKEN_KEY = 'sessionToken';
   private readonly SESSION_REFRESH_TOKEN_KEY = 'sessionRefreshToken';
   private readonly LOGIN_REDIRECT_KEY = 'loginRedirect';
+  private readonly PENDING_GROUP_KEY = 'pendingGroupId';
 
   readonly foodList = signal<Ingredient[] | undefined>(undefined);
   readonly storedUser = signal<UserData | undefined>(this.getInitialUser());
@@ -19,6 +20,9 @@ export class SessionService {
   );
   readonly loginRedirect = signal<string | undefined>(
     this.getStorage(this.LOGIN_REDIRECT_KEY) ?? undefined,
+  );
+  readonly pendingGroupId = signal<string | undefined>(
+    this.getStorage(this.PENDING_GROUP_KEY) ?? undefined,
   );
 
   constructor() {}
@@ -55,6 +59,11 @@ export class SessionService {
   setLoginRedirect(v: string | undefined) {
     this.loginRedirect.set(v);
     this.setStorage(this.LOGIN_REDIRECT_KEY, v);
+  }
+
+  setPendingGroupId(v: string | undefined) {
+    this.pendingGroupId.set(v);
+    this.setStorage(this.PENDING_GROUP_KEY, v);
   }
 
   clearSession() {

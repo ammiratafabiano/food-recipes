@@ -141,6 +141,7 @@ planningRouter.put('/:id', async (req: any, res) => {
         servings: servings || 1,
         assignedTo: assignedTo || null,
         week: updated.week,
+        user_id: me.id,
       });
       emitShoppingListInvalidate(groupId, updated.week);
     }
@@ -161,7 +162,11 @@ planningRouter.delete('/:id', async (req: any, res) => {
     // Real-time: notify group members
     const groupId = await findUserGroupId(me.id);
     if (groupId && item) {
-      emitPlanningChange(groupId, 'planning:deleted', { id: req.params.id, week: item.week });
+      emitPlanningChange(groupId, 'planning:deleted', {
+        id: req.params.id,
+        week: item.week,
+        user_id: me.id,
+      });
       emitShoppingListInvalidate(groupId, item.week);
     }
   } catch (err: unknown) {

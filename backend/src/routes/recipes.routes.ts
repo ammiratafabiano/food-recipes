@@ -109,7 +109,7 @@ async function saveRecipeDetails(
       ing.id || null,
       ing.name,
       ing.quantity?.value ?? null,
-      ing.quantity?.unit ?? 'GRAM',
+      ing.quantity?.unit || null,
       i,
     );
   }

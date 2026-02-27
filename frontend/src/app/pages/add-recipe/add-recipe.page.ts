@@ -129,7 +129,7 @@ export class AddRecipePage implements OnInit {
   }
 
   async onBackClicked() {
-    return this.navigationService.pop();
+    return this.navigationService.goToPreviousPage();
   }
 
   async onVariantChange(event: CustomEvent<{ checked?: boolean }>) {
@@ -294,9 +294,9 @@ export class AddRecipePage implements OnInit {
     await this.loadingService.withLoader(async () => {
       try {
         await this.dataService.addRecipe(this.selectedRecipe());
-        this.navigationService.pop({ needToRefresh: true });
+        this.navigationService.goToPreviousPage({ needToRefresh: true });
       } catch {
-        this.navigationService.pop();
+        this.navigationService.goToPreviousPage();
       }
     });
   }
@@ -305,26 +305,14 @@ export class AddRecipePage implements OnInit {
     await this.loadingService.withLoader(async () => {
       try {
         await this.dataService.editRecipe(this.selectedRecipe(), this.stepsOfImagesToDelete);
-        this.navigationService.pop({ needToRefresh: true });
+        this.navigationService.goToPreviousPage({ needToRefresh: true });
       } catch {
-        this.navigationService.pop();
+        this.navigationService.goToPreviousPage();
       }
     });
   }
 
   async onCancelClicked() {
-    return this.navigationService.setRoot(
-      [
-        NavigationPath.Base,
-        NavigationPath.Home,
-        HomeNavigationPath.RecipeList,
-        RecipeListNavigationPath.Recipe,
-      ],
-      {
-        queryParams: {
-          id: this.selectedRecipe().id,
-        },
-      },
-    );
+    return this.navigationService.goToPreviousPage();
   }
 }

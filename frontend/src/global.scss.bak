@@ -25,15 +25,33 @@
 @import '@ionic/angular/css/text-transformation.css';
 @import '@ionic/angular/css/flex-utils.css';
 
-/* ── Bugfix: Rimuove globalmente il contorno blu da focus-visible (bug noto al primo click) ── */
-:focus-visible {
+/* ── Fix: remove blue focus outline on action-sheet / alert buttons ── */
+ion-action-sheet button:focus,
+ion-action-sheet button:focus-visible,
+ion-alert button:focus,
+ion-alert button:focus-visible,
+ion-action-sheet .action-sheet-button:focus,
+ion-action-sheet .action-sheet-button:focus-visible,
+ion-alert .alert-button:focus,
+ion-alert .alert-button:focus-visible {
   outline: none !important;
+  box-shadow: none !important;
 }
 
-.ion-focused {
+/* Shadow DOM parts — Ionic 7+ exposes parts on overlays */
+ion-action-sheet::part(button):focus,
+ion-action-sheet::part(button):focus-visible,
+ion-alert::part(button):focus,
+ion-alert::part(button):focus-visible {
   outline: none !important;
+  box-shadow: none !important;
 }
 
-* {
-  -webkit-tap-highlight-color: transparent !important;
+/* Blanket safety-net: any Ionic overlay button */
+.action-sheet-group button:focus,
+.action-sheet-group button:focus-visible,
+.alert-button-group button:focus,
+.alert-button-group button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }

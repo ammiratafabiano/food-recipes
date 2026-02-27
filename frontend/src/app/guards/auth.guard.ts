@@ -18,7 +18,16 @@ export const authGuard = () => {
       if (user !== 0) {
         return true;
       } else {
-        sessionService.setLoginRedirect(router.routerState.snapshot.url);
+        const currentUrl = router.routerState.snapshot.url;
+        sessionService.setLoginRedirect(currentUrl);
+
+        // Preserve ?group= query param so the login page can handle group invites
+        const urlTree = router.parseUrl(currentUrl);
+        const groupId = urlTree.queryParams['group'];
+        if (groupId) {
+          sessionService.setPendingGroupId(groupId);
+        }
+
         return router.createUrlTree(['/login']);
       }
     }),

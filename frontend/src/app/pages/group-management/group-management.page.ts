@@ -16,6 +16,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Group } from 'src/app/models/group.model';
 import { AlertService } from 'src/app/services/alert.service';
+import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { NavigationService } from 'src/app/services/navigation.service';
@@ -50,12 +51,20 @@ export class GroupManagementPage {
   private readonly navigationService = inject(NavigationService);
   private readonly translateService = inject(TranslateService);
   private readonly alertService = inject(AlertService);
+  private readonly authService = inject(AuthService);
 
   newGroupId?: string;
   readonly group = signal<Group | undefined>(undefined);
   readonly dataLoaded = signal<boolean>(false);
 
+  /** Map of userId → display name for group members */
+  readonly userNameMap = signal<Record<string, string>>({});
+
   readonly trackByUserId = (_: number, userId: string) => userId;
+
+  getUserName(userId: string): string {
+    return this.userNameMap()[userId] || userId;
+  }
 
   constructor() {}
 
@@ -68,8 +77,31 @@ export class GroupManagementPage {
     await this.loadingService.withLoader(async () => {
       const group = await this.dataService.retrieveGroup();
       this.group.set(group);
+      if (group) {
+        await this.resolveUserNames(group);
+      }
     });
     this.dataLoaded.set(true);
+  }
+
+  private async resolveUserNames(group: Group) {
+    const currentUser = this.authService.getCurrentUser();
+    const users = await this.dataService.getUsers();
+    const nameMap: Record<string, string> = {};
+
+    // Current user
+    if (currentUser) {
+      nameMap[currentUser.id] = currentUser.name;
+    }
+
+    // Other users
+    if (users) {
+      for (const u of users) {
+        nameMap[u.id] = u.name;
+      }
+    }
+
+    this.userNameMap.set(nameMap);
   }
 
   async onBackClicked() {

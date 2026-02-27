@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AlertController } from '@ionic/angular';
 import { IonContent, IonSpinner } from '@ionic/angular/standalone';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { filter, forkJoin, take } from 'rxjs';
 import { NavigationPath } from 'src/app/models/navigation-path.enum';
 import { AlertService } from 'src/app/services/alert.service';
@@ -11,6 +12,8 @@ import { LoadingService } from 'src/app/services/loading.service';
 import { LoggingService } from 'src/app/services/logging.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { SessionService } from 'src/app/services/session.service';
+
+declare const google: { accounts: unknown } | undefined;
 
 @Component({
   selector: 'app-login',
@@ -24,6 +27,8 @@ export class LoginPage {
   private readonly authService = inject(AuthService);
   private readonly loadingService = inject(LoadingService);
   private readonly alertService = inject(AlertService);
+  private readonly alertCtrl = inject(AlertController);
+  private readonly translateService = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly sessionService = inject(SessionService);
   private readonly route = inject(ActivatedRoute);
@@ -39,21 +44,40 @@ export class LoginPage {
   }
 
   async ionViewDidEnter() {
-    // Render the fallback button immediately so the user doesn't have to wait
-    // if One Tap is blocked (e.g. in incognito mode).
-    // We use a single callback for both the button and One Tap.
     const handleCredential = async (response: { credential?: string }) => {
       if (response.credential) {
         await this.handleGoogleCredential(response.credential);
       }
     };
 
+    // Wait for the Google Identity Services SDK to load before rendering
+    await this.waitForGoogleSdk();
+
     // Render the button
     this.authService.renderGoogleButton('google-btn-container', handleCredential);
 
     // Try automatic One Tap sign-in in the background
-    // It will use the same callback if it succeeds
     this.authService.promptGoogleOneTap(handleCredential);
+  }
+
+  /**
+   * Polls until the Google Identity Services SDK (`google.accounts`) is
+   * available, with a max wait of 5 seconds.
+   */
+  private waitForGoogleSdk(timeout = 5000): Promise<void> {
+    return new Promise((resolve) => {
+      if (typeof google !== 'undefined' && google?.accounts) {
+        resolve();
+        return;
+      }
+      const start = Date.now();
+      const interval = setInterval(() => {
+        if ((typeof google !== 'undefined' && google?.accounts) || Date.now() - start > timeout) {
+          clearInterval(interval);
+          resolve();
+        }
+      }, 100);
+    });
   }
 
   private async handleGoogleCredential(credential: string) {
@@ -80,12 +104,14 @@ export class LoginPage {
     }).subscribe((response) => {
       const isLogged = !!response.user;
       const params = response.params;
-      if (params['group'] && isLogged) {
+
+      // Save ?group= to session for handling after login
+      if (params['group']) {
         this.loggingService.Info('AppComponent', 'Query String Param', 'group: ' + params['group']);
-        const group_id: string = params['group'];
-        this.joinGroup(group_id);
-        this.handleLoginNavigation();
-      } else if (params['recipe']) {
+        this.sessionService.setPendingGroupId(params['group']);
+      }
+
+      if (params['recipe']) {
         this.loggingService.Info(
           'AppComponent',
           'Query String Param',
@@ -118,14 +144,54 @@ export class LoginPage {
     return this.route.queryParams.pipe(take(1));
   }
 
-  private handleLoginNavigation() {
+  private async handleLoginNavigation() {
+    // Check if there's a pending group invite
+    const pendingGroupId = this.sessionService.pendingGroupId();
+    if (pendingGroupId) {
+      this.sessionService.setPendingGroupId(undefined);
+      await this.confirmAndJoinGroup(pendingGroupId);
+    }
+
     const loginRedirect = this.sessionService.loginRedirect();
     if (loginRedirect) {
-      this.router.navigateByUrl(loginRedirect, { replaceUrl: true }).then(() => {
+      // Strip ?group= from redirect URL to avoid re-triggering
+      const cleanUrl = this.stripGroupParam(loginRedirect);
+      this.router.navigateByUrl(cleanUrl || '/home', { replaceUrl: true }).then(() => {
         this.sessionService.setLoginRedirect(undefined);
       });
     } else {
       this.router.navigateByUrl('/home', { replaceUrl: true });
+    }
+  }
+
+  private stripGroupParam(url: string): string {
+    try {
+      const urlTree = this.router.parseUrl(url);
+      delete urlTree.queryParams['group'];
+      return urlTree.toString();
+    } catch {
+      return url;
+    }
+  }
+
+  private async confirmAndJoinGroup(group_id: string) {
+    const alert = await this.alertCtrl.create({
+      message: this.translateService.instant('GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM'),
+      buttons: [
+        {
+          text: this.translateService.instant('GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON'),
+          role: 'confirm',
+        },
+        {
+          text: this.translateService.instant('COMMON.GENERIC_ALERT.CANCEL_BUTTON'),
+          role: 'cancel',
+        },
+      ],
+    });
+    await alert.present();
+    const { role } = await alert.onDidDismiss();
+    if (role === 'confirm') {
+      await this.joinGroup(group_id);
     }
   }
 

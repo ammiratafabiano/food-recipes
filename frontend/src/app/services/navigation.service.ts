@@ -34,7 +34,15 @@ export class NavigationService {
   push(path: string, navigationData?: NavigationData): Promise<void> {
     this.logService.Info('NavigationService', 'push', 'page=' + JSON.stringify(path));
     const from = this.currentUrl.split('/');
-    const to = [...from, path];
+    let to = [...from];
+    const pathParts = path.split('/');
+    for (const part of pathParts) {
+      if (part === '..') {
+        to.pop();
+      } else if (part !== '.' && part !== '') {
+        to.push(part);
+      }
+    }
     if (navigationData) {
       let navigationStackElement = createNavigationStackElement({
         to: to.join('/'),

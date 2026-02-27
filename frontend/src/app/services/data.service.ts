@@ -168,15 +168,17 @@ export class DataService {
     week: string,
     day?: WeekDay,
     meal?: Meal,
+    group?: Group,
   ): Promise<PlannedRecipe | undefined> {
     try {
+      const servings = this.computeGroupServings(recipe, group);
       const body = {
         recipe_id: recipe.id,
         recipe_name: recipe.name,
         week,
         day,
         meal,
-        servings: recipe.servings || 1,
+        servings,
       };
       const planned = await firstValueFrom(
         this.http.post<PlannedRecipe>(`${this.api}/planning`, body),
@@ -187,18 +189,43 @@ export class DataService {
     }
   }
 
+  /**
+   * Calculates the right serving count for a group.
+   * Target = number of group members. If that number isn't
+   * reachable via minServings + N * splitServings, pick the
+   * next valid value that is >= target.
+   */
+  private computeGroupServings(recipe: Recipe, group?: Group): number {
+    const groupSize = group?.users?.length ?? 1;
+    const minServings = recipe.minServings || 1;
+    const splitServings = recipe.splitServings || 1;
+
+    if (groupSize <= minServings) return minServings;
+
+    // Find the smallest valid value >= groupSize
+    // Valid values: minServings, minServings + splitServings, minServings + 2*splitServings, ...
+    const stepsNeeded = Math.ceil((groupSize - minServings) / splitServings);
+    return minServings + stepsNeeded * splitServings;
+  }
+
   async deletePlanning(planning_id: string) {
-    return firstValueFrom(this.http.delete(`${this.api}/planning/${planning_id}`));
+    const context = new HttpContext().set(SKIP_LOADING, true);
+    return firstValueFrom(this.http.delete(`${this.api}/planning/${planning_id}`, { context }));
   }
 
   async editPlanning(planned_recipe: PlannedRecipe) {
+    const context = new HttpContext().set(SKIP_LOADING, true);
     return firstValueFrom(
-      this.http.put(`${this.api}/planning/${planned_recipe.id}`, {
-        day: planned_recipe.day,
-        meal: planned_recipe.meal,
-        servings: planned_recipe.servings,
-        assignedTo: planned_recipe.assignedTo,
-      }),
+      this.http.put(
+        `${this.api}/planning/${planned_recipe.id}`,
+        {
+          day: planned_recipe.day,
+          meal: planned_recipe.meal,
+          servings: planned_recipe.servings,
+          assignedTo: planned_recipe.assignedTo,
+        },
+        { context },
+      ),
     );
   }
 
@@ -218,9 +245,12 @@ export class DataService {
 
   // ── Groups ─────────────────────────────────────────
 
-  async retrieveGroup(): Promise<Group | undefined> {
+  async retrieveGroup(skipLoading = false): Promise<Group | undefined> {
     try {
-      const group = await firstValueFrom(this.http.get<Group | null>(`${this.api}/groups/mine`));
+      const context = skipLoading ? new HttpContext().set(SKIP_LOADING, true) : undefined;
+      const group = await firstValueFrom(
+        this.http.get<Group | null>(`${this.api}/groups/mine`, context ? { context } : undefined),
+      );
       return group ?? undefined;
     } catch {
       return undefined;

@@ -143,6 +143,8 @@ export class PlanningPage implements OnDestroy {
     this.realtimeSub?.unsubscribe();
     this.realtimeSub = this.dataService.planningChanges$.subscribe((planned) => {
       const currentPlanning = this.planning();
+      const currentUser = this.authService.getCurrentUser();
+      if (planned && currentUser && planned.user_id === currentUser.id) return;
       if (planned && currentPlanning) {
         const updated = currentPlanning.startDate && currentPlanning.startDate == planned.week;
         const deleted =
@@ -157,7 +159,7 @@ export class PlanningPage implements OnDestroy {
 
   private async getData(startDate?: string, skipLoading = false) {
     const fetchTask = async () => {
-      const group = await this.dataService.retrieveGroup();
+      const group = await this.dataService.retrieveGroup(skipLoading);
       this.group.set(group);
       if (!startDate) startDate = dayjs().startOf('week').format('YYYY-MM-DD');
       const response = await this.dataService.getPlanning(startDate, group, skipLoading);
@@ -211,8 +213,7 @@ export class PlanningPage implements OnDestroy {
       newRecipes.splice(ev.detail.to, 0, element);
 
       const previous = newRecipes[ev.detail.to - 1];
-      const newDay =
-        ev.detail.to > 0 && previous?.kind === 'separator' ? previous.day : element.day;
+      const newDay = ev.detail.to > 0 ? previous?.day : undefined;
 
       const updatedElement = { ...element, day: newDay };
       newRecipes[ev.detail.to] = updatedElement;
@@ -230,7 +231,7 @@ export class PlanningPage implements OnDestroy {
   }
 
   async handleRefresh(event: CustomEvent) {
-    await this.getData(this.planning()?.startDate);
+    await this.getData(this.planning()?.startDate, true);
     const target = event.target as HTMLIonRefresherElement | null;
     target?.complete();
   }
@@ -252,28 +253,31 @@ export class PlanningPage implements OnDestroy {
   }
 
   async onRemoveRecipeClicked(plannedRecipe: PlannedRecipe) {
-    await this.loadingService.withLoader(async () => {
-      await this.dataService.deletePlanning(plannedRecipe.id);
-      const currentPlanning = this.planning();
-      if (currentPlanning) {
-        this.planning.set({
-          ...currentPlanning,
-          recipes: currentPlanning.recipes.filter(
-            (r) => r.kind !== 'recipe' || r.id !== plannedRecipe.id,
-          ),
-        });
-      }
+    const currentPlanning = this.planning();
+    if (!currentPlanning) return;
+
+    // Optimistic UI: remove immediately, rollback on error
+    const backup = currentPlanning.recipes;
+    this.planning.set({
+      ...currentPlanning,
+      recipes: currentPlanning.recipes.filter(
+        (r) => r.kind !== 'recipe' || r.id !== plannedRecipe.id,
+      ),
+    });
+
+    this.dataService.deletePlanning(plannedRecipe.id).catch(() => {
+      this.planning.set({ ...currentPlanning, recipes: backup });
     });
   }
 
   async onPlanningBackClicked() {
     const startDate = dayjs(this.planning()?.startDate).subtract(1, 'week').format('YYYY-MM-DD');
-    this.getData(startDate);
+    this.getData(startDate, true);
   }
 
   async onPlanningForwardClicked() {
     const startDate = dayjs(this.planning()?.startDate).add(1, 'week').format('YYYY-MM-DD');
-    this.getData(startDate);
+    this.getData(startDate, true);
   }
 
   async onPlannedRecipeClicked(plannedRecipe: PlannedRecipe) {
@@ -483,8 +487,13 @@ export class PlanningPage implements OnDestroy {
       const selectedValues: string[] = data.values;
       let newAssignedTo: string | null = null;
 
-      // Se tutti sono selezionati, o se nessuno è selezionato, assegniamo a tutti (null)
-      if (selectedValues.length === groupUsers.length || selectedValues.length === 0) {
+      // Se nessuno è selezionato, non procedere (trattare come annullamento)
+      if (selectedValues.length === 0) {
+        return;
+      }
+
+      // Se tutti sono selezionati, assegniamo a tutti (null)
+      if (selectedValues.length === groupUsers.length) {
         newAssignedTo = null;
       } else {
         newAssignedTo = selectedValues.join(',');

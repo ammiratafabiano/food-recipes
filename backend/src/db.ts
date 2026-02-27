@@ -183,8 +183,7 @@ export async function getDB(): Promise<Database> {
     // Column might already exist
   }
 
-  // Migration: default NULL quantity_unit to GRAM
-  await db.run(`UPDATE recipe_ingredients SET quantity_unit = 'GRAM' WHERE quantity_unit IS NULL`);
+  // NOTE: NULL quantity_unit is now allowed (e.g. for items like eggs counted as PIECE).
   dbInstance = db;
   return db;
 }

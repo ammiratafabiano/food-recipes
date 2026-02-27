@@ -46,7 +46,8 @@
         "LEAVE_GROUP": "Gruppo attuale",
         "LEAVE_GROUP_BUTTON": "Lascia gruppo",
         "SEPARATOR": "Oppure",
-        "ADDED_GROUP_ALERT": "Ora fai parte di un gruppo!"
+        "ADDED_GROUP_ALERT": "Ora fai parte di un gruppo!",
+        "JOIN_GROUP_CONFIRM": "Sei stato invitato a unirti a un gruppo. Vuoi partecipare?"
     },
     "RECIPE_PAGE": {
         "TITLE": "Ricetta",
@@ -137,7 +138,8 @@
             "GRAM": "g",
             "KILO": "kg",
             "LITER": "l",
-            "MILLILITER": "ml"
+            "MILLILITER": "ml",
+            "PIECE": "pz"
         },
         "TIME_UNITS": {
             "MINUTE": "minuti",

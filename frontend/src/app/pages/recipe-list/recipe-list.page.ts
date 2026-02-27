@@ -213,7 +213,14 @@ export class RecipeListPage {
     await actionSheet.present();
     const result = await actionSheet.onDidDismiss();
     if (result?.data?.action) {
-      const res = await this.dataService.addToPlanning(recipe, result.data.action);
+      const group = await this.dataService.retrieveGroup();
+      const res = await this.dataService.addToPlanning(
+        recipe,
+        result.data.action,
+        undefined,
+        undefined,
+        group,
+      );
       if (res) {
         this.navigationService.setRoot(
           [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],

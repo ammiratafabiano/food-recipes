@@ -47,7 +47,8 @@
         "LEAVE_GROUP": "Current group",
         "LEAVE_GROUP_BUTTON": "Leave group",
         "SEPARATOR": "Or",
-        "ADDED_GROUP_ALERT": "You are now part of a group!"
+        "ADDED_GROUP_ALERT": "You are now part of a group!",
+        "JOIN_GROUP_CONFIRM": "You have been invited to join a group. Would you like to join?"
     },
     "RECIPE_PAGE": {
         "TITLE": "Recipe",
@@ -71,7 +72,7 @@
         "TIME_QUANTITY_PLACEHOLDER": "Duration",
         "DIFFICULTY_PLACEHOLDER": "Difficulty",
         "INGREDIENTS_PLACEHOLDER": "Ingredient",
-        "INGREDIENTS_QUANTITY_PLACEHOLDER": "q.s.",
+        "INGREDIENTS_QUANTITY_PLACEHOLDER": "to taste",
         "UNIT_PLACEHOLDER": "Unit",
         "UNIT_RESET": "Reset",
         "SERVINGS": "Servings"
@@ -133,12 +134,13 @@
         "INGREDIENTS": "Ingredients",
         "STEPS": "Steps",
         "STEP_INDEX": "#{{i}}",
-        "MISSING_QUANTITY": "q.s.",
+        "MISSING_QUANTITY": "to taste",
         "WEIGHT_UNITS": {
             "GRAM": "g",
             "KILO": "kg",
             "LITER": "l",
-            "MILLILITER": "ml"
+            "MILLILITER": "ml",
+            "PIECE": "pcs"
         },
         "TIME_UNITS": {
             "MINUTE": "minutes",

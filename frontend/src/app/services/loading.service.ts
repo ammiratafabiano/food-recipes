@@ -8,43 +8,66 @@ export class LoadingService {
   private readonly loadingCtrl = inject(LoadingController);
   private activeRequests = 0;
   private loadingElement: HTMLIonLoadingElement | null = null;
-  private isCreating = false;
+
+  /**
+   * Promise chain that serializes all create/dismiss operations
+   * so that they never overlap and cause stale references.
+   */
+  private opChain: Promise<void> = Promise.resolve();
 
   async withLoader<T>(task: () => Promise<T>): Promise<T> {
-    await this.start();
+    this.start();
     let result: Promise<T>;
     try {
       result = task();
     } catch (error) {
-      await this.stop();
+      this.stop();
       return Promise.reject(error);
     }
     return result.finally(() => this.stop());
   }
 
-  async start() {
+  start(): void {
     this.activeRequests++;
-    if (this.activeRequests === 1 && !this.isCreating) {
-      this.isCreating = true;
-      this.loadingElement = await this.loadingCtrl.create({
-        spinner: 'crescent',
-      });
-      await this.loadingElement.present();
-      this.isCreating = false;
-
-      // Se nel frattempo le richieste sono scese a 0, chiudiamo subito
-      if (this.activeRequests <= 0) {
-        await this.loadingElement.dismiss();
-        this.loadingElement = null;
-      }
+    if (this.activeRequests === 1) {
+      this.opChain = this.opChain.then(() => this.showIfNeeded());
     }
   }
 
-  async stop() {
+  stop(): void {
     this.activeRequests = Math.max(0, this.activeRequests - 1);
-    if (this.activeRequests === 0 && this.loadingElement && !this.isCreating) {
-      await this.loadingElement.dismiss();
-      this.loadingElement = null;
+    if (this.activeRequests === 0) {
+      this.opChain = this.opChain.then(() => this.hideIfNeeded());
+    }
+  }
+
+  private async showIfNeeded(): Promise<void> {
+    // Double-check: another stop() may have fired before this runs
+    if (this.activeRequests <= 0 || this.loadingElement) return;
+    try {
+      const el = await this.loadingCtrl.create({ spinner: 'crescent' });
+      // Re-check after async gap
+      if (this.activeRequests <= 0) {
+        el.dismiss().catch(() => {});
+        return;
+      }
+      this.loadingElement = el;
+      await el.present();
+    } catch {
+      // Ionic loading creation failed — nothing to do
+    }
+  }
+
+  private async hideIfNeeded(): Promise<void> {
+    // Double-check: another start() may have fired before this runs
+    if (this.activeRequests > 0) return;
+    const el = this.loadingElement;
+    if (!el) return;
+    this.loadingElement = null;
+    try {
+      await el.dismiss();
+    } catch {
+      // Already dismissed or not attached — ignore
     }
   }
 }

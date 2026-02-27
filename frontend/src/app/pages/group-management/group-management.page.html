@@ -16,7 +16,7 @@
     <ion-label>{{ 'GROUP_MANAGEMENT_PAGE.GROUP_ID' | translate }} {{ groupData.id }}</ion-label>
     <ion-list>
       @for (user of groupData.users; track trackByUserId($index, user)) {
-      <ion-item> {{ user }} </ion-item>
+      <ion-item> {{ getUserName(user) }} </ion-item>
       }
     </ion-list>
     <ion-button (click)="onLeaveGroupClicked()">
@@ -47,7 +47,7 @@
       [(ngModel)]="newGroupId"
     >
     </ion-input>
-    <ion-button (click)="onJoinGroupClicked()">
+    <ion-button [disabled]="!newGroupId || newGroupId.length < 8" (click)="onJoinGroupClicked()">
       {{ 'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON' | translate }}
     </ion-button>
   </div>

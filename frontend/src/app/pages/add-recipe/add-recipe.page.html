@@ -1,11 +1,11 @@
 <ion-header>
   <ion-toolbar>
+    @if (!isEdit() || selectedRecipe().variantId) {
     <ion-buttons slot="start">
       <ion-button (click)="onBackClicked()">
         <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    @if (!isEdit() || selectedRecipe().variantId) {
     <ion-title>{{ 'ADD_RECIPE_PAGE.TITLE' | translate }}</ion-title>
     } @if (isEdit() && !selectedRecipe().variantId) {
     <ion-title>{{ 'ADD_RECIPE_PAGE.EDIT_TITLE' | translate }}</ion-title>

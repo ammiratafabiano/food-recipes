@@ -3,6 +3,7 @@ export enum WeightUnit {
   Kilo = 'KILO',
   Liter = 'LITER',
   Milliliter = 'MILLILITER',
+  Piece = 'PIECE',
 }
 
 export enum TimeUnit {

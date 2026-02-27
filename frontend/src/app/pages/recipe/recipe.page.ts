@@ -126,19 +126,19 @@ export class RecipePage implements OnInit {
   }
 
   async onEditClicked() {
-    this.navigationService.setRoot(
-      [
-        NavigationPath.Base,
-        NavigationPath.Home,
-        HomeNavigationPath.RecipeList,
-        RecipeListNavigationPath.AddRecipe,
-      ],
-      {
-        params: {
-          recipe: this.recipe(),
-        },
+    this.navigationService.push('../' + RecipeListNavigationPath.AddRecipe, {
+      params: {
+        recipe: this.recipe(),
       },
-    );
+      dismissCallback: (params?: unknown) => {
+        const typedParams = params as { needToRefresh?: boolean } | undefined;
+        if (typedParams?.needToRefresh) {
+          const recipeId = this.recipe()?.id;
+          if (recipeId) this.getRecipe(recipeId);
+        }
+        return Promise.resolve();
+      },
+    });
   }
 
   async onShareClicked() {
@@ -249,7 +249,14 @@ export class RecipePage implements OnInit {
     const result = await actionSheet.onDidDismiss();
     if (result?.data?.action) {
       const recipeToAdd = { ...currentRecipe, servings: this.currentMultiplier() };
-      const res = await this.dataService.addToPlanning(recipeToAdd, result.data.action);
+      const group = await this.dataService.retrieveGroup();
+      const res = await this.dataService.addToPlanning(
+        recipeToAdd,
+        result.data.action,
+        undefined,
+        undefined,
+        group,
+      );
       if (res) {
         this.navigationService.setRoot(
           [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],
