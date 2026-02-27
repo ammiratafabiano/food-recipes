@@ -10,6 +10,7 @@ foodsRouter.use(authenticateToken);
 // ── GET /foods ──────────────────────────────────────
 foodsRouter.get('/', async (req, res) => {
   try {
+    const lang = req.acceptsLanguages('it', 'en') || 'en';
     const db = await getDB();
     const foods = await db.all('SELECT * FROM foods ORDER BY name');
     res.json(
@@ -17,6 +18,7 @@ foodsRouter.get('/', async (req, res) => {
         (f: {
           id: string;
           name: string;
+          name_it?: string;
           default_unit: string;
           kcal: number | null;
           protein: number | null;
@@ -25,7 +27,7 @@ foodsRouter.get('/', async (req, res) => {
           fiber: number | null;
         }) => ({
           id: f.id,
-          name: f.name,
+          name: lang === 'it' ? f.name_it || f.name : f.name,
           quantity: { unit: f.default_unit },
           kcal: f.kcal,
           protein: f.protein,

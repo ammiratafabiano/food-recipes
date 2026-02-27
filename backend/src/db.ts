@@ -93,6 +93,7 @@ export async function getDB(): Promise<Database> {
     CREATE TABLE IF NOT EXISTS foods (
       id            TEXT PRIMARY KEY,
       name          TEXT NOT NULL,
+      name_it       TEXT,
       default_unit  TEXT DEFAULT 'GRAM',
       created_by    TEXT,
       kcal          REAL,
@@ -150,6 +151,13 @@ export async function getDB(): Promise<Database> {
     }
   }
 
+  // Migrations: add name_it column
+  try {
+    await db.run('ALTER TABLE foods ADD COLUMN name_it TEXT');
+  } catch (e) {
+    // Column might already exist
+  }
+
   dbInstance = db;
   return db;
 }
@@ -163,6 +171,7 @@ export async function seedFoods() {
     {
       id: 'f1',
       name: 'Tomato',
+      name_it: 'Pomodoro',
       unit: 'KILO',
       kcal: 18,
       protein: 0.9,
@@ -173,6 +182,7 @@ export async function seedFoods() {
     {
       id: 'f2',
       name: 'Onion',
+      name_it: 'Cipolla',
       unit: 'KILO',
       kcal: 40,
       protein: 1.1,
@@ -183,6 +193,7 @@ export async function seedFoods() {
     {
       id: 'f3',
       name: 'Garlic',
+      name_it: 'Aglio',
       unit: 'GRAM',
       kcal: 149,
       protein: 6.4,
@@ -193,6 +204,7 @@ export async function seedFoods() {
     {
       id: 'f4',
       name: 'Pasta',
+      name_it: 'Pasta',
       unit: 'GRAM',
       kcal: 158,
       protein: 5.8,
@@ -203,6 +215,7 @@ export async function seedFoods() {
     {
       id: 'f5',
       name: 'Eggs',
+      name_it: 'Uova',
       unit: 'PIECE',
       kcal: 155,
       protein: 12.6,
@@ -213,6 +226,7 @@ export async function seedFoods() {
     {
       id: 'f6',
       name: 'Cheese',
+      name_it: 'Formaggio',
       unit: 'GRAM',
       kcal: 402,
       protein: 25.0,
@@ -223,6 +237,7 @@ export async function seedFoods() {
     {
       id: 'f7',
       name: 'Bacon',
+      name_it: 'Pancetta',
       unit: 'GRAM',
       kcal: 541,
       protein: 37.0,
@@ -233,6 +248,7 @@ export async function seedFoods() {
     {
       id: 'f8',
       name: 'Flour',
+      name_it: 'Farina',
       unit: 'KILO',
       kcal: 364,
       protein: 10.3,
@@ -243,6 +259,7 @@ export async function seedFoods() {
     {
       id: 'f9',
       name: 'Milk',
+      name_it: 'Latte',
       unit: 'LITER',
       kcal: 61,
       protein: 3.2,
@@ -253,6 +270,7 @@ export async function seedFoods() {
     {
       id: 'f10',
       name: 'Butter',
+      name_it: 'Burro',
       unit: 'GRAM',
       kcal: 717,
       protein: 0.9,
@@ -263,6 +281,7 @@ export async function seedFoods() {
     {
       id: 'f11',
       name: 'Sugar',
+      name_it: 'Zucchero',
       unit: 'KILO',
       kcal: 387,
       protein: 0.0,
@@ -273,6 +292,7 @@ export async function seedFoods() {
     {
       id: 'f12',
       name: 'Chicken',
+      name_it: 'Pollo',
       unit: 'KILO',
       kcal: 165,
       protein: 31.0,
@@ -283,6 +303,7 @@ export async function seedFoods() {
     {
       id: 'f13',
       name: 'Rice',
+      name_it: 'Riso',
       unit: 'KILO',
       kcal: 130,
       protein: 2.7,
@@ -293,6 +314,7 @@ export async function seedFoods() {
     {
       id: 'f14',
       name: 'Potato',
+      name_it: 'Patata',
       unit: 'KILO',
       kcal: 77,
       protein: 2.0,
@@ -303,6 +325,7 @@ export async function seedFoods() {
     {
       id: 'f15',
       name: 'Carrot',
+      name_it: 'Carota',
       unit: 'KILO',
       kcal: 41,
       protein: 0.9,
@@ -313,6 +336,7 @@ export async function seedFoods() {
     {
       id: 'f16',
       name: 'Olive oil',
+      name_it: "Olio d'oliva",
       unit: 'MILLILITER',
       kcal: 884,
       protein: 0.0,
@@ -323,6 +347,7 @@ export async function seedFoods() {
     {
       id: 'f17',
       name: 'Salt',
+      name_it: 'Sale',
       unit: 'GRAM',
       kcal: 0,
       protein: 0.0,
@@ -333,6 +358,7 @@ export async function seedFoods() {
     {
       id: 'f18',
       name: 'Black pepper',
+      name_it: 'Pepe nero',
       unit: 'GRAM',
       kcal: 251,
       protein: 10.4,
@@ -343,6 +369,7 @@ export async function seedFoods() {
     {
       id: 'f19',
       name: 'Lemon',
+      name_it: 'Limone',
       unit: 'PIECE',
       kcal: 29,
       protein: 1.1,
@@ -353,6 +380,7 @@ export async function seedFoods() {
     {
       id: 'f20',
       name: 'Apple',
+      name_it: 'Mela',
       unit: 'PIECE',
       kcal: 52,
       protein: 0.3,
@@ -363,6 +391,7 @@ export async function seedFoods() {
     {
       id: 'f21',
       name: 'Banana',
+      name_it: 'Banana',
       unit: 'PIECE',
       kcal: 89,
       protein: 1.1,
@@ -373,6 +402,7 @@ export async function seedFoods() {
     {
       id: 'f22',
       name: 'Beef',
+      name_it: 'Manzo',
       unit: 'KILO',
       kcal: 250,
       protein: 26.1,
@@ -383,6 +413,7 @@ export async function seedFoods() {
     {
       id: 'f23',
       name: 'Pork',
+      name_it: 'Maiale',
       unit: 'KILO',
       kcal: 242,
       protein: 27.0,
@@ -393,6 +424,7 @@ export async function seedFoods() {
     {
       id: 'f24',
       name: 'Salmon',
+      name_it: 'Salmone',
       unit: 'GRAM',
       kcal: 208,
       protein: 20.4,
@@ -403,6 +435,7 @@ export async function seedFoods() {
     {
       id: 'f25',
       name: 'Spinach',
+      name_it: 'Spinaci',
       unit: 'GRAM',
       kcal: 23,
       protein: 2.9,
@@ -413,6 +446,7 @@ export async function seedFoods() {
     {
       id: 'f26',
       name: 'Broccoli',
+      name_it: 'Broccoli',
       unit: 'GRAM',
       kcal: 34,
       protein: 2.8,
@@ -423,6 +457,7 @@ export async function seedFoods() {
     {
       id: 'f27',
       name: 'Bread',
+      name_it: 'Pane',
       unit: 'GRAM',
       kcal: 265,
       protein: 9.0,
@@ -433,6 +468,7 @@ export async function seedFoods() {
     {
       id: 'f28',
       name: 'Mozzarella',
+      name_it: 'Mozzarella',
       unit: 'GRAM',
       kcal: 280,
       protein: 18.0,
@@ -443,6 +479,7 @@ export async function seedFoods() {
     {
       id: 'f29',
       name: 'Parmigiano',
+      name_it: 'Parmigiano',
       unit: 'GRAM',
       kcal: 392,
       protein: 32.3,
@@ -453,6 +490,7 @@ export async function seedFoods() {
     {
       id: 'f30',
       name: 'Cream',
+      name_it: 'Panna',
       unit: 'MILLILITER',
       kcal: 340,
       protein: 2.1,
@@ -463,6 +501,7 @@ export async function seedFoods() {
     {
       id: 'f31',
       name: 'Yogurt',
+      name_it: 'Yogurt',
       unit: 'GRAM',
       kcal: 61,
       protein: 3.5,
@@ -473,6 +512,7 @@ export async function seedFoods() {
     {
       id: 'f32',
       name: 'Lentils',
+      name_it: 'Lenticchie',
       unit: 'GRAM',
       kcal: 116,
       protein: 9.0,
@@ -483,6 +523,7 @@ export async function seedFoods() {
     {
       id: 'f33',
       name: 'Chickpeas',
+      name_it: 'Ceci',
       unit: 'GRAM',
       kcal: 164,
       protein: 8.9,
@@ -493,6 +534,7 @@ export async function seedFoods() {
     {
       id: 'f34',
       name: 'Eggplant',
+      name_it: 'Melanzana',
       unit: 'KILO',
       kcal: 25,
       protein: 1.0,
@@ -503,6 +545,7 @@ export async function seedFoods() {
     {
       id: 'f35',
       name: 'Zucchini',
+      name_it: 'Zucchina',
       unit: 'KILO',
       kcal: 17,
       protein: 1.2,
@@ -513,6 +556,7 @@ export async function seedFoods() {
     {
       id: 'f36',
       name: 'Bell pepper',
+      name_it: 'Peperone',
       unit: 'PIECE',
       kcal: 31,
       protein: 1.0,
@@ -523,6 +567,7 @@ export async function seedFoods() {
     {
       id: 'f37',
       name: 'Mushroom',
+      name_it: 'Fungo',
       unit: 'GRAM',
       kcal: 22,
       protein: 3.1,
@@ -533,6 +578,7 @@ export async function seedFoods() {
     {
       id: 'f38',
       name: 'Celery',
+      name_it: 'Sedano',
       unit: 'GRAM',
       kcal: 16,
       protein: 0.7,
@@ -543,6 +589,7 @@ export async function seedFoods() {
     {
       id: 'f39',
       name: 'Orange',
+      name_it: 'Arancia',
       unit: 'PIECE',
       kcal: 47,
       protein: 0.9,
@@ -553,6 +600,7 @@ export async function seedFoods() {
     {
       id: 'f40',
       name: 'Strawberry',
+      name_it: 'Fragola',
       unit: 'GRAM',
       kcal: 32,
       protein: 0.7,
@@ -563,6 +611,7 @@ export async function seedFoods() {
     {
       id: 'f41',
       name: 'Honey',
+      name_it: 'Miele',
       unit: 'GRAM',
       kcal: 304,
       protein: 0.3,
@@ -573,6 +622,7 @@ export async function seedFoods() {
     {
       id: 'f42',
       name: 'Dark chocolate',
+      name_it: 'Cioccolato fondente',
       unit: 'GRAM',
       kcal: 546,
       protein: 5.0,
@@ -583,6 +633,7 @@ export async function seedFoods() {
     {
       id: 'f43',
       name: 'Oats',
+      name_it: 'Avena',
       unit: 'GRAM',
       kcal: 389,
       protein: 16.9,
@@ -593,6 +644,7 @@ export async function seedFoods() {
     {
       id: 'f44',
       name: 'Almond',
+      name_it: 'Mandorla',
       unit: 'GRAM',
       kcal: 579,
       protein: 21.2,
@@ -603,6 +655,7 @@ export async function seedFoods() {
     {
       id: 'f45',
       name: 'Tuna',
+      name_it: 'Tonno',
       unit: 'GRAM',
       kcal: 116,
       protein: 25.5,
@@ -613,10 +666,10 @@ export async function seedFoods() {
   ];
 
   const stmt = await db.prepare(
-    'INSERT INTO foods (id, name, default_unit, kcal, protein, fat, carbs, fiber) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET kcal=excluded.kcal, protein=excluded.protein, fat=excluded.fat, carbs=excluded.carbs, fiber=excluded.fiber',
+    'INSERT INTO foods (id, name, name_it, default_unit, kcal, protein, fat, carbs, fiber) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET name_it=excluded.name_it, kcal=excluded.kcal, protein=excluded.protein, fat=excluded.fat, carbs=excluded.carbs, fiber=excluded.fiber',
   );
   for (const f of defaultFoods) {
-    await stmt.run(f.id, f.name, f.unit, f.kcal, f.protein, f.fat, f.carbs, f.fiber);
+    await stmt.run(f.id, f.name, f.name_it, f.unit, f.kcal, f.protein, f.fat, f.carbs, f.fiber);
   }
   await stmt.finalize();
 }

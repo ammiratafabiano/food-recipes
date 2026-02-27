@@ -21,10 +21,15 @@ async function buildRecipe(
     servings?: number;
   },
   userId?: string,
+  lang: string = 'en',
 ) {
   const db = await getDB();
   const ingredients = await db.all(
-    'SELECT * FROM recipe_ingredients WHERE recipe_id = ? ORDER BY sort_order',
+    `SELECT ri.*, f.name as food_name_en, f.name_it as food_name_it 
+     FROM recipe_ingredients ri 
+     LEFT JOIN foods f ON ri.food_id = f.id 
+     WHERE ri.recipe_id = ? 
+     ORDER BY ri.sort_order`,
     recipeRow.id,
   );
   const steps = await db.all(
@@ -59,11 +64,13 @@ async function buildRecipe(
         id: string;
         food_id?: string;
         name: string;
+        food_name_en?: string;
+        food_name_it?: string;
         quantity_value?: number;
         quantity_unit?: string;
       }) => ({
         id: i.food_id || i.id,
-        name: i.name,
+        name: lang === 'it' ? i.food_name_it || i.name : i.food_name_en || i.name,
         quantity: { value: i.quantity_value, unit: i.quantity_unit },
       }),
     ),
@@ -123,6 +130,7 @@ async function saveRecipeDetails(
 recipesRouter.get('/', async (req, res) => {
   try {
     const me = req.user as JwtPayload;
+    const lang = req.acceptsLanguages('it', 'en') || 'en';
     const userId = (req.query.userId as string) || me.id;
     const db = await getDB();
     const rows = await db.all(
@@ -142,7 +150,7 @@ recipesRouter.get('/', async (req, res) => {
           time_unit?: string;
           difficulty?: string;
           servings?: number;
-        }) => buildRecipe(r, me.id),
+        }) => buildRecipe(r, me.id, lang),
       ),
     );
     res.json(recipes);
@@ -155,6 +163,7 @@ recipesRouter.get('/', async (req, res) => {
 recipesRouter.get('/saved', async (req, res) => {
   try {
     const me = req.user as JwtPayload;
+    const lang = req.acceptsLanguages('it', 'en') || 'en';
     const db = await getDB();
     const rows = await db.all(
       `SELECT r.* FROM recipes r JOIN saved_recipes sr ON sr.recipe_id = r.id WHERE sr.user_id = ? ORDER BY sr.created_at DESC`,
@@ -173,7 +182,7 @@ recipesRouter.get('/saved', async (req, res) => {
           time_unit?: string;
           difficulty?: string;
           servings?: number;
-        }) => buildRecipe(r, me.id),
+        }) => buildRecipe(r, me.id, lang),
       ),
     );
     res.json(recipes);
@@ -186,6 +195,7 @@ recipesRouter.get('/saved', async (req, res) => {
 recipesRouter.get('/discover', async (req, res) => {
   try {
     const me = req.user as JwtPayload;
+    const lang = req.acceptsLanguages('it', 'en') || 'en';
     const db = await getDB();
     const rows = await db.all('SELECT * FROM recipes ORDER BY created_at DESC LIMIT 50');
     const recipes = await Promise.all(
@@ -201,7 +211,7 @@ recipesRouter.get('/discover', async (req, res) => {
           time_unit?: string;
           difficulty?: string;
           servings?: number;
-        }) => buildRecipe(r, me.id),
+        }) => buildRecipe(r, me.id, lang),
       ),
     );
     res.json(recipes);
@@ -214,13 +224,14 @@ recipesRouter.get('/discover', async (req, res) => {
 recipesRouter.get('/:id', async (req, res) => {
   try {
     const me = req.user as JwtPayload;
+    const lang = req.acceptsLanguages('it', 'en') || 'en';
     const db = await getDB();
     const row = await db.get('SELECT * FROM recipes WHERE id = ?', req.params.id);
     if (!row) {
       res.status(404).json({ error: 'Recipe not found' });
       return;
     }
-    const recipe = await buildRecipe(row, me.id);
+    const recipe = await buildRecipe(row, me.id, lang);
     res.json(recipe);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -265,7 +276,8 @@ recipesRouter.post('/', async (req, res) => {
       res.status(404).json({ error: 'Recipe not found after creation' });
       return;
     }
-    const recipe = await buildRecipe(row, me.id);
+    const lang = req.acceptsLanguages('it', 'en') || 'en';
+    const recipe = await buildRecipe(row, me.id, lang);
     res.json({ data: recipe });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';

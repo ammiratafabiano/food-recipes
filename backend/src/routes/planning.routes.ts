@@ -157,6 +157,7 @@ planningRouter.delete('/:id', async (req, res) => {
 planningRouter.get('/:week/shopping-list', async (req, res) => {
   try {
     const me = req.user as JwtPayload;
+    const lang = req.acceptsLanguages('it', 'en') || 'en';
     const groupId = req.query.groupId as string | undefined;
     const db = await getDB();
 
@@ -168,8 +169,10 @@ planningRouter.get('/:week/shopping-list', async (req, res) => {
 
     const placeholders = userIds.map(() => '?').join(',');
     const rows = await db.all(
-      `SELECT ri.food_id, ri.name, ri.quantity_value, ri.quantity_unit
-       FROM planning p JOIN recipe_ingredients ri ON ri.recipe_id = p.recipe_id
+      `SELECT ri.food_id, ri.name, ri.quantity_value, ri.quantity_unit, f.name as food_name_en, f.name_it as food_name_it
+       FROM planning p 
+       JOIN recipe_ingredients ri ON ri.recipe_id = p.recipe_id
+       LEFT JOIN foods f ON ri.food_id = f.id
        WHERE p.week = ? AND p.user_id IN (${placeholders})`,
       req.params.week,
       ...userIds,
@@ -179,13 +182,14 @@ planningRouter.get('/:week/shopping-list', async (req, res) => {
       { id: string; name: string; quantity: { value: number; unit: string } }
     > = {};
     for (const r of rows) {
-      const key = r.name || r.food_id || uuidv4();
+      const translatedName = lang === 'it' ? r.food_name_it || r.name : r.food_name_en || r.name;
+      const key = translatedName || r.food_id || uuidv4();
       if (map[key]) {
         map[key].quantity.value = (map[key].quantity.value || 0) + (r.quantity_value || 0);
       } else {
         map[key] = {
           id: r.food_id || key,
-          name: r.name,
+          name: translatedName,
           quantity: { value: r.quantity_value || 0, unit: r.quantity_unit },
         };
       }
