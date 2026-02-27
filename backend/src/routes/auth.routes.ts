@@ -13,7 +13,7 @@ export const authRouter = express.Router();
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-authRouter.post('/google', async (req, res) => {
+authRouter.post('/google', async (req: any, res) => {
   const { idToken } = req.body;
   if (!idToken) {
     res.status(400).json({ error: 'idToken is required' });
@@ -79,7 +79,7 @@ authRouter.post('/google', async (req, res) => {
   }
 });
 
-authRouter.post('/refresh', async (req, res) => {
+authRouter.post('/refresh', async (req: any, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) {
     res.status(401).json({ error: 'Missing refresh token' });
@@ -100,7 +100,7 @@ authRouter.post('/refresh', async (req, res) => {
   }
 });
 
-authRouter.get('/me', authenticateToken, async (req, res) => {
+authRouter.get('/me', authenticateToken, async (req: any, res) => {
   try {
     const { id } = req.user as JwtPayload;
     const db = await getDB();
@@ -116,7 +116,7 @@ authRouter.get('/me', authenticateToken, async (req, res) => {
   }
 });
 
-authRouter.delete('/me', authenticateToken, async (req, res) => {
+authRouter.delete('/me', authenticateToken, async (req: any, res) => {
   try {
     const { id } = req.user as JwtPayload;
     const db = await getDB();

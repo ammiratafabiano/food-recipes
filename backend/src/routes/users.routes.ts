@@ -5,7 +5,7 @@ import { authenticateToken, JwtPayload } from '../auth.middleware';
 export const usersRouter = express.Router();
 usersRouter.use(authenticateToken);
 
-usersRouter.get('/', async (req, res) => {
+usersRouter.get('/', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
@@ -20,7 +20,7 @@ usersRouter.get('/', async (req, res) => {
   }
 });
 
-usersRouter.get('/:id', async (req, res) => {
+usersRouter.get('/:id', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
@@ -45,7 +45,7 @@ usersRouter.get('/:id', async (req, res) => {
   }
 });
 
-usersRouter.get('/:id/stats', async (req, res) => {
+usersRouter.get('/:id/stats', async (req: any, res) => {
   try {
     const db = await getDB();
     const userId = req.params.id;
@@ -69,7 +69,7 @@ usersRouter.get('/:id/stats', async (req, res) => {
   }
 });
 
-usersRouter.post('/:id/follow', async (req, res) => {
+usersRouter.post('/:id/follow', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
@@ -85,7 +85,7 @@ usersRouter.post('/:id/follow', async (req, res) => {
   }
 });
 
-usersRouter.delete('/:id/follow', async (req, res) => {
+usersRouter.delete('/:id/follow', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();

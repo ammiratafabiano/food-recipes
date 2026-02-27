@@ -157,6 +157,32 @@ export async function getDB(): Promise<Database> {
   } catch (e) {
     // Column might already exist
   }
+  // Migrations: add min_servings and split_servings to recipes
+  try {
+    await db.run('ALTER TABLE recipes ADD COLUMN min_servings INTEGER DEFAULT 1');
+  } catch (e) {
+    // Column might already exist
+  }
+  try {
+    await db.run('ALTER TABLE recipes ADD COLUMN split_servings INTEGER DEFAULT 1');
+  } catch (e) {
+    // Column might already exist
+  }
+
+  // Migrations: add servings and assigned_to to planning
+  try {
+    await db.run('ALTER TABLE planning ADD COLUMN servings INTEGER DEFAULT 1');
+  } catch (e) {
+    // Column might already exist
+  }
+  try {
+    await db.run(
+      'ALTER TABLE planning ADD COLUMN assigned_to TEXT REFERENCES users(id) ON DELETE SET NULL',
+    );
+  } catch (e) {
+    // Column might already exist
+  }
+
   // Migration: default NULL quantity_unit to GRAM
   await db.run(`UPDATE recipe_ingredients SET quantity_unit = 'GRAM' WHERE quantity_unit IS NULL`);
   dbInstance = db;

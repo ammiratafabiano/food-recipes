@@ -104,7 +104,24 @@
       <ion-label>{{ 'ADD_RECIPE_PAGE.SERVINGS' | translate }}</ion-label>
       <ion-input
         [(ngModel)]="recipe.servings"
+        type="number"
         [placeholder]="'ADD_RECIPE_PAGE.SERVINGS' | translate"
+      ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Min Servings</ion-label>
+      <ion-input
+        [(ngModel)]="recipe.minServings"
+        type="number"
+        placeholder="Min Servings"
+      ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Split Servings</ion-label>
+      <ion-input
+        [(ngModel)]="recipe.splitServings"
+        type="number"
+        placeholder="Split Servings"
       ></ion-input>
     </ion-item>
   </ion-list>

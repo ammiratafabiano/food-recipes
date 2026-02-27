@@ -24,4 +24,8 @@ export interface PlannedRecipe {
   week?: string;
   day?: WeekDay;
   meal?: Meal;
+  servings?: number;
+  assignedTo?: string;
+  minServings?: number;
+  splitServings?: number;
 }

@@ -39,6 +39,11 @@ import {
   podium,
   shareSocialOutline,
   timer,
+  restaurantOutline,
+  peopleOutline,
+  person,
+  removeCircleOutline,
+  addCircleOutline,
 } from 'ionicons/icons';
 
 import { AppComponent } from './app/app.component';
@@ -72,6 +77,11 @@ addIcons({
   podium,
   shareSocialOutline,
   timer,
+  restaurantOutline,
+  peopleOutline,
+  person,
+  removeCircleOutline,
+  addCircleOutline,
 });
 
 export function createTranslateLoader(http: HttpClient) {

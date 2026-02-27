@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { ActionSheetController } from '@ionic/angular';
+import { ActionSheetController, AlertController } from '@ionic/angular';
 import { ItemReorderEventDetail } from '@ionic/core';
 import {
   IonButton,
@@ -41,6 +41,7 @@ import {
 } from 'src/app/models/navigation-path.enum';
 import { createPlanning } from 'src/app/utils/model-factories';
 import { LoadingService } from 'src/app/services/loading.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-planning',
@@ -75,7 +76,9 @@ export class PlanningPage implements OnDestroy {
   private readonly loadingService = inject(LoadingService);
   private readonly navigationService = inject(NavigationService);
   private readonly actionSheetCtrl = inject(ActionSheetController);
+  private readonly alertCtrl = inject(AlertController);
   private readonly translateService = inject(TranslateService);
+  private readonly authService = inject(AuthService);
 
   readonly group = signal<Group | undefined>(undefined);
   readonly planning = signal<Planning | undefined>(undefined);
@@ -83,8 +86,35 @@ export class PlanningPage implements OnDestroy {
 
   private realtimeSub: import('rxjs').Subscription | null = null;
 
+  private readonly userColors = new Map<string, string>();
+  private readonly availableColors = [
+    '#FF5733',
+    '#33FF57',
+    '#3357FF',
+    '#FF33A1',
+    '#A133FF',
+    '#33FFA1',
+    '#FF8C33',
+    '#33FF8C',
+    '#8C33FF',
+    '#FF3333',
+  ];
+
   trackByPlanned(index: number, item: PlanningItem) {
     return item.kind === 'recipe' ? item.id : item.day;
+  }
+
+  getAssignedUsers(assignedTo?: string): string[] {
+    if (!assignedTo) return [];
+    return assignedTo.split(',').filter((id) => id.trim() !== '');
+  }
+
+  getUserColor(userId: string): string {
+    if (!this.userColors.has(userId)) {
+      const colorIndex = this.userColors.size % this.availableColors.length;
+      this.userColors.set(userId, this.availableColors[colorIndex]);
+    }
+    return this.userColors.get(userId)!;
   }
 
   constructor() {}
@@ -119,21 +149,27 @@ export class PlanningPage implements OnDestroy {
           !updated &&
           currentPlanning.recipes.find((x) => x.kind === 'recipe' && x.id == planned.id);
         if (updated || deleted) {
-          this.getData(currentPlanning.startDate);
+          this.getData(currentPlanning.startDate, true);
         }
       }
     });
   }
 
-  private async getData(startDate?: string) {
-    return this.loadingService.withLoader(async () => {
+  private async getData(startDate?: string, skipLoading = false) {
+    const fetchTask = async () => {
       const group = await this.dataService.retrieveGroup();
       this.group.set(group);
       if (!startDate) startDate = dayjs().startOf('week').format('YYYY-MM-DD');
-      const response = await this.dataService.getPlanning(startDate, group);
+      const response = await this.dataService.getPlanning(startDate, group, skipLoading);
       this.handleResponse(response);
       this.dataLoaded.set(true);
-    });
+    };
+
+    if (skipLoading) {
+      return fetchTask();
+    } else {
+      return this.loadingService.withLoader(fetchTask);
+    }
   }
 
   private handleResponse(response: Planning | undefined) {
@@ -280,6 +316,193 @@ export class PlanningPage implements OnDestroy {
           () => {
             this.planning.set({ ...currentPlanning, recipes: backup });
             this.sortList();
+          },
+        );
+      }
+    }
+  }
+
+  private servingsUpdateTimeouts = new Map<string, any>();
+
+  private scheduleServingsUpdate(updatedRecipe: PlannedRecipe, backup: PlanningItem[]) {
+    const recipeId = updatedRecipe.id;
+    if (this.servingsUpdateTimeouts.has(recipeId)) {
+      clearTimeout(this.servingsUpdateTimeouts.get(recipeId));
+    }
+
+    const timeout = setTimeout(() => {
+      this.servingsUpdateTimeouts.delete(recipeId);
+      this.dataService.editPlanning(updatedRecipe).then(
+        () => {},
+        () => {
+          const currentPlanning = this.planning();
+          if (currentPlanning) {
+            this.planning.set({ ...currentPlanning, recipes: backup });
+          }
+        },
+      );
+    }, 500);
+
+    this.servingsUpdateTimeouts.set(recipeId, timeout);
+  }
+
+  async onIncreaseServings(plannedRecipe: PlannedRecipe) {
+    const currentPlanning = this.planning();
+    if (!currentPlanning) return;
+
+    const splitServings = plannedRecipe.splitServings || 1;
+    const currentServings = plannedRecipe.servings || 1;
+    const newServings = currentServings + splitServings;
+
+    const backup = currentPlanning.recipes;
+    const updatedRecipe = { ...plannedRecipe, servings: newServings };
+
+    const newRecipes = currentPlanning.recipes.map((r) =>
+      r.kind === 'recipe' && r.id === plannedRecipe.id ? updatedRecipe : r,
+    );
+
+    this.planning.set({ ...currentPlanning, recipes: newRecipes });
+    this.scheduleServingsUpdate(updatedRecipe, backup);
+  }
+
+  async onDecreaseServings(plannedRecipe: PlannedRecipe) {
+    const currentPlanning = this.planning();
+    if (!currentPlanning) return;
+
+    const splitServings = plannedRecipe.splitServings || 1;
+    const minServings = plannedRecipe.minServings || 1;
+    const currentServings = plannedRecipe.servings || 1;
+
+    const newServings = Math.max(minServings, currentServings - splitServings);
+    if (newServings === currentServings) return;
+
+    const backup = currentPlanning.recipes;
+    const updatedRecipe = { ...plannedRecipe, servings: newServings };
+
+    const newRecipes = currentPlanning.recipes.map((r) =>
+      r.kind === 'recipe' && r.id === plannedRecipe.id ? updatedRecipe : r,
+    );
+
+    this.planning.set({ ...currentPlanning, recipes: newRecipes });
+    this.scheduleServingsUpdate(updatedRecipe, backup);
+  }
+
+  async onServingsClicked(plannedRecipe: PlannedRecipe) {
+    const currentPlanning = this.planning();
+    if (!currentPlanning) return;
+
+    const alert = await this.alertCtrl.create({
+      header: 'Modifica porzioni',
+      inputs: [
+        {
+          name: 'servings',
+          type: 'number',
+          value: plannedRecipe.servings || 1,
+          min: plannedRecipe.minServings || 1,
+        },
+      ],
+      buttons: [
+        {
+          text: 'Annulla',
+          role: 'cancel',
+        },
+        {
+          text: 'Salva',
+          role: 'confirm',
+        },
+      ],
+    });
+
+    await alert.present();
+    const { role, data } = await alert.onDidDismiss();
+
+    if (role === 'confirm' && data && data.values && data.values.servings) {
+      const newServings = Number(data.values.servings);
+      if (newServings === plannedRecipe.servings) return;
+
+      const backup = currentPlanning.recipes;
+      const updatedRecipe = { ...plannedRecipe, servings: newServings };
+
+      const newRecipes = currentPlanning.recipes.map((r) =>
+        r.kind === 'recipe' && r.id === plannedRecipe.id ? updatedRecipe : r,
+      );
+
+      this.planning.set({ ...currentPlanning, recipes: newRecipes });
+      this.dataService.editPlanning(updatedRecipe).then(
+        () => {},
+        () => {
+          this.planning.set({ ...currentPlanning, recipes: backup });
+        },
+      );
+    }
+  }
+
+  async onAssignClicked(plannedRecipe: PlannedRecipe) {
+    const group = this.group();
+    if (!group) return;
+
+    const users = await this.dataService.getUsers();
+    const currentUser = this.authService.getCurrentUser();
+    const allUsers = [...(users || [])];
+    if (currentUser) {
+      allUsers.push(currentUser);
+    }
+    const groupUsers = allUsers.filter((u) => group.users.includes(u.id));
+
+    const currentAssigned = this.getAssignedUsers(plannedRecipe.assignedTo);
+    // Se non c'è nessuno assegnato (null/vuoto), significa che è per tutti, quindi pre-selezioniamo tutti
+    const isAssignedToAll = currentAssigned.length === 0;
+
+    const alert = await this.alertCtrl.create({
+      header: 'Assegna a',
+      inputs: [
+        ...groupUsers.map((u) => ({
+          type: 'checkbox' as const,
+          label: u.name,
+          value: u.id,
+          checked: isAssignedToAll || currentAssigned.includes(u.id),
+        })),
+      ],
+      buttons: [
+        {
+          text: 'Annulla',
+          role: 'cancel',
+        },
+        {
+          text: 'Salva',
+          role: 'confirm',
+        },
+      ],
+    });
+
+    await alert.present();
+    const { role, data } = await alert.onDidDismiss();
+    const currentPlanning = this.planning();
+
+    if (role === 'confirm' && currentPlanning && data && data.values) {
+      const selectedValues: string[] = data.values;
+      let newAssignedTo: string | null = null;
+
+      // Se tutti sono selezionati, o se nessuno è selezionato, assegniamo a tutti (null)
+      if (selectedValues.length === groupUsers.length || selectedValues.length === 0) {
+        newAssignedTo = null;
+      } else {
+        newAssignedTo = selectedValues.join(',');
+      }
+
+      if (plannedRecipe.assignedTo !== newAssignedTo) {
+        const backup = currentPlanning.recipes;
+        const updatedRecipe = { ...plannedRecipe, assignedTo: newAssignedTo as any };
+
+        const newRecipes = currentPlanning.recipes.map((r) =>
+          r.kind === 'recipe' && r.id === plannedRecipe.id ? updatedRecipe : r,
+        );
+
+        this.planning.set({ ...currentPlanning, recipes: newRecipes });
+        this.dataService.editPlanning(updatedRecipe).then(
+          () => {},
+          () => {
+            this.planning.set({ ...currentPlanning, recipes: backup });
           },
         );
       }

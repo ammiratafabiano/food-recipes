@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { IonApp, IonLoading, IonRouterOutlet } from '@ionic/angular/standalone';
+import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import dayjs from 'dayjs';
@@ -15,7 +15,7 @@ import { LoadingService } from './services/loading.service';
   styleUrls: ['app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [IonApp, IonLoading, IonRouterOutlet],
+  imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent {
   private readonly translate = inject(TranslateService);

@@ -7,7 +7,7 @@ import { authenticateToken, JwtPayload } from '../auth.middleware';
 export const groupsRouter = express.Router();
 groupsRouter.use(authenticateToken);
 
-groupsRouter.get('/mine', async (req, res) => {
+groupsRouter.get('/mine', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
@@ -27,7 +27,7 @@ groupsRouter.get('/mine', async (req, res) => {
   }
 });
 
-groupsRouter.post('/', async (req, res) => {
+groupsRouter.post('/', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
@@ -41,7 +41,7 @@ groupsRouter.post('/', async (req, res) => {
   }
 });
 
-groupsRouter.post('/:id/join', async (req, res) => {
+groupsRouter.post('/:id/join', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
@@ -61,7 +61,7 @@ groupsRouter.post('/:id/join', async (req, res) => {
   }
 });
 
-groupsRouter.post('/:id/leave', async (req, res) => {
+groupsRouter.post('/:id/leave', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();

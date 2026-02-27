@@ -19,6 +19,8 @@ async function buildRecipe(
     time_unit?: string;
     difficulty?: string;
     servings?: number;
+    min_servings?: number;
+    split_servings?: number;
   },
   userId?: string,
   lang: string = 'en',
@@ -80,6 +82,8 @@ async function buildRecipe(
     })),
     tags: tagRows.map((t: { tag: string }) => t.tag),
     servings: recipeRow.servings || 4,
+    minServings: recipeRow.min_servings || 1,
+    splitServings: recipeRow.split_servings || 1,
     isAdded,
   };
 }
@@ -127,7 +131,7 @@ async function saveRecipeDetails(
   }
 }
 
-recipesRouter.get('/', async (req, res) => {
+recipesRouter.get('/', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
@@ -150,6 +154,8 @@ recipesRouter.get('/', async (req, res) => {
           time_unit?: string;
           difficulty?: string;
           servings?: number;
+          min_servings?: number;
+          split_servings?: number;
         }) => buildRecipe(r, me.id, lang),
       ),
     );
@@ -160,7 +166,7 @@ recipesRouter.get('/', async (req, res) => {
   }
 });
 
-recipesRouter.get('/saved', async (req, res) => {
+recipesRouter.get('/saved', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
@@ -182,6 +188,8 @@ recipesRouter.get('/saved', async (req, res) => {
           time_unit?: string;
           difficulty?: string;
           servings?: number;
+          min_servings?: number;
+          split_servings?: number;
         }) => buildRecipe(r, me.id, lang),
       ),
     );
@@ -192,7 +200,7 @@ recipesRouter.get('/saved', async (req, res) => {
   }
 });
 
-recipesRouter.get('/discover', async (req, res) => {
+recipesRouter.get('/discover', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
@@ -211,6 +219,8 @@ recipesRouter.get('/discover', async (req, res) => {
           time_unit?: string;
           difficulty?: string;
           servings?: number;
+          min_servings?: number;
+          split_servings?: number;
         }) => buildRecipe(r, me.id, lang),
       ),
     );
@@ -221,7 +231,7 @@ recipesRouter.get('/discover', async (req, res) => {
   }
 });
 
-recipesRouter.get('/:id', async (req, res) => {
+recipesRouter.get('/:id', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
@@ -239,7 +249,7 @@ recipesRouter.get('/:id', async (req, res) => {
   }
 });
 
-recipesRouter.post('/', async (req, res) => {
+recipesRouter.post('/', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const {
@@ -253,12 +263,14 @@ recipesRouter.post('/', async (req, res) => {
       steps,
       tags,
       servings,
+      minServings,
+      splitServings,
     } = req.body;
     const db = await getDB();
     const id = uuidv4();
     await db.run(
-      `INSERT INTO recipes (id, user_id, name, description, cuisine, type, difficulty, time_value, time_unit, servings)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO recipes (id, user_id, name, description, cuisine, type, difficulty, time_value, time_unit, servings, min_servings, split_servings)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       id,
       me.id,
       name,
@@ -269,6 +281,8 @@ recipesRouter.post('/', async (req, res) => {
       time?.value ?? null,
       time?.unit ?? 'MINUTE',
       servings || 4,
+      minServings || 1,
+      splitServings || 1,
     );
     await saveRecipeDetails(id, ingredients, steps, tags);
     const row = await db.get('SELECT * FROM recipes WHERE id = ?', id);
@@ -285,7 +299,7 @@ recipesRouter.post('/', async (req, res) => {
   }
 });
 
-recipesRouter.put('/:id', async (req, res) => {
+recipesRouter.put('/:id', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const {
@@ -299,6 +313,8 @@ recipesRouter.put('/:id', async (req, res) => {
       steps,
       tags,
       servings,
+      minServings,
+      splitServings,
     } = req.body;
     const db = await getDB();
     const existing = await db.get(
@@ -311,7 +327,7 @@ recipesRouter.put('/:id', async (req, res) => {
       return;
     }
     await db.run(
-      `UPDATE recipes SET name=?, description=?, cuisine=?, type=?, difficulty=?, time_value=?, time_unit=?, servings=? WHERE id = ?`,
+      `UPDATE recipes SET name=?, description=?, cuisine=?, type=?, difficulty=?, time_value=?, time_unit=?, servings=?, min_servings=?, split_servings=? WHERE id = ?`,
       name,
       description || '',
       cuisine || '',
@@ -320,6 +336,8 @@ recipesRouter.put('/:id', async (req, res) => {
       time?.value ?? null,
       time?.unit ?? 'MINUTE',
       servings || 4,
+      minServings || 1,
+      splitServings || 1,
       req.params.id,
     );
     await saveRecipeDetails(req.params.id, ingredients, steps, tags);
@@ -330,7 +348,7 @@ recipesRouter.put('/:id', async (req, res) => {
   }
 });
 
-recipesRouter.delete('/:id', async (req, res) => {
+recipesRouter.delete('/:id', async (req: any, res) => {
   try {
     const db = await getDB();
     await db.run('DELETE FROM recipes WHERE id = ?', req.params.id);
@@ -341,7 +359,7 @@ recipesRouter.delete('/:id', async (req, res) => {
   }
 });
 
-recipesRouter.post('/:id/save', async (req, res) => {
+recipesRouter.post('/:id/save', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
@@ -357,7 +375,7 @@ recipesRouter.post('/:id/save', async (req, res) => {
   }
 });
 
-recipesRouter.delete('/:id/save', async (req, res) => {
+recipesRouter.delete('/:id/save', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();

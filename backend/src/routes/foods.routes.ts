@@ -8,7 +8,7 @@ export const foodsRouter = express.Router();
 foodsRouter.use(authenticateToken);
 
 // ── GET /foods ──────────────────────────────────────
-foodsRouter.get('/', async (req, res) => {
+foodsRouter.get('/', async (req: any, res) => {
   try {
     const lang = req.acceptsLanguages('it', 'en') || 'en';
     const db = await getDB();
@@ -44,7 +44,7 @@ foodsRouter.get('/', async (req, res) => {
 });
 
 // ── POST /foods ─────────────────────────────────────
-foodsRouter.post('/', async (req, res) => {
+foodsRouter.post('/', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const { name, defaultUnit, kcal, protein, fat, carbs, fiber } = req.body;

@@ -65,7 +65,6 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
     IonLabel,
     IonItem,
     IonList,
-    IonInput,
     IonCard,
     IonCardHeader,
     IonCardTitle,
@@ -201,19 +200,23 @@ export class RecipePage implements OnInit {
     ]);
   }
 
-  async onMultiplierChange(event: CustomEvent<{ value?: string | number | null }>) {
+  async onIncreaseServings() {
     const currentRecipe = this.recipe();
     if (!currentRecipe) return;
-    const value = event.detail?.value;
-    const newCurrentMultiplier = value ? Number(value) : currentRecipe.servings;
+    const splitServings = currentRecipe.splitServings || 1;
+    const newCurrentMultiplier = this.currentMultiplier() + splitServings;
     this.currentMultiplier.set(newCurrentMultiplier);
-    this.multiplier.set(newCurrentMultiplier ? newCurrentMultiplier / currentRecipe.servings : 1);
+    this.multiplier.set(newCurrentMultiplier / currentRecipe.servings);
   }
 
-  async onMultiplierBlur(event: CustomEvent<{ value?: string | number | null }>) {
-    const value = event.detail?.value;
+  async onDecreaseServings() {
     const currentRecipe = this.recipe();
-    if (!value && currentRecipe) this.currentMultiplier.set(currentRecipe.servings);
+    if (!currentRecipe) return;
+    const splitServings = currentRecipe.splitServings || 1;
+    const minServings = currentRecipe.minServings || 1;
+    const newCurrentMultiplier = Math.max(minServings, this.currentMultiplier() - splitServings);
+    this.currentMultiplier.set(newCurrentMultiplier);
+    this.multiplier.set(newCurrentMultiplier / currentRecipe.servings);
   }
 
   async onAddToPlanningClicked() {
@@ -245,7 +248,8 @@ export class RecipePage implements OnInit {
     await actionSheet.present();
     const result = await actionSheet.onDidDismiss();
     if (result?.data?.action) {
-      const res = await this.dataService.addToPlanning(currentRecipe, result.data.action);
+      const recipeToAdd = { ...currentRecipe, servings: this.currentMultiplier() };
+      const res = await this.dataService.addToPlanning(recipeToAdd, result.data.action);
       if (res) {
         this.navigationService.setRoot(
           [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],

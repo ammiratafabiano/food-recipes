@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { PlannedRecipe, Planning } from '../models/planning.model';
 import { Recipe } from '../models/recipe.model';
@@ -14,6 +14,7 @@ import { createPlanning } from '../utils/model-factories';
 import { environment } from '../../environments/environment';
 import { SocketService, PlanningChangeEvent } from './socket.service';
 import { map } from 'rxjs/operators';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 
 @Injectable({
   providedIn: 'root',
@@ -136,16 +137,21 @@ export class DataService {
 
   // ── Planning ───────────────────────────────────────
 
-  async getPlanning(week: string, group: Group | undefined): Promise<Planning | undefined> {
+  async getPlanning(
+    week: string,
+    group: Group | undefined,
+    skipLoading = false,
+  ): Promise<Planning | undefined> {
     try {
       const params: Record<string, string> = {};
       if (group) {
         params['groupId'] = group.id;
       }
+      const context = skipLoading ? new HttpContext().set(SKIP_LOADING, true) : undefined;
       const data = await firstValueFrom(
         this.http.get<{ startDate: string; recipes: PlannedRecipe[] }>(
           `${this.api}/planning/${week}`,
-          { params },
+          { params, context },
         ),
       );
       return createPlanning({
@@ -170,6 +176,7 @@ export class DataService {
         week,
         day,
         meal,
+        servings: recipe.servings || 1,
       };
       const planned = await firstValueFrom(
         this.http.post<PlannedRecipe>(`${this.api}/planning`, body),
@@ -189,6 +196,8 @@ export class DataService {
       this.http.put(`${this.api}/planning/${planned_recipe.id}`, {
         day: planned_recipe.day,
         meal: planned_recipe.meal,
+        servings: planned_recipe.servings,
+        assignedTo: planned_recipe.assignedTo,
       }),
     );
   }

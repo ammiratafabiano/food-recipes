@@ -85,12 +85,13 @@
   } @if (recipe()) {
   <ion-item>
     <ion-label>{{ 'RECIPE_PAGE.SERVINGS' | translate }}</ion-label>
-    <ion-input
-      [value]="currentMultiplier()"
-      (ionChange)="onMultiplierChange($event)"
-      type="number"
-      min="1"
-    ></ion-input>
+    <ion-button fill="clear" size="small" (click)="onDecreaseServings()">
+      <ion-icon name="remove-circle-outline"></ion-icon>
+    </ion-button>
+    <ion-label class="ion-text-center">{{ currentMultiplier() }}</ion-label>
+    <ion-button fill="clear" size="small" (click)="onIncreaseServings()">
+      <ion-icon name="add-circle-outline"></ion-icon>
+    </ion-button>
   </ion-item>
   }
   <ion-list lines="inset" inset="true">

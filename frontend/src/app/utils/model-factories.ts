@@ -41,6 +41,8 @@ export const createRecipe = (overrides: Partial<Recipe> = {}): Recipe => ({
   steps: [],
   tags: [],
   servings: 0,
+  minServings: 1,
+  splitServings: 1,
   ...overrides,
 });
 

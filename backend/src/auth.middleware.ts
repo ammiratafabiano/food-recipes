@@ -7,7 +7,7 @@ export { JwtPayload } from './key-store';
  * Express middleware — verifies the Bearer token using the RSA key store.
  * On success, attaches the decoded payload to `req.user`.
  */
-export function authenticateToken(req: Request, res: Response, next: NextFunction) {
+export function authenticateToken(req: any, res: Response, next: NextFunction) {
   const authHeader = req.headers['authorization'];
   const token = authHeader?.split(' ')[1];
   if (!token) {

@@ -18,6 +18,8 @@ export interface Recipe {
   steps: Step[];
   tags: string[];
   servings: number;
+  minServings?: number;
+  splitServings?: number;
   variantId?: string;
   variantName?: string;
   isAdded?: boolean;
