@@ -131,10 +131,18 @@ export class PlanningPage implements OnDestroy {
   async ionViewDidEnter() {
     const week = this.navigationService.getParams<{ week: string }>()?.week;
     const targetStartDate = week || dayjs().startOf('week').format('YYYY-MM-DD');
-    const skipLoading = this.dataLoaded() && targetStartDate === this.planning()?.startDate;
-    await this.getData(week, skipLoading);
+
+    // If data is already loaded for the same week, skip HTTP calls entirely
+    const alreadyLoaded = this.dataLoaded() && targetStartDate === this.planning()?.startDate;
+    if (!alreadyLoaded) {
+      await this.getData(week);
+    }
 
     // Connect socket only if the user belongs to a group
+    this.ensureRealtimeConnected();
+  }
+
+  private ensureRealtimeConnected() {
     const group = this.group();
     if (group) {
       this.dataService.connectRealtime(group);
@@ -164,9 +172,28 @@ export class PlanningPage implements OnDestroy {
 
           const currentPlanning = this.planning();
           if (currentPlanning) {
-            await this.dataService.quickAddPlanning(currentPlanning.startDate, foodId, foodName);
-            // Refresh planning list without full loader override
-            this.getData(currentPlanning.startDate, true);
+            const result = await this.dataService.quickAddPlanning(
+              currentPlanning.startDate,
+              foodId,
+              foodName,
+            );
+            // Add the new item directly to the local list instead of refetching
+            if (result?.item) {
+              const newPlanned: PlannedRecipe = {
+                ...result.item,
+                kind: 'recipe',
+              };
+              const newRecipes = [...currentPlanning.recipes];
+              // Insert after the first separator (unassigned day) or at top
+              const firstSepIdx = newRecipes.findIndex((r) => r.kind === 'separator');
+              if (firstSepIdx >= 0) {
+                newRecipes.splice(firstSepIdx + 1, 0, newPlanned);
+              } else {
+                newRecipes.unshift(newPlanned);
+              }
+              this.planning.set({ ...currentPlanning, recipes: newRecipes });
+              this.handleResponse(this.planning());
+            }
           }
         },
       });
@@ -176,37 +203,89 @@ export class PlanningPage implements OnDestroy {
   private listenCollaboratorsChanges() {
     // Unsubscribe previous subscription to avoid duplicates
     this.realtimeSub?.unsubscribe();
-    this.realtimeSub = this.dataService.planningChanges$.subscribe((planned) => {
+    this.realtimeSub = this.dataService.planningChanges$.subscribe((event) => {
+      if (!event) return;
+      const { type, planned } = event;
       const currentPlanning = this.planning();
       const currentUser = this.authService.getCurrentUser();
-      if (planned && currentUser && planned.user_id === currentUser.id) return;
-      if (planned && currentPlanning) {
-        const updated = currentPlanning.startDate && currentPlanning.startDate == planned.week;
-        const deleted =
-          !updated &&
-          currentPlanning.recipes.find((x) => x.kind === 'recipe' && x.id == planned.id);
-        if (updated || deleted) {
-          this.getData(currentPlanning.startDate, true);
+
+      // Ignore own user's changes (already handled optimistically)
+      if (currentUser && planned.user_id === currentUser.id) return;
+      if (!currentPlanning) return;
+
+      const isCurrentWeek = currentPlanning.startDate === planned.week;
+
+      switch (type) {
+        case 'updated': {
+          // Merge changes into the existing local recipe
+          const existingIdx = currentPlanning.recipes.findIndex(
+            (r) => r.kind === 'recipe' && r.id === planned.id,
+          );
+          if (existingIdx >= 0) {
+            const existing = currentPlanning.recipes[existingIdx] as PlannedRecipe;
+            const merged = {
+              ...existing,
+              day: planned.day ?? existing.day,
+              meal: planned.meal ?? existing.meal,
+              servings: planned.servings ?? existing.servings,
+              assignedTo: planned.assignedTo ?? existing.assignedTo,
+            };
+            const newRecipes = [...currentPlanning.recipes];
+            newRecipes[existingIdx] = merged;
+            this.planning.set({ ...currentPlanning, recipes: newRecipes });
+            this.sortList();
+          }
+          break;
+        }
+        case 'deleted': {
+          // Remove the recipe from the local list
+          const exists = currentPlanning.recipes.some(
+            (r) => r.kind === 'recipe' && r.id === planned.id,
+          );
+          if (exists) {
+            this.planning.set({
+              ...currentPlanning,
+              recipes: currentPlanning.recipes.filter(
+                (r) => r.kind !== 'recipe' || r.id !== planned.id,
+              ),
+            });
+          }
+          break;
+        }
+        case 'added': {
+          // For added events, do a targeted refetch (only planning, no group)
+          // since the socket payload may not include all recipe details
+          if (isCurrentWeek) {
+            this.refetchPlanning(currentPlanning.startDate);
+          }
+          break;
         }
       }
     });
   }
 
-  private async getData(startDate?: string, skipLoading = false) {
+  /** Refetch only the planning list (not the group) without showing the loader */
+  private async refetchPlanning(startDate: string) {
+    const group = this.group();
+    const response = await this.dataService.getPlanning(startDate, group, true);
+    this.handleResponse(response);
+  }
+
+  private async getData(startDate?: string) {
     const fetchTask = async () => {
-      const group = await this.dataService.retrieveGroup(skipLoading);
-      this.group.set(group);
+      // Only fetch group if not already cached
+      let group = this.group();
+      if (!group) {
+        group = await this.dataService.retrieveGroup();
+        this.group.set(group);
+      }
       if (!startDate) startDate = dayjs().startOf('week').format('YYYY-MM-DD');
-      const response = await this.dataService.getPlanning(startDate, group, skipLoading);
+      const response = await this.dataService.getPlanning(startDate, group);
       this.handleResponse(response);
       this.dataLoaded.set(true);
     };
 
-    if (skipLoading) {
-      return fetchTask();
-    } else {
-      return this.loadingService.withLoader(fetchTask);
-    }
+    return this.loadingService.withLoader(fetchTask);
   }
 
   private handleResponse(response: Planning | undefined) {
@@ -266,7 +345,9 @@ export class PlanningPage implements OnDestroy {
   }
 
   async handleRefresh(event: CustomEvent) {
-    await this.getData(this.planning()?.startDate, true);
+    await this.refetchPlanning(
+      this.planning()?.startDate || dayjs().startOf('week').format('YYYY-MM-DD'),
+    );
     const target = event.target as HTMLIonRefresherElement | null;
     target?.complete();
   }
@@ -307,12 +388,12 @@ export class PlanningPage implements OnDestroy {
 
   async onPlanningBackClicked() {
     const startDate = dayjs(this.planning()?.startDate).subtract(1, 'week').format('YYYY-MM-DD');
-    this.getData(startDate, true);
+    this.getData(startDate);
   }
 
   async onPlanningForwardClicked() {
     const startDate = dayjs(this.planning()?.startDate).add(1, 'week').format('YYYY-MM-DD');
-    this.getData(startDate, true);
+    this.getData(startDate);
   }
 
   async onPlannedRecipeClicked(plannedRecipe: PlannedRecipe) {

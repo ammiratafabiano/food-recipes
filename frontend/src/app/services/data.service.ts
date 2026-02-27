@@ -320,8 +320,10 @@ export class DataService {
     this.socketService.disconnect();
   }
 
-  /** Observable of planning changes coming from group members */
-  get planningChanges$(): Observable<PlannedRecipe | undefined> {
+  /** Observable of planning changes coming from group members (includes event type) */
+  get planningChanges$(): Observable<
+    { type: 'added' | 'updated' | 'deleted'; planned: PlannedRecipe } | undefined
+  > {
     return this.socketService.planningChanges.pipe(
       map((event: PlanningChangeEvent) => {
         if (!event.payload) return undefined;
@@ -333,18 +335,29 @@ export class DataService {
           week: string;
           day: string;
           meal: string;
+          servings?: number;
+          assignedTo?: string;
+          minServings?: number;
+          splitServings?: number;
         };
         return {
-          kind: 'recipe' as const,
-          id: payload.id,
-          user_id: payload.user_id,
-          recipe_id: payload.recipe_id,
-          recipe_name: payload.recipe_name || '',
-          recipe: undefined as unknown as Recipe,
-          week: payload.week,
-          day: payload.day,
-          meal: payload.meal,
-        } as PlannedRecipe;
+          type: event.type,
+          planned: {
+            kind: 'recipe' as const,
+            id: payload.id,
+            user_id: payload.user_id,
+            recipe_id: payload.recipe_id,
+            recipe_name: payload.recipe_name || '',
+            recipe: undefined as unknown as Recipe,
+            week: payload.week,
+            day: payload.day,
+            meal: payload.meal,
+            servings: payload.servings,
+            assignedTo: payload.assignedTo,
+            minServings: payload.minServings,
+            splitServings: payload.splitServings,
+          } as PlannedRecipe,
+        };
       }),
     );
   }
