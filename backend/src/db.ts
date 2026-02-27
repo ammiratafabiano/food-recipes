@@ -157,7 +157,8 @@ export async function getDB(): Promise<Database> {
   } catch (e) {
     // Column might already exist
   }
-
+  // Migration: default NULL quantity_unit to GRAM
+  await db.run(`UPDATE recipe_ingredients SET quantity_unit = 'GRAM' WHERE quantity_unit IS NULL`);
   dbInstance = db;
   return db;
 }

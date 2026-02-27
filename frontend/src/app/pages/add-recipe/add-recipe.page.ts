@@ -213,10 +213,7 @@ export class AddRecipePage implements OnInit {
           };
         }),
         {
-          text: this.translateService.instant('ADD_RECIPE_PAGE.UNIT_RESET'),
-          data: {
-            action: undefined,
-          },
+          text: this.translateService.instant('COMMON.GENERIC_ALERT.CANCEL_BUTTON'),
           role: 'cancel',
         },
       ],
