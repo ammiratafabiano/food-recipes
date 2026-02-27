@@ -61,6 +61,7 @@ export class SessionService {
     this.setStoredUser(undefined);
     this.setToken(undefined);
     this.setRefreshToken(undefined);
+    this.setFoodList(undefined);
   }
 
   private setStorage(key: string, value: string | null | undefined) {

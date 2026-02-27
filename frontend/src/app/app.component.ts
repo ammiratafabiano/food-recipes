@@ -32,6 +32,7 @@ export class AppComponent {
   private handleLanguage() {
     const currentLang = this.translate.getBrowserLang() || 'en';
     this.translate.setDefaultLang(currentLang);
+    this.translate.use(currentLang);
     dayjs.extend(weekOfYear);
     dayjs.extend(updateLocale);
     dayjs.updateLocale(currentLang, {

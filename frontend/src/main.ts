@@ -45,6 +45,7 @@ import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 import { loadingInterceptor } from './app/interceptors/loading.interceptor';
 import { authInterceptor } from './app/interceptors/auth.interceptor';
+import { languageInterceptor } from './app/interceptors/language.interceptor';
 
 addIcons({
   add,
@@ -83,7 +84,7 @@ bootstrapApplication(AppComponent, {
     provideIonicAngular(),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
-    provideHttpClient(withInterceptors([authInterceptor, loadingInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, languageInterceptor, loadingInterceptor])),
     importProvidersFrom(
       TranslateModule.forRoot({
         loader: {

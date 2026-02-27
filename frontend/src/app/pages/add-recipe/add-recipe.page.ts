@@ -118,6 +118,13 @@ export class AddRecipePage implements OnInit {
       });
     } else {
       this.foodList.set(foodList);
+      // Fetch in background to update cache
+      this.dataService.getFoodList().then((food) => {
+        if (food) {
+          this.sessionService.setFoodList(food);
+          this.foodList.set(food);
+        }
+      });
     }
   }
 
