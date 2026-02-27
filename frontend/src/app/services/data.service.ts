@@ -25,11 +25,16 @@ export class DataService {
   private readonly socketService = inject(SocketService);
   private readonly api = environment.apiUrl;
 
+  private cachedUsers?: UserData[];
+  private cachedFoods?: Ingredient[];
+
   // ── Users ──────────────────────────────────────────
 
   async getUsers(): Promise<UserData[] | undefined> {
+    if (this.cachedUsers) return this.cachedUsers;
     try {
-      return await firstValueFrom(this.http.get<UserData[]>(`${this.api}/users`));
+      this.cachedUsers = await firstValueFrom(this.http.get<UserData[]>(`${this.api}/users`));
+      return this.cachedUsers;
     } catch {
       return undefined;
     }
@@ -124,15 +129,21 @@ export class DataService {
   // ── Foods ──────────────────────────────────────────
 
   async getFoodList(): Promise<Ingredient[] | undefined> {
+    if (this.cachedFoods) return this.cachedFoods;
     try {
-      return await firstValueFrom(this.http.get<Ingredient[]>(`${this.api}/foods`));
+      this.cachedFoods = await firstValueFrom(this.http.get<Ingredient[]>(`${this.api}/foods`));
+      return this.cachedFoods;
     } catch {
       return undefined;
     }
   }
 
   async addCustomFood(name: string) {
-    return firstValueFrom(this.http.post<Ingredient>(`${this.api}/foods`, { name }));
+    const newFood = await firstValueFrom(
+      this.http.post<Ingredient>(`${this.api}/foods`, { name, defaultUnit: 'PIECE' }),
+    );
+    if (this.cachedFoods) this.cachedFoods.push(newFood);
+    return newFood;
   }
 
   // ── Planning ───────────────────────────────────────
@@ -211,6 +222,17 @@ export class DataService {
   async deletePlanning(planning_id: string) {
     const context = new HttpContext().set(SKIP_LOADING, true);
     return firstValueFrom(this.http.delete(`${this.api}/planning/${planning_id}`, { context }));
+  }
+
+  async quickAddPlanning(week: string, foodId: string, foodName: string, day?: WeekDay) {
+    const context = new HttpContext().set(SKIP_LOADING, true);
+    return firstValueFrom(
+      this.http.post<{ success: boolean; item: PlannedRecipe }>(
+        `${this.api}/planning/${week}/quick-add`,
+        { foodId, foodName, day },
+        { context },
+      ),
+    );
   }
 
   async editPlanning(planned_recipe: PlannedRecipe) {

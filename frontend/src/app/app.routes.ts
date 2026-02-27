@@ -26,6 +26,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/recipe/recipe.page').then((m) => m.RecipePage),
   },
   {
+    path: NavigationPath.ItemSelection,
+    loadComponent: () =>
+      import('./pages/item-selection/item-selection.page').then((m) => m.ItemSelectionPage),
+  },
+  {
     path: NavigationPath.User,
     loadChildren: () => import('./pages/user/user.routes').then((m) => m.USER_ROUTES),
   },

@@ -71,6 +71,100 @@ planningRouter.get('/:week', async (req: any, res) => {
   }
 });
 
+planningRouter.post('/:week/quick-add', async (req: any, res) => {
+  try {
+    const me = req.user as JwtPayload;
+    const { foodId, foodName, day } = req.body;
+    const db = await getDB();
+
+    if (!foodId || !foodName) {
+      return res.status(400).json({ error: 'Missing food data' });
+    }
+
+    let recipe = await db.get(
+      'SELECT * FROM recipes WHERE user_id = ? AND type = ? AND name = ?',
+      me.id,
+      'PRODUCT',
+      foodName,
+    );
+
+    if (!recipe) {
+      // Find food element to assign default portion
+      const food = await db.get(
+        'SELECT default_unit, portion_value FROM foods WHERE id = ?',
+        foodId,
+      );
+      const safeUnit = food?.default_unit || 'GRAM';
+      const safePortion =
+        food?.portion_value || (safeUnit === 'GRAM' || safeUnit === 'MILLILITER' ? 100 : 1);
+
+      const rId = uuidv4();
+      await db.run(
+        'INSERT INTO recipes (id, name, type, servings, time_value, time_unit, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        rId,
+        foodName,
+        'PRODUCT',
+        1,
+        0,
+        'MINUTES',
+        me.id,
+      );
+      await db.run(
+        'INSERT INTO recipe_ingredients (recipe_id, food_id, name, quantity_value, quantity_unit) VALUES (?, ?, ?, ?, ?)',
+        rId,
+        foodId,
+        foodName,
+        safePortion,
+        safeUnit,
+      );
+      recipe = { id: rId, name: foodName };
+    }
+
+    const pId = uuidv4();
+    await db.run(
+      'INSERT INTO planning (id, recipe_id, recipe_name, week, day, user_id, servings) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      pId,
+      recipe.id,
+      recipe.name,
+      req.params.week,
+      day || null,
+      me.id,
+      1,
+    );
+
+    const inserted = await db.get(
+      'SELECT p.*, r.name as recipe_name_lookup, r.min_servings, r.split_servings FROM planning p LEFT JOIN recipes r ON r.id = p.recipe_id WHERE p.id = ?',
+      pId,
+    );
+
+    const item = {
+      kind: 'recipe' as const,
+      id: inserted.id,
+      user_id: inserted.user_id,
+      recipe_id: inserted.recipe_id,
+      recipe_name: inserted.recipe_name || inserted.recipe_name_lookup || '',
+      week: inserted.week,
+      day: inserted.day,
+      meal: inserted.meal,
+      servings: inserted.servings || 1,
+      assignedTo: inserted.assigned_to,
+      minServings: inserted.min_servings,
+      splitServings: inserted.split_servings,
+    };
+
+    res.json({ success: true, item });
+
+    const groupId = await findUserGroupId(me.id);
+    if (groupId) {
+      emitPlanningChange(groupId, 'planning:added', Object.assign({}, item, { user_id: me.id }));
+      emitShoppingListInvalidate(groupId, req.params.week);
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
 planningRouter.post('/', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;

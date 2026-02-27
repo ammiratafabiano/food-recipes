@@ -5,6 +5,7 @@ export enum NavigationPath {
   Recipe = 'recipe',
   User = 'user',
   NotFound = 'not-found',
+  ItemSelection = 'item-selection',
 }
 
 export enum LoginNavigationPath {

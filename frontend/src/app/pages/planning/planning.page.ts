@@ -4,6 +4,7 @@ import { ActionSheetController, AlertController } from '@ionic/angular';
 import { ItemReorderEventDetail } from '@ionic/core';
 import {
   IonButton,
+  IonButtons,
   IonContent,
   IonFooter,
   IonHeader,
@@ -23,6 +24,7 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import dayjs from 'dayjs';
+import { Item } from 'src/app/models/item.model';
 import {
   PlannedRecipe,
   Planning,
@@ -57,6 +59,7 @@ import { AuthService } from 'src/app/services/auth.service';
     IonTitle,
     IonContent,
     IonFooter,
+    IonButtons,
     IonLabel,
     IonList,
     IonItem,
@@ -126,9 +129,10 @@ export class PlanningPage implements OnDestroy {
   }
 
   async ionViewDidEnter() {
-    this.dataLoaded.set(false);
     const week = this.navigationService.getParams<{ week: string }>()?.week;
-    await this.getData(week);
+    const targetStartDate = week || dayjs().startOf('week').format('YYYY-MM-DD');
+    const skipLoading = this.dataLoaded() && targetStartDate === this.planning()?.startDate;
+    await this.getData(week, skipLoading);
 
     // Connect socket only if the user belongs to a group
     const group = this.group();
@@ -136,6 +140,37 @@ export class PlanningPage implements OnDestroy {
       this.dataService.connectRealtime(group);
       this.listenCollaboratorsChanges();
     }
+  }
+
+  async onQuickAddClicked() {
+    await this.loadingService.withLoader(async () => {
+      const foodList = await this.dataService.getFoodList();
+      this.navigationService.push('../../' + NavigationPath.ItemSelection, {
+        params: {
+          title: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.BUTTON'),
+          items: foodList?.map((x) => ({ value: x.id, text: x.name })) || [],
+        },
+        dismissCallback: async (item: Item & { custom?: boolean }) => {
+          if (!item) return;
+
+          let foodId = item.value;
+          let foodName = item.text;
+
+          if (item.custom) {
+            const newFood = await this.dataService.addCustomFood(item.text);
+            foodId = newFood.id;
+            foodName = newFood.name;
+          }
+
+          const currentPlanning = this.planning();
+          if (currentPlanning) {
+            await this.dataService.quickAddPlanning(currentPlanning.startDate, foodId, foodName);
+            // Refresh planning list without full loader override
+            this.getData(currentPlanning.startDate, true);
+          }
+        },
+      });
+    });
   }
 
   private listenCollaboratorsChanges() {

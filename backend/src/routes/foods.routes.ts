@@ -25,10 +25,11 @@ foodsRouter.get('/', async (req: any, res) => {
           fat: number | null;
           carbs: number | null;
           fiber: number | null;
+          portion_value: number | null;
         }) => ({
           id: f.id,
           name: lang === 'it' ? f.name_it || f.name : f.name,
-          quantity: { unit: f.default_unit },
+          quantity: { unit: f.default_unit, value: f.portion_value },
           kcal: f.kcal,
           protein: f.protein,
           fat: f.fat,
@@ -47,34 +48,40 @@ foodsRouter.get('/', async (req: any, res) => {
 foodsRouter.post('/', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
-    const { name, defaultUnit, kcal, protein, fat, carbs, fiber } = req.body;
+    const { name, defaultUnit, kcal, protein, fat, carbs, fiber, portionValue } = req.body;
     if (!name) {
       res.status(400).json({ error: 'name is required' });
       return;
     }
+    const safeUnit = defaultUnit || 'GRAM';
+    const safePortion =
+      portionValue || (safeUnit === 'GRAM' || safeUnit === 'MILLILITER' ? 100 : 1);
+
     const db = await getDB();
     const id = uuidv4();
     await db.run(
-      'INSERT INTO foods (id, name, default_unit, created_by, kcal, protein, fat, carbs, fiber) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO foods (id, name, default_unit, created_by, kcal, protein, fat, carbs, fiber, portion_value) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       id,
       name,
-      defaultUnit || 'GRAM',
+      safeUnit,
       me.id,
       kcal ?? null,
       protein ?? null,
       fat ?? null,
       carbs ?? null,
       fiber ?? null,
+      safePortion,
     );
     res.json({
       id,
       name,
-      quantity: { unit: defaultUnit || 'GRAM' },
+      quantity: { unit: safeUnit },
       kcal: kcal ?? null,
       protein: protein ?? null,
       fat: fat ?? null,
       carbs: carbs ?? null,
       fiber: fiber ?? null,
+      portionValue: safePortion,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';

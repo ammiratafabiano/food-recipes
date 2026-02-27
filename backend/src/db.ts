@@ -101,6 +101,7 @@ export async function getDB(): Promise<Database> {
       fat           REAL,
       carbs         REAL,
       fiber         REAL,
+      portion_value REAL,
       FOREIGN KEY(created_by) REFERENCES users(id) ON DELETE SET NULL
     );
 
@@ -143,7 +144,7 @@ export async function getDB(): Promise<Database> {
   `);
 
   // ── Migrations: add nutritional columns if they don't exist yet ──
-  for (const col of ['kcal', 'protein', 'fat', 'carbs', 'fiber']) {
+  for (const col of ['kcal', 'protein', 'fat', 'carbs', 'fiber', 'portion_value']) {
     try {
       await db.exec(`ALTER TABLE foods ADD COLUMN ${col} REAL`);
     } catch {

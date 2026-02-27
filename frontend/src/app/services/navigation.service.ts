@@ -73,14 +73,19 @@ export class NavigationService {
   pop(params?: unknown): Promise<void> {
     this.logService.Info('NavigationService', 'pop', '');
     const from = this.currentUrl.split('/');
-    const to = from.slice(0, from.length - 1);
-    const toRemoveIndex = this.stack.findIndex((x) => x.from == to.join('/'));
+    let toSegments = from.slice(0, from.length - 1);
     let navigationData: NavigationData | undefined;
+
+    const toRemoveIndex = this.stack.findIndex((x) => x.to == this.currentUrl.split('?')[0]);
     if (toRemoveIndex > -1) {
       const removedList = this.stack.splice(toRemoveIndex);
       navigationData = removedList && removedList[0] ? removedList[0].data : undefined;
+      // Navigate back to where we came from when this component was pushed!
+      let targetRoute = removedList[0].from;
+      toSegments = targetRoute ? targetRoute.split('/') : toSegments;
     }
-    return this.navController.navigateBack(to).then(() => {
+
+    return this.navController.navigateBack(toSegments).then(() => {
       navigationData?.dismissCallback && navigationData.dismissCallback(params);
       this.logService.Info(
         'NavigationService',

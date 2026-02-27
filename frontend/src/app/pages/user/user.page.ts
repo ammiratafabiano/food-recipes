@@ -28,6 +28,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
 import { RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
 import { Recipe } from 'src/app/models/recipe.model';
+import { RecipeType } from 'src/app/models/recipe-type.enum';
 import { UserData } from 'src/app/models/user-data.model';
 import { AlertService } from 'src/app/services/alert.service';
 import { AuthService } from 'src/app/services/auth.service';
@@ -90,7 +91,8 @@ export class UserPage implements OnInit {
     await this.loadingService.withLoader(async () => {
       const userData = await this.dataService.getUser(id);
       if (userData) {
-        userData.recipes = (await this.dataService.getRecipeList(userData.id)) || [];
+        const recipes = (await this.dataService.getRecipeList(userData.id)) || [];
+        userData.recipes = recipes.filter((r) => r.type !== RecipeType.Product);
       }
       this.user.set(userData);
     });

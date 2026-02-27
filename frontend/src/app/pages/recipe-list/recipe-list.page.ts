@@ -87,7 +87,8 @@ export class RecipeListPage {
       const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
       const matchFilter =
         activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
-      return matchQuery && matchFilter;
+      const notProduct = x.type !== RecipeType.Product;
+      return matchQuery && matchFilter && notProduct;
     });
   });
 
@@ -102,7 +103,8 @@ export class RecipeListPage {
       const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
       const matchFilter =
         activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
-      return matchQuery && matchFilter;
+      const notProduct = x.type !== RecipeType.Product;
+      return matchQuery && matchFilter && notProduct;
     });
   });
 
@@ -132,7 +134,7 @@ export class RecipeListPage {
     // Init types
     const newTypeFilters: RecipeTypeFilter[] = [];
     Object.values(RecipeType).forEach((x) => {
-      if (allRecipes.find((y) => y.type == x)) {
+      if (x !== RecipeType.Product && allRecipes.find((y) => y.type == x)) {
         newTypeFilters.push(createRecipeTypeFilter({ type: x }));
       }
     });

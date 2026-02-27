@@ -7,4 +7,5 @@ export enum RecipeType {
   Dessert = 'DESSERT',
   Beverage = 'BEVERAGE',
   Other = 'OTHER',
+  Product = 'PRODUCT',
 }
