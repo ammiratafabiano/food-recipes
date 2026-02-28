@@ -105,7 +105,11 @@
       } @else {
       <ion-label class="quantity-label"> {{ 'COMMON.MISSING_QUANTITY' | translate }} </ion-label>
       }
-      <ion-label>{{ ingredient.name }}</ion-label>
+      <ion-label
+        >{{ ingredient.name }}@if (ingredient.brand) {<span class="brand-label">
+          ({{ ingredient.brand }})</span
+        >}</ion-label
+      >
       @if (ingredient.kcal) {
       <ion-label class="macro-label">
         {{ (ingredient.kcal * (ingredient.quantity.value || 0) * multiplier() / 100) |

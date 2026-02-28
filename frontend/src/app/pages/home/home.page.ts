@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
+import { FeatureFlag, FeatureFlagService } from 'src/app/services/feature-flag.service';
 
 @Component({
   selector: 'app-home',
@@ -10,4 +11,10 @@ import { TranslateModule } from '@ngx-translate/core';
   standalone: true,
   imports: [TranslateModule, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel],
 })
-export class HomePage {}
+export class HomePage {
+  private readonly featureFlagService = inject(FeatureFlagService);
+
+  get isDiscoverEnabled(): boolean {
+    return this.featureFlagService.isEnabled(FeatureFlag.Discover);
+  }
+}

@@ -22,6 +22,7 @@ import { NavigationPath, SettingsNavigationPath } from 'src/app/models/navigatio
 import { UserData } from 'src/app/models/user-data.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
+import { FeatureFlag, FeatureFlagService } from 'src/app/services/feature-flag.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
@@ -54,6 +55,11 @@ export class SettingsPage implements OnInit {
   private readonly navigationService = inject(NavigationService);
   private readonly loadingService = inject(LoadingService);
   private readonly dataService = inject(DataService);
+  private readonly featureFlagService = inject(FeatureFlagService);
+
+  get isSocialEnabled(): boolean {
+    return this.featureFlagService.isEnabled(FeatureFlag.Social);
+  }
 
   readonly userData = signal<UserData | undefined>(undefined);
 

@@ -1,6 +1,13 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title> {{ 'SHOPPING_LIST_PAGE.TITLE' | translate }} </ion-title>
+    @if (shoppingList() && shoppingList()!.length > 0) {
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="onExportClicked()">
+        <ion-icon slot="icon-only" name="share-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    }
   </ion-toolbar>
 </ion-header>
 

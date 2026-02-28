@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { ActionSheetController, AlertController } from '@ionic/angular';
+import { ActionSheetController, AlertController, ModalController } from '@ionic/angular';
 import { ItemReorderEventDetail } from '@ionic/core';
 import {
   IonButton,
@@ -44,6 +44,8 @@ import {
 import { createPlanning } from 'src/app/utils/model-factories';
 import { LoadingService } from 'src/app/services/loading.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { UserData } from 'src/app/models/user-data.model';
+import { NutritionSummaryModal } from './nutrition-summary/nutrition-summary.modal';
 
 @Component({
   selector: 'app-planning',
@@ -80,6 +82,7 @@ export class PlanningPage implements OnDestroy {
   private readonly navigationService = inject(NavigationService);
   private readonly actionSheetCtrl = inject(ActionSheetController);
   private readonly alertCtrl = inject(AlertController);
+  private readonly modalCtrl = inject(ModalController);
   private readonly translateService = inject(TranslateService);
   private readonly authService = inject(AuthService);
 
@@ -641,5 +644,33 @@ export class PlanningPage implements OnDestroy {
       HomeNavigationPath.Settings,
       SettingsNavigationPath.GroupManagement,
     ]);
+  }
+
+  async onNutritionSummaryClicked() {
+    const group = this.group();
+    const currentPlanning = this.planning();
+    if (!currentPlanning) return;
+
+    // Fetch group users for the filter
+    let groupUsers: UserData[] = [];
+    if (group) {
+      const users = await this.dataService.getUsers();
+      const currentUser = this.authService.getCurrentUser();
+      const allUsers = [...(users || [])];
+      if (currentUser) {
+        allUsers.push(currentUser);
+      }
+      groupUsers = allUsers.filter((u) => group.users.includes(u.id));
+    }
+
+    const modal = await this.modalCtrl.create({
+      component: NutritionSummaryModal,
+      componentProps: {
+        week: currentPlanning.startDate,
+        group,
+        groupUsers,
+      },
+    });
+    await modal.present();
   }
 }

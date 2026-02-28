@@ -30,7 +30,7 @@
     </ion-item-sliding>
     }
   </ion-list>
-  } } @if (displayOthersRecipes() !== undefined) {
+  } } @if (isSocialEnabled && displayOthersRecipes() !== undefined) {
   <h2 class="ion-padding">{{ 'RECIPE_LIST_PAGE.OTHERS' | translate }}</h2>
   @if (displayOthersRecipes()!.length === 0) {
   <ion-label class="ion-padding"> {{ 'RECIPE_LIST_PAGE.NO_DATA_OTHERS' | translate }} </ion-label>

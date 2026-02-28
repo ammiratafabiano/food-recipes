@@ -8,6 +8,7 @@ import { Ingredient } from '../models/ingredient.model';
 import { Step } from '../models/step.model';
 import { UserData, UserStats } from '../models/user-data.model';
 import { Group } from '../models/group.model';
+import { NutritionSummary } from '../models/nutrition-summary.model';
 import { WeekDay } from '../models/weekDay.enum';
 import { Meal } from '../models/meal.model';
 import { createPlanning } from '../utils/model-factories';
@@ -259,6 +260,27 @@ export class DataService {
       if (groupId) params['groupId'] = groupId;
       return await firstValueFrom(
         this.http.get<Ingredient[]>(`${this.api}/planning/${week}/shopping-list`, { params }),
+      );
+    } catch {
+      return undefined;
+    }
+  }
+
+  // ── Nutrition Summary ──────────────────────────────
+
+  async getNutritionSummary(
+    week: string,
+    groupId?: string,
+    assignedTo?: string,
+  ): Promise<NutritionSummary | undefined> {
+    try {
+      const params: Record<string, string> = {};
+      if (groupId) params['groupId'] = groupId;
+      if (assignedTo) params['assignedTo'] = assignedTo;
+      return await firstValueFrom(
+        this.http.get<NutritionSummary>(`${this.api}/planning/${week}/nutrition-summary`, {
+          params,
+        }),
       );
     } catch {
       return undefined;

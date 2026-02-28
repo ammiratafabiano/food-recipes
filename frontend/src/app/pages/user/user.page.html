@@ -27,7 +27,7 @@
       <ion-card-title>{{ u.name }}</ion-card-title>
       <ion-card-subtitle>{{ u.email }}</ion-card-subtitle>
     </ion-card-header>
-    @if (isUserLogged()) { @if (!u.isFollowed) {
+    @if (isUserLogged() && isSocialEnabled) { @if (!u.isFollowed) {
     <ion-button fill="clear" color="primary" (click)="onFollowClicked()">
       {{ 'USER_PAGE.ADD_FOLLOW' | translate }}
     </ion-button>

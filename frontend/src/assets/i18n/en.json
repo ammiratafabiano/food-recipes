@@ -26,8 +26,13 @@
     },
     "SHOPPING_LIST_PAGE": {
         "TITLE": "Shopping list",
-        "NO_DATA": "Empty list. Add recipes to the planning first."
-
+        "NO_DATA": "Empty list. Add recipes to the planning first.",
+        "EXPORT_TITLE": "Export list",
+        "SHARE": "Share",
+        "COPY_LIST": "Copy list",
+        "EXPORT_REMINDERS": "Export to Reminders",
+        "REMINDERS_SHORTCUT_NAME": "Add Shopping List",
+        "REMINDERS_SETUP_INFO": "To use this feature, create a Shortcut called 'Add Shopping List' in the Shortcuts app that accepts text input and adds each line as a reminder."
     },
     "SETTINGS_PAGE": {
         "TITLE": "Settings",
@@ -75,7 +80,8 @@
         "INGREDIENTS_QUANTITY_PLACEHOLDER": "to taste",
         "UNIT_PLACEHOLDER": "Unit",
         "UNIT_RESET": "Reset",
-        "SERVINGS": "Servings"
+        "SERVINGS": "Servings",
+        "BRAND_PLACEHOLDER": "Brand (optional)"
     },
     "ITEM_SELECTION_PAGE": {
         "DEFAULT_TITLE": "Select item",
@@ -193,5 +199,21 @@
                 "CANCEL": "Cancel"
             }
         }
+    },
+    "NUTRITION_SUMMARY": {
+        "TITLE": "Nutrition Summary",
+        "WEEK_TOTAL": "Weekly Total",
+        "PER_DAY": "Per Day",
+        "ALL": "All",
+        "LOADING": "Loading...",
+        "NO_DATA": "No nutritional data available for this week.",
+        "PROTEIN": "Protein",
+        "CARBS": "Carbs",
+        "FAT": "Fat",
+        "FIBER": "Fiber",
+        "PROTEIN_SHORT": "Prot",
+        "CARBS_SHORT": "Carb",
+        "FAT_SHORT": "Fat",
+        "FIBER_SHORT": "Fiber"
     }
 }

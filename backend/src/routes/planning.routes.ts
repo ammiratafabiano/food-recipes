@@ -269,6 +269,144 @@ planningRouter.delete('/:id', async (req: any, res) => {
   }
 });
 
+planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
+  try {
+    const me = req.user as JwtPayload;
+    const groupId = req.query.groupId as string | undefined;
+    const assignedTo = req.query.assignedTo as string | undefined; // userId or 'all'
+    const db = await getDB();
+
+    let userIds = [me.id];
+    if (groupId) {
+      const members = await db.all('SELECT user_id FROM group_members WHERE group_id = ?', groupId);
+      userIds = members.map((m: { user_id: string }) => m.user_id);
+    }
+
+    const placeholders = userIds.map(() => '?').join(',');
+
+    // Build the WHERE clause for assigned_to filtering
+    // If assignedTo is not provided or 'all', show items assigned to everyone (NULL) or to any member
+    // If assignedTo is a specific userId, show items assigned to NULL (everyone) or to that specific user
+    let assignedFilter = '';
+    const params: any[] = [req.params.week, ...userIds];
+
+    if (assignedTo && assignedTo !== 'all') {
+      assignedFilter = ` AND (p.assigned_to IS NULL OR p.assigned_to LIKE ?)`;
+      params.push(`%${assignedTo}%`);
+    }
+
+    const rows = await db.all(
+      `SELECT 
+        p.day,
+        ri.quantity_value,
+        ri.quantity_unit,
+        f.kcal,
+        f.protein,
+        f.fat,
+        f.carbs,
+        f.fiber,
+        f.default_unit,
+        p.servings as planned_servings,
+        r.servings as recipe_servings
+       FROM planning p
+       JOIN recipes r ON r.id = p.recipe_id
+       JOIN recipe_ingredients ri ON ri.recipe_id = p.recipe_id
+       LEFT JOIN foods f ON ri.food_id = f.id
+       WHERE p.week = ? AND p.user_id IN (${placeholders})${assignedFilter}`,
+      ...params,
+    );
+
+    // Helper to convert quantity to grams for nutritional calculation
+    const toGrams = (value: number, unit: string): number => {
+      switch (unit) {
+        case 'GRAM':
+          return value;
+        case 'KILO':
+          return value * 1000;
+        case 'LITER':
+          return value * 1000; // approximate 1ml = 1g
+        case 'MILLILITER':
+          return value; // approximate 1ml = 1g
+        case 'PIECE':
+          return value * 100; // approximate 1 piece = 100g
+        default:
+          return value;
+      }
+    };
+
+    type DayNutrition = {
+      kcal: number;
+      protein: number;
+      fat: number;
+      carbs: number;
+      fiber: number;
+    };
+    const days: Record<string, DayNutrition> = {};
+    const weekTotal: DayNutrition = { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 };
+
+    for (const r of rows) {
+      const plannedServings = r.planned_servings || 1;
+      const recipeServings = r.recipe_servings || 1;
+      const multiplier = plannedServings / recipeServings;
+
+      // If food has no nutritional info, skip
+      if (r.kcal == null && r.protein == null && r.fat == null && r.carbs == null) continue;
+
+      const quantityValue = (r.quantity_value || 0) * multiplier;
+      const unit = r.quantity_unit || r.default_unit || 'GRAM';
+      const grams = toGrams(quantityValue, unit);
+      const factor = grams / 100; // nutritional values are per 100g
+
+      const kcal = (r.kcal || 0) * factor;
+      const protein = (r.protein || 0) * factor;
+      const fat = (r.fat || 0) * factor;
+      const carbs = (r.carbs || 0) * factor;
+      const fiber = (r.fiber || 0) * factor;
+
+      const day = r.day || 'UNASSIGNED';
+      if (!days[day]) {
+        days[day] = { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 };
+      }
+      days[day].kcal += kcal;
+      days[day].protein += protein;
+      days[day].fat += fat;
+      days[day].carbs += carbs;
+      days[day].fiber += fiber;
+
+      weekTotal.kcal += kcal;
+      weekTotal.protein += protein;
+      weekTotal.fat += fat;
+      weekTotal.carbs += carbs;
+      weekTotal.fiber += fiber;
+    }
+
+    // Round values
+    const round = (v: number) => Math.round(v * 10) / 10;
+    for (const key of Object.keys(days)) {
+      days[key].kcal = round(days[key].kcal);
+      days[key].protein = round(days[key].protein);
+      days[key].fat = round(days[key].fat);
+      days[key].carbs = round(days[key].carbs);
+      days[key].fiber = round(days[key].fiber);
+    }
+
+    res.json({
+      week: req.params.week,
+      days,
+      weekTotal: {
+        kcal: round(weekTotal.kcal),
+        protein: round(weekTotal.protein),
+        fat: round(weekTotal.fat),
+        carbs: round(weekTotal.carbs),
+        fiber: round(weekTotal.fiber),
+      },
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
 planningRouter.get('/:week/shopping-list', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;

@@ -1,9 +1,11 @@
 <ion-tabs>
   <ion-tab-bar slot="bottom">
+    @if (isDiscoverEnabled) {
     <ion-tab-button tab="discover">
       <ion-icon name="library"></ion-icon>
       <ion-label>{{ 'DISCOVER_PAGE.TITLE' | translate }}</ion-label>
     </ion-tab-button>
+    }
 
     <ion-tab-button tab="recipe-list">
       <ion-icon name="pizza"></ion-icon>

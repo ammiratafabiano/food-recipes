@@ -184,6 +184,13 @@ export async function getDB(): Promise<Database> {
     // Column might already exist
   }
 
+  // Migration: add brand column to recipe_ingredients
+  try {
+    await db.run("ALTER TABLE recipe_ingredients ADD COLUMN brand TEXT DEFAULT ''");
+  } catch (e) {
+    // Column might already exist
+  }
+
   // NOTE: NULL quantity_unit is now allowed (e.g. for items like eggs counted as PIECE).
   dbInstance = db;
   return db;

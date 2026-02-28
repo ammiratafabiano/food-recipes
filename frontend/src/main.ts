@@ -10,6 +10,7 @@ import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common
 import { provideServiceWorker } from '@angular/service-worker';
 import { importProvidersFrom, isDevMode, provideZonelessChangeDetection } from '@angular/core';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
+import { ModalController } from '@ionic/angular';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -44,6 +45,9 @@ import {
   person,
   removeCircleOutline,
   addCircleOutline,
+  barChartOutline,
+  shareOutline,
+  pricetagOutline,
 } from 'ionicons/icons';
 
 import { AppComponent } from './app/app.component';
@@ -82,6 +86,9 @@ addIcons({
   person,
   removeCircleOutline,
   addCircleOutline,
+  barChartOutline,
+  shareOutline,
+  pricetagOutline,
 });
 
 export function createTranslateLoader(http: HttpClient) {
@@ -92,6 +99,7 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideZonelessChangeDetection(),
     provideIonicAngular(),
+    ModalController,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
     provideHttpClient(withInterceptors([authInterceptor, languageInterceptor, loadingInterceptor])),

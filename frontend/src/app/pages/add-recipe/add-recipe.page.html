@@ -145,6 +145,15 @@
           }
         </ion-label>
       </ion-item>
+      <ion-item class="brand-item">
+        <ion-input
+          [(ngModel)]="selected.brand"
+          [placeholder]="'ADD_RECIPE_PAGE.BRAND_PLACEHOLDER' | translate"
+          size="small"
+        >
+          <ion-icon slot="start" name="pricetag-outline" color="medium"></ion-icon>
+        </ion-input>
+      </ion-item>
       <ion-item-options side="end" class="step-container-no-padding">
         <ion-item-option color="danger" (click)="onRemoveIngredientClicked($index)"
           >Rimuovi</ion-item-option

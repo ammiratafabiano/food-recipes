@@ -1,0 +1,100 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ 'NUTRITION_SUMMARY.TITLE' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Filter by user (only if group exists) -->
+  @if (group && groupUsers && groupUsers.length > 1) {
+  <ion-segment [value]="selectedFilter()" (ionChange)="onFilterChanged($any($event))">
+    <ion-segment-button value="all">
+      <ion-label>{{ 'NUTRITION_SUMMARY.ALL' | translate }}</ion-label>
+    </ion-segment-button>
+    @for (user of groupUsers; track user.id) {
+    <ion-segment-button [value]="user.id">
+      <ion-label>{{ user.name.split(' ')[0] }}</ion-label>
+    </ion-segment-button>
+    }
+  </ion-segment>
+  } @if (loading()) {
+  <div class="loading-container">
+    <ion-label color="medium">{{ 'NUTRITION_SUMMARY.LOADING' | translate }}</ion-label>
+  </div>
+  } @else if (summary(); as s) {
+  <!-- Week Total -->
+  <div class="nutrition-card week-total">
+    <div class="card-header">
+      <ion-label class="card-title">{{ 'NUTRITION_SUMMARY.WEEK_TOTAL' | translate }}</ion-label>
+      <ion-label class="week-label">{{ week | date }}</ion-label>
+    </div>
+    <div class="macros-grid">
+      <div class="macro-item calories">
+        <span class="macro-value">{{ s.weekTotal.kcal }}</span>
+        <span class="macro-label">kcal</span>
+      </div>
+      <div class="macro-item protein">
+        <span class="macro-value">{{ s.weekTotal.protein }}g</span>
+        <span class="macro-label">{{ 'NUTRITION_SUMMARY.PROTEIN' | translate }}</span>
+      </div>
+      <div class="macro-item carbs">
+        <span class="macro-value">{{ s.weekTotal.carbs }}g</span>
+        <span class="macro-label">{{ 'NUTRITION_SUMMARY.CARBS' | translate }}</span>
+      </div>
+      <div class="macro-item fat">
+        <span class="macro-value">{{ s.weekTotal.fat }}g</span>
+        <span class="macro-label">{{ 'NUTRITION_SUMMARY.FAT' | translate }}</span>
+      </div>
+      <div class="macro-item fiber">
+        <span class="macro-value">{{ s.weekTotal.fiber }}g</span>
+        <span class="macro-label">{{ 'NUTRITION_SUMMARY.FIBER' | translate }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Per-Day Breakdown -->
+  @if (hasAnyDayData()) {
+  <div class="days-section">
+    <ion-label class="section-title">{{ 'NUTRITION_SUMMARY.PER_DAY' | translate }}</ion-label>
+
+    @for (day of weekDays; track day) { @if (getDayNutrition(day); as dayData) {
+    <div class="nutrition-card day-card">
+      <div class="card-header">
+        <ion-label class="card-title">{{ 'COMMON.WEEK_DAYS.' + day | translate }}</ion-label>
+      </div>
+      <div class="macros-grid compact">
+        <div class="macro-item calories">
+          <span class="macro-value">{{ dayData.kcal }}</span>
+          <span class="macro-label">kcal</span>
+        </div>
+        <div class="macro-item protein">
+          <span class="macro-value">{{ dayData.protein }}g</span>
+          <span class="macro-label">{{ 'NUTRITION_SUMMARY.PROTEIN_SHORT' | translate }}</span>
+        </div>
+        <div class="macro-item carbs">
+          <span class="macro-value">{{ dayData.carbs }}g</span>
+          <span class="macro-label">{{ 'NUTRITION_SUMMARY.CARBS_SHORT' | translate }}</span>
+        </div>
+        <div class="macro-item fat">
+          <span class="macro-value">{{ dayData.fat }}g</span>
+          <span class="macro-label">{{ 'NUTRITION_SUMMARY.FAT_SHORT' | translate }}</span>
+        </div>
+        <div class="macro-item fiber">
+          <span class="macro-value">{{ dayData.fiber }}g</span>
+          <span class="macro-label">{{ 'NUTRITION_SUMMARY.FIBER_SHORT' | translate }}</span>
+        </div>
+      </div>
+    </div>
+    } }
+  </div>
+  } @else {
+  <div class="no-data">
+    <ion-label color="medium">{{ 'NUTRITION_SUMMARY.NO_DATA' | translate }}</ion-label>
+  </div>
+  } }
+</ion-content>

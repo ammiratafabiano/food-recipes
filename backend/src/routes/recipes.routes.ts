@@ -70,10 +70,12 @@ async function buildRecipe(
         food_name_it?: string;
         quantity_value?: number;
         quantity_unit?: string;
+        brand?: string;
       }) => ({
         id: i.food_id || i.id,
         name: lang === 'it' ? i.food_name_it || i.name : i.food_name_en || i.name,
         quantity: { value: i.quantity_value, unit: i.quantity_unit },
+        brand: i.brand || '',
       }),
     ),
     steps: steps.map((s: { text: string; image_url?: string }) => ({
@@ -90,7 +92,12 @@ async function buildRecipe(
 
 async function saveRecipeDetails(
   recipeId: string,
-  ingredients: { id?: string; name: string; quantity?: { value?: number; unit?: string } }[],
+  ingredients: {
+    id?: string;
+    name: string;
+    quantity?: { value?: number; unit?: string };
+    brand?: string;
+  }[],
   steps: { text: string; imageUrl?: string }[],
   tags: string[],
 ) {
@@ -102,8 +109,8 @@ async function saveRecipeDetails(
   for (let i = 0; i < (ingredients || []).length; i++) {
     const ing = ingredients[i];
     await db.run(
-      `INSERT INTO recipe_ingredients (id, recipe_id, food_id, name, quantity_value, quantity_unit, sort_order)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO recipe_ingredients (id, recipe_id, food_id, name, quantity_value, quantity_unit, sort_order, brand)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       uuidv4(),
       recipeId,
       ing.id || null,
@@ -111,6 +118,7 @@ async function saveRecipeDetails(
       ing.quantity?.value ?? null,
       ing.quantity?.unit || null,
       i,
+      ing.brand || '',
     );
   }
 
