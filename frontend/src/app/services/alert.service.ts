@@ -81,13 +81,30 @@ export class AlertService {
     inputs: AlertInput[] = [],
     buttons?: AlertButton[],
   ): Promise<void> {
-    return this.alertController
-      .create({
-        header: this.translateService.instant(header),
-        message: this.translateService.instant(message),
-        inputs,
-        buttons,
-      })
-      .then((alert) => alert.present());
+    const alert = await this.alertController.create({
+      header: this.translateService.instant(header),
+      message: this.translateService.instant(message),
+      inputs,
+      buttons,
+    });
+
+    await alert.present();
+
+    // Auto-focus the first input and allow Enter to confirm
+    if (inputs.length > 0) {
+      const firstInput = alert.querySelector('input');
+      if (firstInput) {
+        firstInput.focus();
+        firstInput.addEventListener('keydown', (event: KeyboardEvent) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            const confirmBtn = alert.querySelector(
+              '.alert-button-group button:not(.alert-button-role-cancel)',
+            ) as HTMLElement | null;
+            confirmBtn?.click();
+          }
+        });
+      }
+    }
   }
 }

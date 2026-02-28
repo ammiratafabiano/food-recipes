@@ -537,6 +537,22 @@ export class PlanningPage implements OnDestroy {
     });
 
     await alert.present();
+
+    // Auto-focus input and allow Enter to confirm
+    const firstInput = alert.querySelector('input');
+    if (firstInput) {
+      firstInput.focus();
+      firstInput.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          const confirmBtn = alert.querySelector(
+            '.alert-button-group button:not(.alert-button-role-cancel)',
+          ) as HTMLElement | null;
+          confirmBtn?.click();
+        }
+      });
+    }
+
     const { role, data } = await alert.onDidDismiss();
 
     if (role === 'confirm' && data && data.values && data.values.servings) {
