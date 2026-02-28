@@ -42,7 +42,7 @@ import { WeekDay } from 'src/app/models/weekDay.enum';
     IonSegmentButton,
   ],
 })
-export class NutritionSummaryModal implements OnInit {
+export class NutritionSummaryComponent implements OnInit {
   private readonly dataService = inject(DataService);
   private readonly authService = inject(AuthService);
   private readonly modalCtrl = inject(ModalController);

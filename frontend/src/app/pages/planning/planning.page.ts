@@ -45,7 +45,7 @@ import { createPlanning } from 'src/app/utils/model-factories';
 import { LoadingService } from 'src/app/services/loading.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { UserData } from 'src/app/models/user-data.model';
-import { NutritionSummaryModal } from './nutrition-summary/nutrition-summary.modal';
+import { NutritionSummaryComponent } from './nutrition-summary/nutrition-summary.modal';
 
 @Component({
   selector: 'app-planning',
@@ -680,7 +680,7 @@ export class PlanningPage implements OnDestroy {
     }
 
     const modal = await this.modalCtrl.create({
-      component: NutritionSummaryModal,
+      component: NutritionSummaryComponent,
       componentProps: {
         week: currentPlanning.startDate,
         group,
