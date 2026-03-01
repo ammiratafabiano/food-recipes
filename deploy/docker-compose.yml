@@ -1,17 +1,17 @@
 services:
-  frontend:
+  food-recipes-frontend:
     image: ghcr.io/ammiratafabiano/food-recipes-frontend:main
     container_name: food-recipes-frontend
     restart: unless-stopped
     ports:
-      - "8080:80" # Espone il frontend sulla porta 8080 locale
+      - "8080:80"
 
-  backend:
+  food-recipes-backend:
     image: ghcr.io/ammiratafabiano/food-recipes-backend:main
     container_name: food-recipes-backend
     restart: unless-stopped
     ports:
-      - "3010:3000" # Porta host 3010 per evitare conflitti con pm2
+      - "3010:3000"
     env_file:
       - .env
     environment:
