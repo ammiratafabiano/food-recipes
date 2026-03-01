@@ -31,7 +31,6 @@
 </ion-header>
 
 <ion-content>
-  <!-- Title-->
   @if (recipe()?.name) {
   <h1 class="ion-padding-horizontal">{{ recipe()?.name }}</h1>
   } @if (recipe()?.userName) {
@@ -49,9 +48,19 @@
   </p>
   } @if (recipe()?.description) {
   <p class="ion-padding">{{ recipe()?.description }}</p>
-  }
-  <!-- Metadata -->
-  @if (recipe()?.type) {
+  } @if (recipe()?.wip) {
+  <ion-chip color="warning" class="ion-margin-horizontal">
+    <ion-icon name="construct-outline"></ion-icon>
+    <ion-label>{{ 'RECIPE_PAGE.WIP' | translate }}</ion-label>
+  </ion-chip>
+  } @if (recipe()?.notes) {
+  <div class="ion-padding-horizontal ion-padding-bottom">
+    <ion-note>
+      <ion-icon name="document-text-outline" size="small"></ion-icon>
+      {{ recipe()?.notes }}
+    </ion-note>
+  </div>
+  } @if (recipe()?.type) {
   <ion-item lines="full">
     <ion-icon name="nutrition" slot="start"></ion-icon>
     <ion-label>{{ 'COMMON.RECIPE_TYPE' | translate }}</ion-label>
@@ -67,10 +76,9 @@
   <ion-item lines="full">
     <ion-icon name="timer" slot="start"></ion-icon>
     <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>
-    <ion-label
-      >{{ recipe()?.time?.value }} {{ 'COMMON.TIME_UNITS.' + recipe()?.time?.unit | translate
-      }}</ion-label
-    >
+    <ion-label>
+      {{ recipe()?.time?.value }} {{ 'COMMON.TIME_UNITS.' + recipe()?.time?.unit | translate }}
+    </ion-label>
   </ion-item>
   } @if (recipe()?.difficulty) {
   <ion-item lines="full">
@@ -78,12 +86,9 @@
     <ion-label>{{ 'COMMON.DIFFICULTY' | translate }}</ion-label>
     <ion-label>{{ 'COMMON.DIFFICULTY_LEVEL.' + recipe()?.difficulty | translate }}</ion-label>
   </ion-item>
-  }
-  <!-- Ingredients-->
-  @if (recipe()?.ingredients) {
-  <h3 class="ion-padding-horizontal">{{ 'COMMON.INGREDIENTS' | translate }}</h3>
   } @if (recipe()) {
   <ion-item>
+    <ion-icon name="people-outline" slot="start"></ion-icon>
     <ion-label>{{ 'RECIPE_PAGE.SERVINGS' | translate }}</ion-label>
     <ion-button fill="clear" size="small" (click)="onDecreaseServings()">
       <ion-icon name="remove-circle-outline"></ion-icon>
@@ -93,7 +98,8 @@
       <ion-icon name="add-circle-outline"></ion-icon>
     </ion-button>
   </ion-item>
-  }
+  } @if ((recipe()?.ingredients?.length || 0) > 0) {
+  <h3 class="ion-padding-horizontal">{{ 'COMMON.INGREDIENTS' | translate }}</h3>
   <ion-list lines="inset" inset="true">
     @for (ingredient of recipe()?.ingredients; track trackByIngredient($index, ingredient)) {
     <ion-item>
@@ -105,11 +111,11 @@
       } @else {
       <ion-label class="quantity-label"> {{ 'COMMON.MISSING_QUANTITY' | translate }} </ion-label>
       }
-      <ion-label
-        >{{ ingredient.name }}@if (ingredient.brand) {<span class="brand-label">
+      <ion-label>
+        {{ ingredient.name }}@if (ingredient.brand) {<span class="brand-label">
           ({{ ingredient.brand }})</span
-        >}</ion-label
-      >
+        >}
+      </ion-label>
       @if (ingredient.kcal) {
       <ion-label class="macro-label">
         {{ (ingredient.kcal * (ingredient.quantity.value || 0) * multiplier() / 100) |
@@ -119,10 +125,9 @@
     </ion-item>
     }
   </ion-list>
-  <!-- Steps-->
-  @if (recipe()?.steps) {
+  } @if ((recipe()?.steps?.length || 0) > 0) {
   <h3 class="ion-padding-horizontal">{{ 'COMMON.STEPS' | translate }}</h3>
-  } @for (step of recipe()?.steps; track trackByStep($index)) {
+  @for (step of recipe()?.steps; track trackByStep($index)) {
   <ion-card>
     @if (step.imageUrl) {
     <img [src]="step.imageUrl" />
@@ -132,7 +137,7 @@
     </ion-card-header>
     <ion-card-content> {{ step.text }} </ion-card-content>
   </ion-card>
-  } @if (recipe() && isMine() && isUserLogged()) {
+  } } @if (recipe() && isMine() && isUserLogged()) {
   <ion-item class="ion-padding-top" lines="none" (click)="onDeleteClicked()">
     <ion-label color="danger">{{ 'RECIPE_PAGE.DELETE_BUTTON' | translate }} </ion-label>
   </ion-item>

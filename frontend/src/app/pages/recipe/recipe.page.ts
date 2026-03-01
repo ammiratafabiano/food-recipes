@@ -15,6 +15,7 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonChip,
   IonContent,
   IonFooter,
   IonHeader,
@@ -23,6 +24,7 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonNote,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
@@ -69,6 +71,8 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
     IonCardHeader,
     IonCardTitle,
     IonCardContent,
+    IonChip,
+    IonNote,
   ],
 })
 export class RecipePage implements OnInit {
@@ -261,6 +265,9 @@ export class RecipePage implements OnInit {
         this.navigationService.setRoot(
           [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],
           {
+            params: {
+              week: result?.data?.action,
+            },
             queryParams: {
               week: result?.data?.action,
             },

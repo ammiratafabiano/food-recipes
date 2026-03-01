@@ -63,7 +63,8 @@
         "DELETE_BUTTON": "Elimina ricetta",
         "DELETE_POPUP_CONFIRM_MESSAGE": "Vuoi davvero cancellare la ricetta?",
         "SERVINGS": "Per",
-        "VARIANT": "Variante di"
+        "VARIANT": "Variante di",
+        "WIP": "In lavorazione"
     },
     "ADD_RECIPE_PAGE": {
         "TITLE": "Nuova ricetta",
@@ -81,7 +82,10 @@
         "UNIT_PLACEHOLDER": "Unità",
         "UNIT_RESET": "Resetta",
         "SERVINGS": "Porzioni",
-        "BRAND_PLACEHOLDER": "Marca (opzionale)"
+        "BRAND_PLACEHOLDER": "Marca (opzionale)",
+        "WIP": "In lavorazione",
+        "NOTES": "Note",
+        "NOTES_PLACEHOLDER": "Link, appunti, commenti..."
     },
     "ITEM_SELECTION_PAGE": {
         "DEFAULT_TITLE": "Seleziona elemento",
@@ -215,5 +219,11 @@
         "CARBS_SHORT": "Carb",
         "FAT_SHORT": "Grassi",
         "FIBER_SHORT": "Fibre"
+    },
+    "MEAL_SUGGESTIONS": {
+        "TITLE": "Suggerimenti",
+        "LOADING": "Caricamento...",
+        "NO_DATA": "Nessun suggerimento disponibile. Aggiungi ricette al planning per ricevere suggerimenti nelle prossime settimane.",
+        "USED_TIMES": "Usata {{count}} volte"
     }
 }

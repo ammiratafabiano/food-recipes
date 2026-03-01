@@ -48,6 +48,8 @@ import {
   barChartOutline,
   shareOutline,
   pricetagOutline,
+  bulbOutline,
+  constructOutline,
 } from 'ionicons/icons';
 
 import { AppComponent } from './app/app.component';
@@ -89,6 +91,8 @@ addIcons({
   barChartOutline,
   shareOutline,
   pricetagOutline,
+  bulbOutline,
+  constructOutline,
 });
 
 export function createTranslateLoader(http: HttpClient) {

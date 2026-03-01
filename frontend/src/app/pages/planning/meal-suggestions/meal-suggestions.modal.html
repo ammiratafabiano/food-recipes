@@ -1,0 +1,33 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ 'MEAL_SUGGESTIONS.TITLE' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onClose()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (loading()) {
+  <p class="ion-text-center ion-padding">{{ 'MEAL_SUGGESTIONS.LOADING' | translate }}</p>
+  } @else if (suggestions().length === 0) {
+  <p class="ion-text-center ion-padding">{{ 'MEAL_SUGGESTIONS.NO_DATA' | translate }}</p>
+  } @else {
+  <ion-list>
+    @for (suggestion of suggestions(); track suggestion.recipe_id) {
+    <ion-item button (click)="onAddClicked(suggestion)">
+      <ion-label>
+        <h2>{{ suggestion.recipe_name }}</h2>
+        <p>
+          {{ 'MEAL_SUGGESTIONS.USED_TIMES' | translate: { count: suggestion.frequency } }} @if
+          (suggestion.meals_used.length > 0) { · {{ getMealsLabel(suggestion.meals_used) }} }
+        </p>
+      </ion-label>
+      <ion-icon slot="end" name="add-circle-outline" color="primary"></ion-icon>
+    </ion-item>
+    }
+  </ion-list>
+  }
+</ion-content>

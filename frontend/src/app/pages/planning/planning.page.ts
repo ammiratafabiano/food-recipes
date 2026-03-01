@@ -46,6 +46,10 @@ import { LoadingService } from 'src/app/services/loading.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { UserData } from 'src/app/models/user-data.model';
 import { NutritionSummaryComponent } from './nutrition-summary/nutrition-summary.modal';
+import {
+  MealSuggestionsComponent,
+  MealSuggestion,
+} from './meal-suggestions/meal-suggestions.modal';
 
 @Component({
   selector: 'app-planning',
@@ -135,10 +139,13 @@ export class PlanningPage implements OnDestroy {
     const week = this.navigationService.getParams<{ week: string }>()?.week;
     const targetStartDate = week || dayjs().startOf('week').format('YYYY-MM-DD');
 
-    // If data is already loaded for the same week, skip HTTP calls entirely
+    // If data is already loaded for the same week, do a silent background
+    // refetch so any recipes added while away are picked up immediately.
     const alreadyLoaded = this.dataLoaded() && targetStartDate === this.planning()?.startDate;
     if (!alreadyLoaded) {
       await this.getData(week);
+    } else {
+      this.refetchPlanning(targetStartDate);
     }
 
     // Connect socket only if the user belongs to a group
@@ -688,5 +695,45 @@ export class PlanningPage implements OnDestroy {
       },
     });
     await modal.present();
+  }
+
+  async onSuggestionsClicked() {
+    const group = this.group();
+    const currentPlanning = this.planning();
+    if (!currentPlanning) return;
+
+    const modal = await this.modalCtrl.create({
+      component: MealSuggestionsComponent,
+      componentProps: {
+        week: currentPlanning.startDate,
+        group,
+      },
+    });
+    await modal.present();
+
+    const { data, role } = await modal.onDidDismiss<MealSuggestion>();
+    if (role === 'add' && data) {
+      const recipe = await this.dataService.getRecipe(data.recipe_id);
+      if (recipe) {
+        const planned = await this.dataService.addToPlanning(
+          recipe,
+          currentPlanning.startDate,
+          undefined,
+          undefined,
+          group,
+        );
+        if (planned) {
+          const newRecipes = [...currentPlanning.recipes];
+          const firstSepIdx = newRecipes.findIndex((r) => r.kind === 'separator');
+          if (firstSepIdx >= 0) {
+            newRecipes.splice(firstSepIdx + 1, 0, planned);
+          } else {
+            newRecipes.unshift(planned);
+          }
+          this.planning.set({ ...currentPlanning, recipes: newRecipes });
+          this.handleResponse(this.planning());
+        }
+      }
+    }
   }
 }

@@ -191,6 +191,20 @@ export async function getDB(): Promise<Database> {
     // Column might already exist
   }
 
+  // Migration: add wip flag to recipes
+  try {
+    await db.run('ALTER TABLE recipes ADD COLUMN wip INTEGER DEFAULT 0');
+  } catch (e) {
+    // Column might already exist
+  }
+
+  // Migration: add notes column to recipes
+  try {
+    await db.run("ALTER TABLE recipes ADD COLUMN notes TEXT DEFAULT ''");
+  } catch (e) {
+    // Column might already exist
+  }
+
   // NOTE: NULL quantity_unit is now allowed (e.g. for items like eggs counted as PIECE).
   dbInstance = db;
   return db;

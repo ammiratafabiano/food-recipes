@@ -20,6 +20,7 @@ import {
   IonSelectOption,
   IonTextarea,
   IonTitle,
+  IonToggle,
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -72,6 +73,7 @@ import { trackById, trackByIndex } from 'src/app/utils/track-by';
     IonItemOption,
     IonItemOptions,
     IonCheckbox,
+    IonToggle,
   ],
 })
 export class AddRecipePage implements OnInit {

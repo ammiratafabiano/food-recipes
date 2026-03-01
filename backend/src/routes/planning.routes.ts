@@ -407,6 +407,79 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
   }
 });
 
+planningRouter.get('/:week/suggestions', async (req: any, res) => {
+  try {
+    const me = req.user as JwtPayload;
+    const groupId = req.query.groupId as string | undefined;
+    const db = await getDB();
+
+    let userIds = [me.id];
+    if (groupId) {
+      const members = await db.all('SELECT user_id FROM group_members WHERE group_id = ?', groupId);
+      userIds = members.map((m: { user_id: string }) => m.user_id);
+    }
+
+    const placeholders = userIds.map(() => '?').join(',');
+
+    // Get recipes already planned for the current week
+    const currentWeekRecipes = await db.all(
+      `SELECT DISTINCT recipe_id FROM planning WHERE week = ? AND user_id IN (${placeholders})`,
+      req.params.week,
+      ...userIds,
+    );
+    const currentRecipeIds = new Set(
+      currentWeekRecipes.map((r: { recipe_id: string }) => r.recipe_id),
+    );
+
+    // Get most frequently planned recipes from past weeks, with last used info
+    const rows = await db.all(
+      `SELECT 
+        p.recipe_id,
+        p.recipe_name,
+        r.name as recipe_name_lookup,
+        r.type as recipe_type,
+        COUNT(*) as frequency,
+        MAX(p.week) as last_used_week,
+        GROUP_CONCAT(DISTINCT p.meal) as meals_used
+       FROM planning p
+       LEFT JOIN recipes r ON r.id = p.recipe_id
+       WHERE p.week != ? AND p.user_id IN (${placeholders})
+       GROUP BY p.recipe_id
+       ORDER BY frequency DESC
+       LIMIT 30`,
+      req.params.week,
+      ...userIds,
+    );
+
+    const suggestions = rows
+      .filter((r: { recipe_id: string }) => !currentRecipeIds.has(r.recipe_id))
+      .slice(0, 15)
+      .map(
+        (r: {
+          recipe_id: string;
+          recipe_name: string;
+          recipe_name_lookup: string;
+          recipe_type: string;
+          frequency: number;
+          last_used_week: string;
+          meals_used: string;
+        }) => ({
+          recipe_id: r.recipe_id,
+          recipe_name: r.recipe_name || r.recipe_name_lookup || '',
+          recipe_type: r.recipe_type || 'OTHER',
+          frequency: r.frequency,
+          last_used_week: r.last_used_week,
+          meals_used: r.meals_used ? [...new Set(r.meals_used.split(',').filter(Boolean))] : [],
+        }),
+      );
+
+    res.json(suggestions);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
 planningRouter.get('/:week/shopping-list', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
@@ -431,6 +504,18 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
       req.params.week,
       ...userIds,
     );
+
+    // Find planned recipes with NO ingredients (WIP) → add "Cose per [recipe]" entries
+    const wipRows = await db.all(
+      `SELECT DISTINCT r.name as recipe_name, p.recipe_id
+       FROM planning p
+       JOIN recipes r ON r.id = p.recipe_id
+       WHERE p.week = ? AND p.user_id IN (${placeholders})
+         AND NOT EXISTS (SELECT 1 FROM recipe_ingredients ri WHERE ri.recipe_id = r.id)`,
+      req.params.week,
+      ...userIds,
+    );
+
     const map: Record<
       string,
       { id: string; name: string; quantity: { value: number; unit: string } }
@@ -454,6 +539,18 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
         };
       }
     }
+
+    // Add "Cose per [recipe]" entries for WIP recipes without ingredients
+    const wipLabel = lang === 'it' ? 'Cose per' : 'Stuff for';
+    for (const w of wipRows) {
+      const key = `wip:${w.recipe_id}`;
+      map[key] = {
+        id: key,
+        name: `${wipLabel} ${w.recipe_name}`,
+        quantity: { value: 0, unit: '' },
+      };
+    }
+
     res.json(Object.values(map));
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';

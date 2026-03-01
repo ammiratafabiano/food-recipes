@@ -20,6 +20,8 @@ export interface Recipe {
   servings: number;
   minServings?: number;
   splitServings?: number;
+  wip?: boolean;
+  notes?: string;
   variantId?: string;
   variantName?: string;
   isAdded?: boolean;

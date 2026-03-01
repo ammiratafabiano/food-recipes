@@ -254,6 +254,39 @@ export class DataService {
 
   // ── Shopping List ──────────────────────────────────
 
+  async getPlanningSuggestions(
+    week: string,
+    groupId?: string,
+  ): Promise<
+    {
+      recipe_id: string;
+      recipe_name: string;
+      recipe_type: string;
+      frequency: number;
+      last_used_week: string;
+      meals_used: string[];
+    }[]
+  > {
+    try {
+      const params: Record<string, string> = {};
+      if (groupId) params['groupId'] = groupId;
+      return await firstValueFrom(
+        this.http.get<
+          {
+            recipe_id: string;
+            recipe_name: string;
+            recipe_type: string;
+            frequency: number;
+            last_used_week: string;
+            meals_used: string[];
+          }[]
+        >(`${this.api}/planning/${week}/suggestions`, { params }),
+      );
+    } catch {
+      return [];
+    }
+  }
+
   async getShoppingList(week: string, groupId?: string): Promise<Ingredient[] | undefined> {
     try {
       const params: Record<string, string> = {};

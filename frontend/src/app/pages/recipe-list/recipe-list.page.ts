@@ -233,6 +233,9 @@ export class RecipeListPage {
         this.navigationService.setRoot(
           [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],
           {
+            params: {
+              week: result?.data?.action,
+            },
             queryParams: {
               week: result?.data?.action,
             },

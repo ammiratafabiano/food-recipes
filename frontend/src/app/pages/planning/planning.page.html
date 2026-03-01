@@ -3,6 +3,9 @@
     <ion-title> {{ 'PLANNING_PAGE.TITLE' | translate }} </ion-title>
     @if (dataLoaded() && group()) {
     <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="onSuggestionsClicked()">
+        <ion-icon slot="icon-only" name="bulb-outline"></ion-icon>
+      </ion-button>
       <ion-button fill="clear" (click)="onNutritionSummaryClicked()">
         <ion-icon slot="icon-only" name="bar-chart-outline"></ion-icon>
       </ion-button>

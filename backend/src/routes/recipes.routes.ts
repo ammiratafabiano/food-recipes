@@ -7,6 +7,12 @@ import { authenticateToken, JwtPayload } from '../auth.middleware';
 export const recipesRouter = express.Router();
 recipesRouter.use(authenticateToken);
 
+function toMinOne(value: unknown, fallback: number) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.max(1, Math.trunc(parsed));
+}
+
 async function buildRecipe(
   recipeRow: {
     id: string;
@@ -21,6 +27,8 @@ async function buildRecipe(
     servings?: number;
     min_servings?: number;
     split_servings?: number;
+    wip?: number;
+    notes?: string;
   },
   userId?: string,
   lang: string = 'en',
@@ -86,6 +94,8 @@ async function buildRecipe(
     servings: recipeRow.servings || 4,
     minServings: recipeRow.min_servings || 1,
     splitServings: recipeRow.split_servings || 1,
+    wip: !!recipeRow.wip,
+    notes: recipeRow.notes || '',
     isAdded,
   };
 }
@@ -164,6 +174,8 @@ recipesRouter.get('/', async (req: any, res) => {
           servings?: number;
           min_servings?: number;
           split_servings?: number;
+          wip?: number;
+          notes?: string;
         }) => buildRecipe(r, me.id, lang),
       ),
     );
@@ -198,6 +210,8 @@ recipesRouter.get('/saved', async (req: any, res) => {
           servings?: number;
           min_servings?: number;
           split_servings?: number;
+          wip?: number;
+          notes?: string;
         }) => buildRecipe(r, me.id, lang),
       ),
     );
@@ -229,6 +243,8 @@ recipesRouter.get('/discover', async (req: any, res) => {
           servings?: number;
           min_servings?: number;
           split_servings?: number;
+          wip?: number;
+          notes?: string;
         }) => buildRecipe(r, me.id, lang),
       ),
     );
@@ -273,12 +289,17 @@ recipesRouter.post('/', async (req: any, res) => {
       servings,
       minServings,
       splitServings,
+      wip,
+      notes,
     } = req.body;
+    const normalizedServings = toMinOne(servings, 4);
+    const normalizedMinServings = toMinOne(minServings, 1);
+    const normalizedSplitServings = toMinOne(splitServings, 1);
     const db = await getDB();
     const id = uuidv4();
     await db.run(
-      `INSERT INTO recipes (id, user_id, name, description, cuisine, type, difficulty, time_value, time_unit, servings, min_servings, split_servings)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO recipes (id, user_id, name, description, cuisine, type, difficulty, time_value, time_unit, servings, min_servings, split_servings, wip, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       id,
       me.id,
       name,
@@ -288,9 +309,11 @@ recipesRouter.post('/', async (req: any, res) => {
       difficulty || 'EASY',
       time?.value ?? null,
       time?.unit ?? 'MINUTE',
-      servings || 4,
-      minServings || 1,
-      splitServings || 1,
+      normalizedServings,
+      normalizedMinServings,
+      normalizedSplitServings,
+      wip ? 1 : 0,
+      notes || '',
     );
     await saveRecipeDetails(id, ingredients, steps, tags);
     const row = await db.get('SELECT * FROM recipes WHERE id = ?', id);
@@ -323,7 +346,12 @@ recipesRouter.put('/:id', async (req: any, res) => {
       servings,
       minServings,
       splitServings,
+      wip,
+      notes,
     } = req.body;
+    const normalizedServings = toMinOne(servings, 4);
+    const normalizedMinServings = toMinOne(minServings, 1);
+    const normalizedSplitServings = toMinOne(splitServings, 1);
     const db = await getDB();
     const existing = await db.get(
       'SELECT * FROM recipes WHERE id = ? AND user_id = ?',
@@ -335,7 +363,7 @@ recipesRouter.put('/:id', async (req: any, res) => {
       return;
     }
     await db.run(
-      `UPDATE recipes SET name=?, description=?, cuisine=?, type=?, difficulty=?, time_value=?, time_unit=?, servings=?, min_servings=?, split_servings=? WHERE id = ?`,
+      `UPDATE recipes SET name=?, description=?, cuisine=?, type=?, difficulty=?, time_value=?, time_unit=?, servings=?, min_servings=?, split_servings=?, wip=?, notes=? WHERE id = ?`,
       name,
       description || '',
       cuisine || '',
@@ -343,9 +371,11 @@ recipesRouter.put('/:id', async (req: any, res) => {
       difficulty || 'EASY',
       time?.value ?? null,
       time?.unit ?? 'MINUTE',
-      servings || 4,
-      minServings || 1,
-      splitServings || 1,
+      normalizedServings,
+      normalizedMinServings,
+      normalizedSplitServings,
+      wip ? 1 : 0,
+      notes || '',
       req.params.id,
     );
     await saveRecipeDetails(req.params.id, ingredients, steps, tags);

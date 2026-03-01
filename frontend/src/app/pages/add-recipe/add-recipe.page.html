@@ -53,6 +53,19 @@
       ></ion-textarea>
     </ion-item>
     <ion-item>
+      <ion-label>{{ 'ADD_RECIPE_PAGE.NOTES' | translate }}</ion-label>
+      <ion-textarea
+        [(ngModel)]="recipe.notes"
+        [autoGrow]="true"
+        [placeholder]="'ADD_RECIPE_PAGE.NOTES_PLACEHOLDER' | translate"
+        slot="end"
+      ></ion-textarea>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'ADD_RECIPE_PAGE.WIP' | translate }}</ion-label>
+      <ion-toggle [(ngModel)]="recipe.wip" slot="end"></ion-toggle>
+    </ion-item>
+    <ion-item>
       <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
       <ion-input
         [value]="recipe.cuisine ? ('COMMON.CUISINE_TYPES.' + recipe.cuisine | translate) : undefined"
@@ -105,6 +118,7 @@
       <ion-input
         [(ngModel)]="recipe.servings"
         type="number"
+        min="1"
         [placeholder]="'ADD_RECIPE_PAGE.SERVINGS' | translate"
       ></ion-input>
     </ion-item>
@@ -225,7 +239,7 @@
     <ion-button
       expand="block"
       (click)="onConfirmClicked()"
-      [disabled]="!selectedRecipe().name || !(selectedRecipe().ingredients.length > 0)"
+      [disabled]="!selectedRecipe().name || !selectedRecipe().servings || selectedRecipe().servings < 1 || (!selectedRecipe().wip && !(selectedRecipe().ingredients.length > 0))"
     >
       {{ 'ADD_RECIPE_PAGE.CONFIRM_BUTTON' | translate }}
     </ion-button>
@@ -233,7 +247,7 @@
     <ion-button
       expand="block"
       (click)="onConfirmEditClicked()"
-      [disabled]="!selectedRecipe().name || !(selectedRecipe().ingredients.length > 0)"
+      [disabled]="!selectedRecipe().name || !selectedRecipe().servings || selectedRecipe().servings < 1 || (!selectedRecipe().wip && !(selectedRecipe().ingredients.length > 0))"
     >
       {{ 'ADD_RECIPE_PAGE.CONFIRM_EDIT_BUTTON' | translate }}
     </ion-button>
