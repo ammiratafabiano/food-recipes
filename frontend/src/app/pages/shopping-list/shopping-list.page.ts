@@ -13,7 +13,6 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { ActionSheetController } from '@ionic/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
 import { AlertService } from 'src/app/services/alert.service';
@@ -49,7 +48,6 @@ import { Subscription } from 'rxjs';
 export class ShoppingListPage implements OnDestroy {
   private readonly dataService = inject(DataService);
   private readonly loadingService = inject(LoadingService);
-  private readonly actionSheetCtrl = inject(ActionSheetController);
   private readonly translateService = inject(TranslateService);
   private readonly alertService = inject(AlertService);
 
@@ -101,156 +99,53 @@ export class ShoppingListPage implements OnDestroy {
   }
 
   /**
-   * Builds a text representation of the shopping list.
-   */
-  private buildShoppingListText(): string {
-    const list = this.shoppingList();
-    if (!list || list.length === 0) return '';
-
-    return list
-      .map((item) => {
-        const qty = item.quantity?.value
-          ? `${item.quantity.value}${item.quantity.unit ? this.translateService.instant('COMMON.WEIGHT_UNITS.' + item.quantity.unit) : ''}`
-          : '';
-        return qty ? `${item.name} - ${qty}` : item.name;
-      })
-      .join('\n');
-  }
-
-  /**
-   * Shows an action sheet with export options for the shopping list.
+   * Esporta la lista della spesa per essere processata da un Apple Shortcut.
+   * Genera un array JSON e lo copia negli appunti e/o lo condivide.
    */
   async onExportClicked() {
     const list = this.shoppingList();
     if (!list || list.length === 0) return;
 
-    const buttons: any[] = [];
+    // Crea un oggetto strutturato facile da parsare per uno Shortcut
+    const exportData = list.map((item) => ({
+      name: item.name,
+      quantity: item.quantity?.value || null,
+      unit: item.quantity?.unit
+        ? this.translateService.instant('COMMON.WEIGHT_UNITS.' + item.quantity.unit)
+        : null,
+      rawUnit: item.quantity?.unit || null,
+    }));
 
-    // Share via native share sheet (iOS/Android - includes Reminders, AirDrop, etc.)
-    if (typeof navigator.share === 'function') {
-      buttons.push({
-        text: this.translateService.instant('SHOPPING_LIST_PAGE.SHARE'),
-        icon: 'share-outline',
-        handler: () => this.shareList(),
-      });
-    }
+    const textPayload = JSON.stringify(exportData, null, 2);
 
-    // Copy as text (can be pasted into Reminders manually)
-    buttons.push({
-      text: this.translateService.instant('SHOPPING_LIST_PAGE.COPY_LIST'),
-      icon: 'copy-outline',
-      handler: () => this.copyListToClipboard(),
-    });
-
-    // Export to Apple Reminders (iOS only - via URL scheme)
-    buttons.push({
-      text: this.translateService.instant('SHOPPING_LIST_PAGE.EXPORT_REMINDERS'),
-      icon: 'checkbox-outline',
-      handler: () => this.exportToAppleReminders(),
-    });
-
-    buttons.push({
-      text: this.translateService.instant('COMMON.GENERIC_ALERT.CANCEL_BUTTON'),
-      role: 'cancel',
-    });
-
-    const actionSheet = await this.actionSheetCtrl.create({
-      header: this.translateService.instant('SHOPPING_LIST_PAGE.EXPORT_TITLE'),
-      buttons,
-    });
-    await actionSheet.present();
-  }
-
-  /**
-   * Uses the Web Share API to share the shopping list.
-   * On iOS, this opens the native share sheet which includes
-   * Reminders, Notes, Messages, etc.
-   */
-  private async shareList() {
-    const text = this.buildShoppingListText();
-    const title = this.translateService.instant('SHOPPING_LIST_PAGE.TITLE');
+    // 1. Copia negli appunti (così lo shortcut può usare "Ottieni Appunti")
     try {
-      await navigator.share({ title, text });
+      await navigator.clipboard.writeText(textPayload);
     } catch {
-      // User cancelled or share failed — no action needed
-    }
-  }
-
-  /**
-   * Copies the shopping list to clipboard as formatted text.
-   */
-  private async copyListToClipboard() {
-    const text = this.buildShoppingListText();
-    try {
-      await navigator.clipboard.writeText(text);
-      this.alertService.presentInfoPopup(this.translateService.instant('COMMON.CLIPBOARD'));
-    } catch {
-      // Fallback for older browsers
+      // Fallback per browser vecchi
       const textarea = document.createElement('textarea');
-      textarea.value = text;
+      textarea.value = textPayload;
       textarea.style.position = 'fixed';
       textarea.style.opacity = '0';
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-      this.alertService.presentInfoPopup(this.translateService.instant('COMMON.CLIPBOARD'));
     }
-  }
 
-  /**
-   * Exports the shopping list to Apple Reminders.
-   *
-   * Strategy: Creates a Shortcuts-compatible URL that, when opened on iOS/macOS,
-   * will trigger the Apple Shortcuts app to add items to a Reminders list.
-   *
-   * We use the `shortcuts://run-shortcut` URL scheme. The user needs to have
-   * a Shortcut called "Add Shopping List" that accepts text input.
-   *
-   * As an alternative simpler approach, we format the list and open the
-   * Reminders app with the share sheet, or copy items individually.
-   *
-   * The most reliable cross-platform approach is to generate a text payload
-   * and use the share sheet, which is already handled by shareList().
-   * This method provides a direct Reminders-focused experience.
-   */
-  private async exportToAppleReminders() {
-    const list = this.shoppingList();
-    if (!list || list.length === 0) return;
-
-    // Build the list items as newline-separated text
-    const items = list.map((item) => {
-      const qty = item.quantity?.value
-        ? ` (${item.quantity.value}${item.quantity.unit ? this.translateService.instant('COMMON.WEIGHT_UNITS.' + item.quantity.unit) : ''})`
-        : '';
-      return `${item.name}${qty}`;
-    });
-
-    const listText = items.join('\n');
-
-    // Try to use the Shortcuts URL scheme to run a shortcut
-    // The shortcut should be named "Aggiungi Lista Spesa" or "Add Shopping List"
-    const shortcutName = this.translateService.instant(
-      'SHOPPING_LIST_PAGE.REMINDERS_SHORTCUT_NAME',
-    );
-    const encodedInput = encodeURIComponent(listText);
-    const encodedName = encodeURIComponent(shortcutName);
-    const shortcutsUrl = `shortcuts://run-shortcut?name=${encodedName}&input=text&text=${encodedInput}`;
-
-    // Try to open the Shortcuts URL
-    // If it fails (not on iOS/macOS, or shortcut doesn't exist), fall back to share
-    try {
-      const opened = window.open(shortcutsUrl, '_blank');
-      if (!opened) {
-        // If window.open failed (blocked popup), try location redirect
-        // but first share as fallback
-        await this.shareList();
+    // 2. Prova a usare il Web Share API per aprire il Share Sheet (iOS)
+    // dal quale l'utente può scegliere il proprio Shortcut.
+    const title = this.translateService.instant('SHOPPING_LIST_PAGE.TITLE');
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title, text: textPayload });
+      } catch (err) {
+        // Ignora eventuali errori di share (es. utente chiude il menu)
+        this.alertService.presentInfoPopup(this.translateService.instant('COMMON.CLIPBOARD'));
       }
-    } catch {
-      // Fallback: show info about the Shortcuts setup
-      this.alertService.presentInfoPopup(
-        this.translateService.instant('SHOPPING_LIST_PAGE.REMINDERS_SETUP_INFO'),
-      );
+    } else {
+      // Solo notifica se non c'è il web share
+      this.alertService.presentInfoPopup(this.translateService.instant('COMMON.CLIPBOARD'));
     }
   }
 }
