@@ -70,6 +70,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
+          tags: type=raw,value=latest
 
       - name: Build and push Frontend Docker image
         uses: docker/build-push-action@v5
@@ -112,6 +113,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}
+          tags: type=raw,value=latest
 
       - name: Build and push Backend Docker image
         uses: docker/build-push-action@v5
