@@ -13,12 +13,14 @@ services:
     ports:
       - "3010:3000"
     env_file:
-      - .env
+      - ./food-recipes/.env
     environment:
       - NODE_ENV=production
       - FRONTEND_URL=https://recipes.ammiratafabiano.dev
     volumes:
       - backend-data:/app/data
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
 volumes:
   backend-data:

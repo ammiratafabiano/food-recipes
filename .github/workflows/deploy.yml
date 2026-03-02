@@ -71,12 +71,6 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
 
-      - name: Inject Secret into Frontend environment.ts
-        working-directory: ./frontend
-        run: |
-          sed -i 's/GOOGLE_CLIENT_ID_PLACEHOLDER/${{ secrets.GOOGLE_CLIENT_ID }}/g' src/environments/environment.ts
-          sed -i 's/GOOGLE_CLIENT_ID_PLACEHOLDER/${{ secrets.GOOGLE_CLIENT_ID }}/g' src/environments/environment.prod.ts
-
       - name: Build and push Frontend Docker image
         uses: docker/build-push-action@v5
         with:
@@ -130,22 +124,3 @@ jobs:
           labels: ${{ steps.meta-backend.outputs.labels }}
           cache-from: type=gha,scope=backend
           cache-to: type=gha,mode=max,scope=backend
-
-  deploy-to-raspberry:
-    needs: [build-frontend, build-backend]
-    if: github.event_name == 'push'
-    runs-on: self-hosted
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Create .env file
-        run: |
-          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" > deploy/.env
-
-      - name: Deploy
-        run: |
-          cd deploy
-          docker compose pull
-          docker compose up -d --remove-orphans
-          docker image prune -f
