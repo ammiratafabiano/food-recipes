@@ -70,8 +70,11 @@ class KeyStore {
       )
     `);
 
-    // Ensure at least one active key exists
-    const current = await db.get<StoredKey>('SELECT * FROM jwt_keys WHERE is_current = 1');
+    // Ensure at least one active, non-expired key exists
+    const current = await db.get<StoredKey>(
+      'SELECT * FROM jwt_keys WHERE is_current = 1 AND expires_at > ?',
+      Date.now(),
+    );
     if (!current) {
       await this.rotate();
     }
@@ -131,11 +134,23 @@ class KeyStore {
 
   /* ---- signing --------------------------------------------------- */
 
-  /** Return the current (active) key. */
+  /** Return the current (active) key, rotating if it has expired. */
   private async getCurrentKey(): Promise<StoredKey> {
     const db = await getDB();
-    const key = await db.get<StoredKey>('SELECT * FROM jwt_keys WHERE is_current = 1');
-    if (!key) throw new Error('[KeyStore] No active signing key');
+    const key = await db.get<StoredKey>(
+      'SELECT * FROM jwt_keys WHERE is_current = 1 AND expires_at > ?',
+      Date.now(),
+    );
+    if (!key) {
+      // Current key is missing or expired — rotate immediately
+      await this.rotate();
+      const newKey = await db.get<StoredKey>(
+        'SELECT * FROM jwt_keys WHERE is_current = 1 AND expires_at > ?',
+        Date.now(),
+      );
+      if (!newKey) throw new Error('[KeyStore] No active signing key after rotation');
+      return newKey;
+    }
     return key;
   }
 
