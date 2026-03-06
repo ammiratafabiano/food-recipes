@@ -1,13 +1,13 @@
 services:
   food-recipes-frontend:
-    image: ghcr.io/ammiratafabiano/food-recipes-frontend:main
+    image: ghcr.io/ammiratafabiano/food-recipes-frontend:latest
     container_name: food-recipes-frontend
     restart: unless-stopped
     ports:
       - "127.0.0.1:8080:80"
 
   food-recipes-backend:
-    image: ghcr.io/ammiratafabiano/food-recipes-backend:main
+    image: ghcr.io/ammiratafabiano/food-recipes-backend:latest
     container_name: food-recipes-backend
     restart: unless-stopped
     ports:
