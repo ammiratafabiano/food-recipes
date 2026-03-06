@@ -76,11 +76,12 @@ export class SocketService implements OnDestroy {
     }
 
     // No socket yet → create one (WebSocket only — no HTTP polling)
-    this.socket = io(environment.apiUrl, {
+    this.socket = io(environment.socketUrl, {
       auth: { token },
       transports: ['websocket'],
       reconnectionAttempts: 5,
       upgrade: false,
+      path: environment.socketPath,
     });
 
     this.currentGroupId = groupId;
