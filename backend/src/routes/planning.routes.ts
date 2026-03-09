@@ -121,6 +121,15 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
     }
 
     const pId = uuidv4();
+
+    // Compute group-aware servings: use group size if user belongs to a group
+    let servings = 1;
+    const groupId = await findUserGroupId(me.id);
+    if (groupId) {
+      const members = await db.all('SELECT user_id FROM group_members WHERE group_id = ?', groupId);
+      servings = members.length || 1;
+    }
+
     await db.run(
       'INSERT INTO planning (id, recipe_id, recipe_name, week, day, user_id, servings) VALUES (?, ?, ?, ?, ?, ?, ?)',
       pId,
@@ -129,7 +138,7 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
       req.params.week,
       day || null,
       me.id,
-      1,
+      servings,
     );
 
     const inserted = await db.get(
@@ -154,7 +163,6 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
 
     res.json({ success: true, item });
 
-    const groupId = await findUserGroupId(me.id);
     if (groupId) {
       emitPlanningChange(groupId, 'planning:added', Object.assign({}, item, { user_id: me.id }));
       emitShoppingListInvalidate(groupId, req.params.week);

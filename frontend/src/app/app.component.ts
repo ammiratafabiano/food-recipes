@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import updateLocale from 'dayjs/plugin/updateLocale';
-import { filter, take } from 'rxjs';
+import { filter, firstValueFrom, take } from 'rxjs';
 import { LoggingService } from './services/logging.service';
 import { NavigationService } from './services/navigation.service';
 import { LoadingService } from './services/loading.service';
@@ -61,15 +61,24 @@ export class AppComponent {
         // Clean url
         window.history.replaceState({}, '', window.location.pathname);
 
+        // Wait for translations to be loaded before building the alert
+        const translations = await firstValueFrom(
+          this.translate.get([
+            'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM',
+            'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON',
+            'COMMON.GENERIC_ALERT.CANCEL_BUTTON',
+          ]),
+        );
+
         const alert = await this.alertCtrl.create({
-          message: this.translate.instant('GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM'),
+          message: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM'],
           buttons: [
             {
-              text: this.translate.instant('GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON'),
+              text: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON'],
               role: 'confirm',
             },
             {
-              text: this.translate.instant('COMMON.GENERIC_ALERT.CANCEL_BUTTON'),
+              text: translations['COMMON.GENERIC_ALERT.CANCEL_BUTTON'],
               role: 'cancel',
             },
           ],

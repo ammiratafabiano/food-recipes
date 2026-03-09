@@ -33,7 +33,7 @@ export const authInterceptor = (
       if (error.status === 401 || error.status === 403) {
         // Don't try to refresh if the request was already a refresh request
         if (req.url.includes('/auth/refresh')) {
-          authService.resetUser();
+          authService.forceLogout();
           return throwError(() => error);
         }
 
@@ -65,13 +65,13 @@ export const authInterceptor = (
                 }),
                 catchError((err) => {
                   isRefreshing = false;
-                  authService.resetUser();
+                  authService.forceLogout();
                   return throwError(() => err);
                 }),
               );
           } else {
             isRefreshing = false;
-            authService.resetUser();
+            authService.forceLogout();
             return throwError(() => error);
           }
         } else {

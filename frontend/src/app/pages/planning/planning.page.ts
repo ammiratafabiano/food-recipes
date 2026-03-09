@@ -240,25 +240,24 @@ export class PlanningPage implements OnDestroy {
               servings: planned.servings ?? existing.servings,
               assignedTo: planned.assignedTo ?? existing.assignedTo,
             };
-            const newRecipes = [...currentPlanning.recipes];
-            newRecipes[existingIdx] = merged;
-            this.planning.set({ ...currentPlanning, recipes: newRecipes });
-            this.sortList();
+            const newRecipes = currentPlanning.recipes.map((r) =>
+              r.kind === 'recipe' && r.id === planned.id ? merged : r,
+            );
+            // Rebuild separator structure to handle day changes correctly
+            this.handleResponse({ ...currentPlanning, recipes: newRecipes });
           }
           break;
         }
         case 'deleted': {
-          // Remove the recipe from the local list
+          // Remove the recipe and rebuild separator structure
           const exists = currentPlanning.recipes.some(
             (r) => r.kind === 'recipe' && r.id === planned.id,
           );
           if (exists) {
-            this.planning.set({
-              ...currentPlanning,
-              recipes: currentPlanning.recipes.filter(
-                (r) => r.kind !== 'recipe' || r.id !== planned.id,
-              ),
-            });
+            const filtered = currentPlanning.recipes.filter(
+              (r) => r.kind !== 'recipe' || r.id !== planned.id,
+            );
+            this.handleResponse({ ...currentPlanning, recipes: filtered });
           }
           break;
         }
@@ -283,12 +282,9 @@ export class PlanningPage implements OnDestroy {
 
   private async getData(startDate?: string) {
     const fetchTask = async () => {
-      // Only fetch group if not already cached
-      let group = this.group();
-      if (!group) {
-        group = await this.dataService.retrieveGroup();
-        this.group.set(group);
-      }
+      // Always refresh group to pick up membership changes
+      const group = await this.dataService.retrieveGroup();
+      this.group.set(group);
       if (!startDate) startDate = dayjs().startOf('week').format('YYYY-MM-DD');
       const response = await this.dataService.getPlanning(startDate, group);
       this.handleResponse(response);
@@ -311,7 +307,21 @@ export class PlanningPage implements OnDestroy {
       { kind: 'separator', day: WeekDay.Sunday },
     ];
 
-    response.recipes.forEach((planned) => {
+    // Filter out any existing separators to prevent duplication
+    const justRecipes = response.recipes.filter((r) => r.kind === 'recipe') as PlannedRecipe[];
+
+    // Sort recipes by meal within each day for consistent ordering
+    const mealOrder = Object.values(Meal);
+    justRecipes.sort((a, b) => {
+      if (a.day === b.day) {
+        const ia = a.meal ? mealOrder.indexOf(a.meal) : -1;
+        const ib = b.meal ? mealOrder.indexOf(b.meal) : -1;
+        return ia - ib;
+      }
+      return 0;
+    });
+
+    justRecipes.forEach((planned) => {
       if (planned.day) {
         const first = recipes.findIndex((x) => x.kind === 'separator' && x.day == planned.day);
         recipes.splice(first + 1, 0, planned);
@@ -365,17 +375,8 @@ export class PlanningPage implements OnDestroy {
   private sortList() {
     const currentPlanning = this.planning();
     if (!currentPlanning) return;
-    const mealIndex = (item: PlanningItem) =>
-      item.kind === 'recipe' ? Object.values(Meal).findIndex((x) => x == item.meal) : -1;
-    const sortedRecipes = [...currentPlanning.recipes].sort((a, b) => {
-      if (a.day == b.day) {
-        const index1 = mealIndex(a);
-        const index2 = mealIndex(b);
-        return index1 > index2 ? 1 : index1 < index2 ? -1 : 0;
-      }
-      return 0;
-    });
-    this.planning.set({ ...currentPlanning, recipes: sortedRecipes });
+    // Rebuild separator structure with proper meal ordering
+    this.handleResponse(currentPlanning);
   }
 
   async onRemoveRecipeClicked(plannedRecipe: PlannedRecipe) {
@@ -408,7 +409,7 @@ export class PlanningPage implements OnDestroy {
 
   async onPlannedRecipeClicked(plannedRecipe: PlannedRecipe) {
     const actionSheet = await this.actionSheetCtrl.create({
-      header: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.CHOICE'),
+      header: this.translateService.instant('PLANNING_PAGE.MEAL_CHOICE'),
       buttons: [
         ...Object.values(Meal).map((x) => {
           return {

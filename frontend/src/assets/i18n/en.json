@@ -22,7 +22,8 @@
     "PLANNING_PAGE": {
         "TITLE": "Planning",
         "DELETE_RECIPE_BUTTON": "Delete",
-        "MEAL_RESET": "Reset"
+        "MEAL_RESET": "Reset",
+        "MEAL_CHOICE": "Which meal?"
     },
     "SHOPPING_LIST_PAGE": {
         "TITLE": "Shopping list",

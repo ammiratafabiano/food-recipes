@@ -22,7 +22,8 @@
     "PLANNING_PAGE": {
         "TITLE": "Planning",
         "DELETE_RECIPE_BUTTON": "Elimina",
-        "MEAL_RESET": "Resetta"
+        "MEAL_RESET": "Resetta",
+        "MEAL_CHOICE": "Quale pasto?"
     },
     "SHOPPING_LIST_PAGE": {
         "TITLE": "Lista della spesa",

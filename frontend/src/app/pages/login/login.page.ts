@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { IonContent, IonSpinner } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { filter, forkJoin, take } from 'rxjs';
+import { filter, firstValueFrom, forkJoin, take } from 'rxjs';
 import { NavigationPath } from 'src/app/models/navigation-path.enum';
 import { AlertService } from 'src/app/services/alert.service';
 import { AuthService } from 'src/app/services/auth.service';
@@ -175,15 +175,24 @@ export class LoginPage {
   }
 
   private async confirmAndJoinGroup(group_id: string) {
+    // Wait for translations to be loaded before building the alert
+    const translations = await firstValueFrom(
+      this.translateService.get([
+        'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM',
+        'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON',
+        'COMMON.GENERIC_ALERT.CANCEL_BUTTON',
+      ]),
+    );
+
     const alert = await this.alertCtrl.create({
-      message: this.translateService.instant('GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM'),
+      message: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM'],
       buttons: [
         {
-          text: this.translateService.instant('GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON'),
+          text: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON'],
           role: 'confirm',
         },
         {
-          text: this.translateService.instant('COMMON.GENERIC_ALERT.CANCEL_BUTTON'),
+          text: translations['COMMON.GENERIC_ALERT.CANCEL_BUTTON'],
           role: 'cancel',
         },
       ],

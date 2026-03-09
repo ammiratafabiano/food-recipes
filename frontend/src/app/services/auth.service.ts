@@ -1,5 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { firstValueFrom, Observable } from 'rxjs';
 import { UserData } from '../models/user-data.model';
@@ -38,6 +39,7 @@ declare const google: {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly sessionService = inject(SessionService);
+  private readonly router = inject(Router);
   private readonly apiUrl = environment.apiUrl;
 
   readonly currentUser = signal<UserData | 0 | undefined>(undefined);
@@ -81,13 +83,11 @@ export class AuthService {
             this.sessionService.setStoredUser(freshUser);
             return;
           } catch (refreshErr) {
-            // Refresh failed
-            this.sessionService.clearSession();
-            this.currentUser.set(0);
+            // Refresh failed – force logout and redirect to login
+            this.forceLogout();
           }
         } else {
-          this.sessionService.clearSession();
-          this.currentUser.set(0);
+          this.forceLogout();
         }
       }
       return;
@@ -188,7 +188,17 @@ export class AuthService {
 
   resetUser() {
     this.sessionService.clearSession();
-    this.currentUser.set(undefined);
+    this.currentUser.set(0);
+  }
+
+  /**
+   * Hard logout: clear session, set user to unauthenticated, and redirect to login.
+   * Used when token refresh fails or the backend rejects credentials.
+   */
+  forceLogout() {
+    this.sessionService.clearSession();
+    this.currentUser.set(0);
+    this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 
   signOut(): Promise<void> {
