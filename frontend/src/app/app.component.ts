@@ -6,6 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import updateLocale from 'dayjs/plugin/updateLocale';
+import 'dayjs/locale/it';
 import { filter, firstValueFrom, take } from 'rxjs';
 import { LoggingService } from './services/logging.service';
 import { NavigationService } from './services/navigation.service';
@@ -94,14 +95,18 @@ export class AppComponent {
   }
 
   private handleLanguage() {
-    const currentLang = this.translate.getBrowserLang() || 'en';
-    this.translate.setDefaultLang(currentLang);
+    const supportedLangs = ['en', 'it'];
+    const browserLang = this.translate.getBrowserLang() || 'en';
+    const currentLang = supportedLangs.includes(browserLang) ? browserLang : 'en';
+    this.translate.setDefaultLang('en');
     this.translate.use(currentLang);
     dayjs.extend(weekOfYear);
     dayjs.extend(updateLocale);
-    dayjs.updateLocale(currentLang, {
-      weekStart: 1,
-    });
+    // Apply weekStart: 1 (Monday) to all locales to ensure consistency across devices
+    for (const lang of supportedLangs) {
+      dayjs.updateLocale(lang, { weekStart: 1 });
+    }
+    dayjs.locale(currentLang);
   }
 
   private handleAndroidBackButton() {

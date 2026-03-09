@@ -20,6 +20,42 @@ usersRouter.get('/', async (req: any, res) => {
   }
 });
 
+usersRouter.get('/me/profile', async (req: any, res) => {
+  try {
+    const me = req.user as JwtPayload;
+    const db = await getDB();
+    const user = await db.get(
+      'SELECT id, name, weight, height, age, sex, activity_level FROM users WHERE id = ?',
+      me.id,
+    );
+    res.json(user || {});
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+usersRouter.put('/me/profile', async (req: any, res) => {
+  try {
+    const me = req.user as JwtPayload;
+    const db = await getDB();
+    const { weight, height, age, sex, activity_level } = req.body;
+    await db.run(
+      `UPDATE users SET weight = ?, height = ?, age = ?, sex = ?, activity_level = ? WHERE id = ?`,
+      weight ?? null,
+      height ?? null,
+      age ?? null,
+      sex ?? null,
+      activity_level ?? null,
+      me.id,
+    );
+    res.json({ success: true });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
 usersRouter.get('/:id', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;

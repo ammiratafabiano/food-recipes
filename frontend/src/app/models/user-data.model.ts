@@ -15,3 +15,13 @@ export interface UserStats {
   followers?: number;
   followed?: number;
 }
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  weight?: number;
+  height?: number;
+  age?: number;
+  sex?: 'male' | 'female';
+  activity_level?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
+}

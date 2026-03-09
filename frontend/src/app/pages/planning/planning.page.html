@@ -43,25 +43,17 @@
             >{{ 'COMMON.WEEK_DAYS.' + planned.day | translate }}</ion-label
           >
           } @if (planned.kind === 'recipe') {
-          <ion-label class="ion-text-wrap"
-            >{{ planned?.recipe?.name || planned?.recipe_name }}</ion-label
-          >
-          } @if (planned.kind === 'recipe' && planned?.meal) {
-          <ion-label color="medium" slot="end"
-            >{{ 'COMMON.MEAL_TYPE.' + planned?.meal | translate }}</ion-label
-          >
+          <ion-label class="ion-text-wrap">
+            {{ planned?.recipe?.name || planned?.recipe_name }} @if (planned?.meal) {
+            <p>{{ 'COMMON.MEAL_TYPE.' + planned?.meal | translate }}</p>
+            }
+          </ion-label>
           } @if (planned.kind === 'recipe') {
           <div class="servings-control" slot="end" (click)="$event.stopPropagation()">
-            <ion-button fill="clear" size="small" (click)="onDecreaseServings(planned)">
-              <ion-icon name="remove-circle-outline"></ion-icon>
-            </ion-button>
             <div class="clickable-servings" (click)="onServingsClicked(planned)">
               <ion-icon name="restaurant-outline"></ion-icon>
               <ion-label>{{ planned.servings || 1 }}</ion-label>
             </div>
-            <ion-button fill="clear" size="small" (click)="onIncreaseServings(planned)">
-              <ion-icon name="add-circle-outline"></ion-icon>
-            </ion-button>
           </div>
           <div
             class="assignees-container"

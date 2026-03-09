@@ -6,14 +6,14 @@ import { Recipe } from '../models/recipe.model';
 import { AuthService } from './auth.service';
 import { Ingredient } from '../models/ingredient.model';
 import { Step } from '../models/step.model';
-import { UserData, UserStats } from '../models/user-data.model';
+import { UserData, UserStats, UserProfile } from '../models/user-data.model';
 import { Group } from '../models/group.model';
 import { NutritionSummary } from '../models/nutrition-summary.model';
 import { WeekDay } from '../models/weekDay.enum';
 import { Meal } from '../models/meal.model';
 import { createPlanning } from '../utils/model-factories';
 import { environment } from '../../environments/environment';
-import { SocketService, PlanningChangeEvent } from './socket.service';
+import { SocketService, PlanningChangeEvent, GroupMembershipChangedEvent } from './socket.service';
 import { map } from 'rxjs/operators';
 import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 
@@ -71,6 +71,23 @@ export class DataService {
 
   async deleteFollower(user_id: string) {
     return firstValueFrom(this.http.delete(`${this.api}/users/${user_id}/follow`));
+  }
+
+  async getUserProfile(): Promise<UserProfile | undefined> {
+    try {
+      return await firstValueFrom(this.http.get<UserProfile>(`${this.api}/users/me/profile`));
+    } catch {
+      return undefined;
+    }
+  }
+
+  async updateUserProfile(profile: Partial<UserProfile>): Promise<boolean> {
+    try {
+      await firstValueFrom(this.http.put(`${this.api}/users/me/profile`, profile));
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   // ── Recipes ────────────────────────────────────────
@@ -420,6 +437,11 @@ export class DataService {
   /** Observable that fires when the shopping list should be refreshed */
   get shoppingListInvalidate$(): Observable<string> {
     return this.socketService.shoppingListInvalidate.pipe(map((event) => event.week));
+  }
+
+  /** Observable that fires when group membership changes */
+  get groupMembershipChanged$(): Observable<GroupMembershipChangedEvent> {
+    return this.socketService.groupMembershipChanged;
   }
 
   // ── Image helpers (stubs) ──────────────────────────

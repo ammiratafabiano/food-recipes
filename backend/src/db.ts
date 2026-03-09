@@ -205,6 +205,21 @@ export async function getDB(): Promise<Database> {
     // Column might already exist
   }
 
+  // Migration: add profile fields to users (for nutrition calculations)
+  for (const col of [
+    'weight REAL',
+    'height REAL',
+    'age INTEGER',
+    'sex TEXT',
+    'activity_level TEXT',
+  ]) {
+    try {
+      await db.run(`ALTER TABLE users ADD COLUMN ${col}`);
+    } catch {
+      // Column might already exist
+    }
+  }
+
   // NOTE: NULL quantity_unit is now allowed (e.g. for items like eggs counted as PIECE).
   dbInstance = db;
   return db;

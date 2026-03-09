@@ -33,7 +33,8 @@
         "COPY_LIST": "Copy list",
         "EXPORT_REMINDERS": "Export to Reminders",
         "REMINDERS_SHORTCUT_NAME": "Add Shopping List",
-        "REMINDERS_SETUP_INFO": "To use this feature, create a Shortcut called 'Add Shopping List' in the Shortcuts app that accepts text input and adds each line as a reminder."
+        "REMINDERS_SETUP_INFO": "To use this feature, create a Shortcut called 'Add Shopping List' in the Shortcuts app that accepts text input and adds each line as a reminder.",
+        "CSV_HEADER": "Name,Quantity,Unit"
     },
     "SETTINGS_PAGE": {
         "TITLE": "Settings",
@@ -212,6 +213,9 @@
         "ALL": "All",
         "LOADING": "Loading...",
         "NO_DATA": "No nutritional data available for this week.",
+        "MISSING_DATA_TITLE": "Some foods have no nutritional data:",
+        "DAILY_AVG": "Daily Average",
+        "VS_RECOMMENDED": "vs Recommended",
         "PROTEIN": "Protein",
         "CARBS": "Carbs",
         "FAT": "Fat",
@@ -219,7 +223,26 @@
         "PROTEIN_SHORT": "Prot",
         "CARBS_SHORT": "Carb",
         "FAT_SHORT": "Fat",
-        "FIBER_SHORT": "Fiber"
+        "FIBER_SHORT": "Fiber",
+        "SETUP_PROFILE": "Set up your profile for personalized recommendations"
+    },
+    "PROFILE_SURVEY": {
+        "TITLE": "Nutrition Profile",
+        "DESCRIPTION": "Fill in your data to get personalized nutritional recommendations based on your needs.",
+        "WEIGHT": "Weight (kg)",
+        "HEIGHT": "Height (cm)",
+        "AGE": "Age",
+        "SEX": "Sex",
+        "MALE": "Male",
+        "FEMALE": "Female",
+        "ACTIVITY_LEVEL": "Activity Level",
+        "SEDENTARY": "Sedentary (little/no exercise)",
+        "LIGHT": "Light (1-3 days/week)",
+        "MODERATE": "Moderate (3-5 days/week)",
+        "ACTIVE": "Active (6-7 days/week)",
+        "VERY_ACTIVE": "Very Active (intense daily)",
+        "YOUR_NEEDS": "Your Daily Needs",
+        "SAVE": "Save"
     },
     "MEAL_SUGGESTIONS": {
         "TITLE": "Suggestions",

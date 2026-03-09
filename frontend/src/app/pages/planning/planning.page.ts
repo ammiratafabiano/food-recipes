@@ -95,6 +95,7 @@ export class PlanningPage implements OnDestroy {
   readonly dataLoaded = signal<boolean>(false);
 
   private realtimeSub: import('rxjs').Subscription | null = null;
+  private membershipSub: import('rxjs').Subscription | null = null;
 
   private readonly userColors = new Map<string, string>();
   private readonly availableColors = [
@@ -131,6 +132,7 @@ export class PlanningPage implements OnDestroy {
 
   ngOnDestroy(): void {
     this.realtimeSub?.unsubscribe();
+    this.membershipSub?.unsubscribe();
     // Socket lives in the singleton SocketService —
     // don't disconnect here, it would kill it for other pages too.
   }
@@ -157,6 +159,7 @@ export class PlanningPage implements OnDestroy {
     if (group) {
       this.dataService.connectRealtime(group);
       this.listenCollaboratorsChanges();
+      this.listenMembershipChanges();
     }
   }
 
@@ -270,6 +273,16 @@ export class PlanningPage implements OnDestroy {
           break;
         }
       }
+    });
+  }
+
+  private listenMembershipChanges() {
+    this.membershipSub?.unsubscribe();
+    this.membershipSub = this.dataService.groupMembershipChanged$.subscribe(async (event) => {
+      if (!event) return;
+      // Refresh the group to pick up new members
+      const group = await this.dataService.retrieveGroup();
+      this.group.set(group);
     });
   }
 

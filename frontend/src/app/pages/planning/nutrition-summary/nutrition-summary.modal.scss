@@ -146,6 +146,155 @@
   text-align: center;
 }
 
+// Daily average progress bars
+.daily-avg-card {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--ion-color-success-rgb), 0.06),
+    rgba(var(--ion-color-success-rgb), 0.02)
+  );
+  border: 1px solid rgba(var(--ion-color-success-rgb), 0.12);
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.profile-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: rgba(var(--ion-color-primary-rgb), 0.08);
+  cursor: pointer;
+  font-size: 0.85em;
+  color: var(--ion-color-primary);
+
+  ion-icon {
+    font-size: 1.2em;
+  }
+}
+
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .progress-label {
+    width: 36px;
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--ion-color-medium);
+    flex-shrink: 0;
+  }
+
+  .progress-bar-container {
+    flex: 1;
+    height: 8px;
+    background: rgba(var(--ion-color-medium-rgb), 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+
+    &.calories {
+      background: #ff9500;
+    }
+    &.protein {
+      background: #34c759;
+    }
+    &.carbs {
+      background: #007aff;
+    }
+    &.fat {
+      background: #ff3b30;
+    }
+    &.fiber {
+      background: #af52de;
+    }
+  }
+
+  .progress-value {
+    font-size: 0.7em;
+    color: var(--ion-color-medium);
+    white-space: nowrap;
+    min-width: 70px;
+    text-align: right;
+
+    &.over {
+      color: #ff3b30;
+      font-weight: 600;
+    }
+  }
+}
+
+.day-progress-bar {
+  margin-top: 8px;
+  height: 4px;
+  background: rgba(var(--ion-color-medium-rgb), 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+
+  .progress-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+
+    &.calories {
+      background: #ff9500;
+    }
+  }
+}
+
 ion-segment {
   margin-bottom: 16px;
+}
+
+.missing-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background: rgba(255, 149, 0, 0.1);
+  border: 1px solid rgba(255, 149, 0, 0.3);
+
+  ion-icon {
+    color: #ff9500;
+    font-size: 1.3em;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .warning-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.85em;
+    line-height: 1.4;
+
+    strong {
+      color: #ff9500;
+    }
+
+    span {
+      color: var(--ion-color-medium);
+    }
+  }
 }

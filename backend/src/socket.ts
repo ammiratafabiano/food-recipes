@@ -76,3 +76,9 @@ export function emitShoppingListInvalidate(groupId: string, week: string) {
   if (!io) return;
   io.to(`group:${groupId}`).emit('shopping-list:invalidate', { week });
 }
+
+/** Broadcast a group membership change to all group members */
+export function emitGroupMembershipChanged(groupId: string, userIds: string[]) {
+  if (!io) return;
+  io.to(`group:${groupId}`).emit('group:membership-changed', { groupId, users: userIds });
+}

@@ -308,6 +308,7 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
         p.day,
         ri.quantity_value,
         ri.quantity_unit,
+        f.name as food_name,
         f.kcal,
         f.protein,
         f.fat,
@@ -351,14 +352,18 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
     };
     const days: Record<string, DayNutrition> = {};
     const weekTotal: DayNutrition = { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 };
+    const missingNutritionFoods = new Set<string>();
 
     for (const r of rows) {
       const plannedServings = r.planned_servings || 1;
       const recipeServings = r.recipe_servings || 1;
       const multiplier = plannedServings / recipeServings;
 
-      // If food has no nutritional info, skip
-      if (r.kcal == null && r.protein == null && r.fat == null && r.carbs == null) continue;
+      // If food has no nutritional info, track it and skip
+      if (r.kcal == null && r.protein == null && r.fat == null && r.carbs == null) {
+        if (r.food_name) missingNutritionFoods.add(r.food_name);
+        continue;
+      }
 
       const quantityValue = (r.quantity_value || 0) * multiplier;
       const unit = r.quantity_unit || r.default_unit || 'GRAM';
@@ -408,6 +413,7 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
         carbs: round(weekTotal.carbs),
         fiber: round(weekTotal.fiber),
       },
+      missingNutritionFoods: [...missingNutritionFoods],
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';

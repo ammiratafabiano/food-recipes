@@ -3,6 +3,7 @@ import { getDB } from '../db';
 import crypto from 'crypto';
 const uuidv4 = () => crypto.randomUUID();
 import { authenticateToken, JwtPayload } from '../auth.middleware';
+import { emitGroupMembershipChanged } from '../socket';
 
 export const groupsRouter = express.Router();
 groupsRouter.use(authenticateToken);
@@ -54,7 +55,9 @@ groupsRouter.post('/:id/join', async (req: any, res) => {
       'SELECT user_id FROM group_members WHERE group_id = ?',
       req.params.id,
     );
-    res.json({ id: req.params.id, users: members.map((m: { user_id: string }) => m.user_id) });
+    const userIds = members.map((m: { user_id: string }) => m.user_id);
+    emitGroupMembershipChanged(req.params.id, userIds);
+    res.json({ id: req.params.id, users: userIds });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     res.status(500).json({ error: message });
@@ -70,11 +73,13 @@ groupsRouter.post('/:id/leave', async (req: any, res) => {
       req.params.id,
       me.id,
     );
-    const members = await db.all(
+    const leaveMembers = await db.all(
       'SELECT user_id FROM group_members WHERE group_id = ?',
       req.params.id,
     );
-    res.json({ id: req.params.id, users: members.map((m: { user_id: string }) => m.user_id) });
+    const leaveUserIds = leaveMembers.map((m: { user_id: string }) => m.user_id);
+    emitGroupMembershipChanged(req.params.id, leaveUserIds);
+    res.json({ id: req.params.id, users: leaveUserIds });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     res.status(500).json({ error: message });

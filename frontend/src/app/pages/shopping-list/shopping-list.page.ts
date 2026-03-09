@@ -99,32 +99,30 @@ export class ShoppingListPage implements OnDestroy {
   }
 
   /**
-   * Esporta la lista della spesa per essere processata da un Apple Shortcut.
-   * Genera un array JSON e lo copia negli appunti e/o lo condivide.
+   * Esporta la lista della spesa in formato CSV generico.
+   * Copia negli appunti e condivide come file CSV.
    */
   async onExportClicked() {
     const list = this.shoppingList();
     if (!list || list.length === 0) return;
 
-    // Crea un oggetto strutturato facile da parsare per uno Shortcut
-    const exportData = list.map((item) => ({
-      name: item.name,
-      quantity: item.quantity?.value || null,
-      unit: item.quantity?.unit
+    const header = this.translateService.instant('SHOPPING_LIST_PAGE.CSV_HEADER');
+    const rows = list.map((item) => {
+      const name = item.name.replace(/"/g, '""');
+      const qty = item.quantity?.value ?? '';
+      const unit = item.quantity?.unit
         ? this.translateService.instant('COMMON.WEIGHT_UNITS.' + item.quantity.unit)
-        : null,
-      rawUnit: item.quantity?.unit || null,
-    }));
+        : '';
+      return `"${name}",${qty},"${unit}"`;
+    });
+    const csvPayload = `${header}\n${rows.join('\n')}`;
 
-    const textPayload = JSON.stringify(exportData, null, 2);
-
-    // 1. Copia negli appunti (così lo shortcut può usare "Ottieni Appunti")
+    // 1. Copia negli appunti
     try {
-      await navigator.clipboard.writeText(textPayload);
+      await navigator.clipboard.writeText(csvPayload);
     } catch {
-      // Fallback per browser vecchi
       const textarea = document.createElement('textarea');
-      textarea.value = textPayload;
+      textarea.value = csvPayload;
       textarea.style.position = 'fixed';
       textarea.style.opacity = '0';
       document.body.appendChild(textarea);
@@ -133,18 +131,17 @@ export class ShoppingListPage implements OnDestroy {
       document.body.removeChild(textarea);
     }
 
-    // 2. Prova a usare il Web Share API per aprire il Share Sheet (iOS)
-    // dal quale l'utente può scegliere il proprio Shortcut.
+    // 2. Condividi come file CSV se supportato, altrimenti come testo
     const title = this.translateService.instant('SHOPPING_LIST_PAGE.TITLE');
     if (typeof navigator.share === 'function') {
       try {
-        await navigator.share({ title, text: textPayload });
-      } catch (err) {
-        // Ignora eventuali errori di share (es. utente chiude il menu)
+        const blob = new Blob([csvPayload], { type: 'text/csv' });
+        const file = new File([blob], 'shopping-list.csv', { type: 'text/csv' });
+        await navigator.share({ title, files: [file] });
+      } catch {
         this.alertService.presentInfoPopup(this.translateService.instant('COMMON.CLIPBOARD'));
       }
     } else {
-      // Solo notifica se non c'è il web share
       this.alertService.presentInfoPopup(this.translateService.instant('COMMON.CLIPBOARD'));
     }
   }

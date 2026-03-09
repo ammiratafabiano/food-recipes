@@ -33,7 +33,8 @@
         "COPY_LIST": "Copia lista",
         "EXPORT_REMINDERS": "Esporta in Promemoria",
         "REMINDERS_SHORTCUT_NAME": "Aggiungi Lista Spesa",
-        "REMINDERS_SETUP_INFO": "Per usare questa funzione, crea un comando rapido chiamato 'Aggiungi Lista Spesa' nell'app Comandi che accetta testo come input e aggiunge ogni riga come promemoria."
+        "REMINDERS_SETUP_INFO": "Per usare questa funzione, crea un comando rapido chiamato 'Aggiungi Lista Spesa' nell'app Comandi che accetta testo come input e aggiunge ogni riga come promemoria.",
+        "CSV_HEADER": "Nome,Quantità,Unità"
     },
     "SETTINGS_PAGE": {
         "TITLE": "Impostazioni",
@@ -212,6 +213,9 @@
         "ALL": "Tutti",
         "LOADING": "Caricamento...",
         "NO_DATA": "Nessun dato nutrizionale disponibile per questa settimana.",
+        "MISSING_DATA_TITLE": "Alcuni alimenti non hanno dati nutrizionali:",
+        "DAILY_AVG": "Media giornaliera",
+        "VS_RECOMMENDED": "vs Consigliato",
         "PROTEIN": "Proteine",
         "CARBS": "Carboidrati",
         "FAT": "Grassi",
@@ -219,7 +223,26 @@
         "PROTEIN_SHORT": "Prot",
         "CARBS_SHORT": "Carb",
         "FAT_SHORT": "Grassi",
-        "FIBER_SHORT": "Fibre"
+        "FIBER_SHORT": "Fibre",
+        "SETUP_PROFILE": "Configura il tuo profilo per raccomandazioni personalizzate"
+    },
+    "PROFILE_SURVEY": {
+        "TITLE": "Profilo nutrizionale",
+        "DESCRIPTION": "Compila i tuoi dati per ottenere raccomandazioni nutrizionali personalizzate in base alle tue esigenze.",
+        "WEIGHT": "Peso (kg)",
+        "HEIGHT": "Altezza (cm)",
+        "AGE": "Età",
+        "SEX": "Sesso",
+        "MALE": "Maschio",
+        "FEMALE": "Femmina",
+        "ACTIVITY_LEVEL": "Livello di attività",
+        "SEDENTARY": "Sedentario (poco/nessun esercizio)",
+        "LIGHT": "Leggero (1-3 giorni/settimana)",
+        "MODERATE": "Moderato (3-5 giorni/settimana)",
+        "ACTIVE": "Attivo (6-7 giorni/settimana)",
+        "VERY_ACTIVE": "Molto attivo (intenso quotidiano)",
+        "YOUR_NEEDS": "Il tuo fabbisogno giornaliero",
+        "SAVE": "Salva"
     },
     "MEAL_SUGGESTIONS": {
         "TITLE": "Suggerimenti",

@@ -13,6 +13,11 @@ export interface ShoppingListInvalidateEvent {
   week: string;
 }
 
+export interface GroupMembershipChangedEvent {
+  groupId: string;
+  users: string[];
+}
+
 /**
  * Singleton service that manages a SINGLE Socket.IO connection.
  * - Call `ensureConnected(groupId)` to lazily open / switch group.
@@ -31,6 +36,7 @@ export class SocketService implements OnDestroy {
 
   private readonly planningChanges$ = new Subject<PlanningChangeEvent>();
   private readonly shoppingListInvalidate$ = new Subject<ShoppingListInvalidateEvent>();
+  private readonly groupMembershipChanged$ = new Subject<GroupMembershipChangedEvent>();
 
   constructor() {
     // Auto-disconnect when the user logs out (token becomes undefined)
@@ -50,6 +56,11 @@ export class SocketService implements OnDestroy {
   /** Observable of shopping-list invalidation events */
   get shoppingListInvalidate(): Observable<ShoppingListInvalidateEvent> {
     return this.shoppingListInvalidate$.asObservable();
+  }
+
+  /** Observable of group membership changes */
+  get groupMembershipChanged(): Observable<GroupMembershipChangedEvent> {
+    return this.groupMembershipChanged$.asObservable();
   }
 
   /**
@@ -104,6 +115,9 @@ export class SocketService implements OnDestroy {
     this.socket.on('shopping-list:invalidate', (data: ShoppingListInvalidateEvent) =>
       this.shoppingListInvalidate$.next(data),
     );
+    this.socket.on('group:membership-changed', (data: GroupMembershipChangedEvent) =>
+      this.groupMembershipChanged$.next(data),
+    );
 
     this.socket.on('connect_error', (err) => {
       console.warn('Socket.IO connection error:', err.message);
@@ -132,5 +146,6 @@ export class SocketService implements OnDestroy {
     this.disconnect();
     this.planningChanges$.complete();
     this.shoppingListInvalidate$.complete();
+    this.groupMembershipChanged$.complete();
   }
 }
