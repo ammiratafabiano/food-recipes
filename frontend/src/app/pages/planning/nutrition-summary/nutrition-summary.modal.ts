@@ -25,7 +25,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { Group } from 'src/app/models/group.model';
 import { UserData } from 'src/app/models/user-data.model';
 import { WeekDay } from 'src/app/models/weekDay.enum';
-import { ProfileSurveyModal } from './profile-survey.modal';
+import { ProfileSurveyComponent } from './profile-survey.modal';
 
 @Component({
   selector: 'app-nutrition-summary-modal',
@@ -132,7 +132,7 @@ export class NutritionSummaryComponent implements OnInit {
 
   async openProfileSurvey() {
     const modal = await this.modalCtrl.create({
-      component: ProfileSurveyModal,
+      component: ProfileSurveyComponent,
     });
     await modal.present();
     const { data } = await modal.onDidDismiss();

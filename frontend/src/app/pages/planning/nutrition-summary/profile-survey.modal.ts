@@ -194,7 +194,7 @@ import { RecommendedDaily } from 'src/app/models/nutrition-summary.model';
     IonSelectOption,
   ],
 })
-export class ProfileSurveyModal implements OnInit {
+export class ProfileSurveyComponent implements OnInit {
   private readonly dataService = inject(DataService);
   private readonly modalCtrl = inject(ModalController);
 
