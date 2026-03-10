@@ -28,4 +28,5 @@ export interface PlannedRecipe {
   assignedTo?: string;
   minServings?: number;
   splitServings?: number;
+  excludeFromShopping?: boolean;
 }

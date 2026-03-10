@@ -80,15 +80,15 @@ export class ShoppingListPage implements OnDestroy {
         this.dataService.connectRealtime(this.group);
         this.invalidateSub?.unsubscribe();
         this.invalidateSub = this.dataService.shoppingListInvalidate$.subscribe(() => {
-          this.getShoppingList();
+          this.getShoppingList(undefined, true);
         });
       }
     });
   }
 
-  async getShoppingList(startDate?: string) {
+  async getShoppingList(startDate?: string, skipLoading = false) {
     if (!startDate) startDate = dayjs().startOf('week').format('YYYY-MM-DD');
-    const response = await this.dataService.getShoppingList(startDate, this.group?.id);
+    const response = await this.dataService.getShoppingList(startDate, this.group?.id, skipLoading);
     this.shoppingList.set(response && response.length > 0 ? response : []);
   }
 

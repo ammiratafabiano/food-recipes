@@ -48,6 +48,7 @@ planningRouter.get('/:week', async (req: any, res) => {
         assigned_to: string;
         min_servings: number;
         split_servings: number;
+        exclude_from_shopping: number;
       }) => ({
         kind: 'recipe' as const,
         id: r.id,
@@ -61,6 +62,7 @@ planningRouter.get('/:week', async (req: any, res) => {
         assignedTo: r.assigned_to || null,
         minServings: r.min_servings || 1,
         splitServings: r.split_servings || 1,
+        excludeFromShopping: r.exclude_from_shopping === 1,
       }),
     );
 
@@ -131,7 +133,7 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
     }
 
     await db.run(
-      'INSERT INTO planning (id, recipe_id, recipe_name, week, day, user_id, servings) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO planning (id, recipe_id, recipe_name, week, day, user_id, servings, exclude_from_shopping) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       pId,
       recipe.id,
       recipe.name,
@@ -139,6 +141,7 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
       day || null,
       me.id,
       servings,
+      1,
     );
 
     const inserted = await db.get(
@@ -159,6 +162,7 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
       assignedTo: inserted.assigned_to,
       minServings: inserted.min_servings,
       splitServings: inserted.split_servings,
+      excludeFromShopping: inserted.exclude_from_shopping === 1,
     };
 
     res.json({ success: true, item });
@@ -220,14 +224,15 @@ planningRouter.post('/', async (req: any, res) => {
 planningRouter.put('/:id', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
-    const { day, meal, servings, assignedTo } = req.body;
+    const { day, meal, servings, assignedTo, excludeFromShopping } = req.body;
     const db = await getDB();
     await db.run(
-      'UPDATE planning SET day = ?, meal = ?, servings = ?, assigned_to = ? WHERE id = ?',
+      'UPDATE planning SET day = ?, meal = ?, servings = ?, assigned_to = ?, exclude_from_shopping = ? WHERE id = ?',
       day || null,
       meal || null,
       servings || 1,
       assignedTo || null,
+      excludeFromShopping != null ? (excludeFromShopping ? 1 : 0) : 0,
       req.params.id,
     );
     const updated = await db.get('SELECT * FROM planning WHERE id = ?', req.params.id);
@@ -242,6 +247,7 @@ planningRouter.put('/:id', async (req: any, res) => {
         meal,
         servings: servings || 1,
         assignedTo: assignedTo || null,
+        excludeFromShopping: excludeFromShopping ?? false,
         week: updated.week,
         user_id: me.id,
       });
@@ -306,6 +312,7 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
     const rows = await db.all(
       `SELECT 
         p.day,
+        r.name as recipe_name,
         ri.quantity_value,
         ri.quantity_unit,
         f.name as food_name,
@@ -322,6 +329,16 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
        JOIN recipe_ingredients ri ON ri.recipe_id = p.recipe_id
        LEFT JOIN foods f ON ri.food_id = f.id
        WHERE p.week = ? AND p.user_id IN (${placeholders})${assignedFilter}`,
+      ...params,
+    );
+
+    // Also find planned recipes with NO ingredients at all (custom/WIP)
+    const noIngredientRows = await db.all(
+      `SELECT DISTINCT r.name as recipe_name
+       FROM planning p
+       JOIN recipes r ON r.id = p.recipe_id
+       WHERE p.week = ? AND p.user_id IN (${placeholders})${assignedFilter}
+         AND NOT EXISTS (SELECT 1 FROM recipe_ingredients ri WHERE ri.recipe_id = r.id)`,
       ...params,
     );
 
@@ -352,16 +369,21 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
     };
     const days: Record<string, DayNutrition> = {};
     const weekTotal: DayNutrition = { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 };
-    const missingNutritionFoods = new Set<string>();
+    const missingNutritionRecipes = new Set<string>();
+
+    // Track recipes with no ingredients
+    for (const r of noIngredientRows) {
+      if (r.recipe_name) missingNutritionRecipes.add(r.recipe_name);
+    }
 
     for (const r of rows) {
       const plannedServings = r.planned_servings || 1;
       const recipeServings = r.recipe_servings || 1;
       const multiplier = plannedServings / recipeServings;
 
-      // If food has no nutritional info, track it and skip
+      // If food has no nutritional info, track recipe and skip
       if (r.kcal == null && r.protein == null && r.fat == null && r.carbs == null) {
-        if (r.food_name) missingNutritionFoods.add(r.food_name);
+        if (r.recipe_name) missingNutritionRecipes.add(r.recipe_name);
         continue;
       }
 
@@ -413,7 +435,7 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
         carbs: round(weekTotal.carbs),
         fiber: round(weekTotal.fiber),
       },
-      missingNutritionFoods: [...missingNutritionFoods],
+      missingNutritionFoods: [...missingNutritionRecipes],
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -514,7 +536,7 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
        JOIN recipes r ON r.id = p.recipe_id
        JOIN recipe_ingredients ri ON ri.recipe_id = p.recipe_id
        LEFT JOIN foods f ON ri.food_id = f.id
-       WHERE p.week = ? AND p.user_id IN (${placeholders})`,
+       WHERE p.week = ? AND p.user_id IN (${placeholders}) AND (p.exclude_from_shopping IS NULL OR p.exclude_from_shopping = 0)`,
       req.params.week,
       ...userIds,
     );
@@ -525,6 +547,7 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
        FROM planning p
        JOIN recipes r ON r.id = p.recipe_id
        WHERE p.week = ? AND p.user_id IN (${placeholders})
+         AND (p.exclude_from_shopping IS NULL OR p.exclude_from_shopping = 0)
          AND NOT EXISTS (SELECT 1 FROM recipe_ingredients ri WHERE ri.recipe_id = r.id)`,
       req.params.week,
       ...userIds,

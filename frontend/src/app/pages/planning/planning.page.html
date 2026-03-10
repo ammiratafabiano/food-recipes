@@ -36,6 +36,7 @@
       <ion-item-sliding>
         <ion-item
           [lines]="planned.kind === 'recipe' ? 'inset' : 'none'"
+          [class.excluded-from-shopping]="planned.kind === 'recipe' && planned.excludeFromShopping"
           (click)="planned.kind === 'recipe' && onPlannedRecipeClicked(planned)"
         >
           @if (planned.kind === 'separator') {
@@ -71,8 +72,17 @@
         </ion-item>
 
         @if (planned.kind === 'recipe') {
-        <ion-item-options side="end">
-          <ion-item-option color="danger" (click)="onRemoveRecipeClicked(planned)">
+        <ion-item-options side="end" (ionSwipe)="onRemoveRecipeClicked(planned)">
+          <ion-item-option
+            [color]="planned.excludeFromShopping ? 'success' : 'medium'"
+            (click)="onToggleShoppingExclude(planned)"
+          >
+            <ion-icon
+              slot="icon-only"
+              [name]="planned.excludeFromShopping ? 'cart' : 'cart-outline'"
+            ></ion-icon>
+          </ion-item-option>
+          <ion-item-option color="danger" expandable (click)="onRemoveRecipeClicked(planned)">
             {{ 'PLANNING_PAGE.DELETE_RECIPE_BUTTON' | translate }}
           </ion-item-option>
         </ion-item-options>

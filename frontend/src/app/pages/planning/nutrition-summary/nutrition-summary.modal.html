@@ -23,74 +23,85 @@
     }
   </ion-segment>
   } @if (loading()) {
-  <div class="loading-container">
-    <ion-label color="medium">{{ 'NUTRITION_SUMMARY.LOADING' | translate }}</ion-label>
+  <div class="ion-text-center ion-padding">
+    <ion-spinner name="crescent"></ion-spinner>
   </div>
   } @else if (summary(); as s) {
   <!-- Missing nutrition warning -->
   @if (s.missingNutritionFoods && s.missingNutritionFoods.length > 0) {
-  <div class="missing-warning">
-    <ion-icon name="warning-outline"></ion-icon>
-    <div class="warning-text">
+  <ion-item color="warning" lines="none" class="ion-margin-bottom">
+    <ion-icon name="warning-outline" slot="start"></ion-icon>
+    <ion-label class="ion-text-wrap">
       <strong>{{ 'NUTRITION_SUMMARY.MISSING_DATA_TITLE' | translate }}</strong>
-      <span>{{ s.missingNutritionFoods.join(', ') }}</span>
-    </div>
-  </div>
+      <p>{{ s.missingNutritionFoods.join(', ') }}</p>
+    </ion-label>
+  </ion-item>
   }
+
   <!-- Week Total -->
-  <div class="nutrition-card week-total">
-    <div class="card-header">
-      <ion-label class="card-title">{{ 'NUTRITION_SUMMARY.WEEK_TOTAL' | translate }}</ion-label>
-      <ion-label class="week-label">{{ week | date }}</ion-label>
-    </div>
-    <div class="macros-grid">
-      <div class="macro-item calories">
-        <span class="macro-value">{{ s.weekTotal.kcal }}</span>
-        <span class="macro-label">kcal</span>
+  <ion-card class="week-total">
+    <ion-card-header>
+      <ion-card-title>{{ 'NUTRITION_SUMMARY.WEEK_TOTAL' | translate }}</ion-card-title>
+      <ion-card-subtitle>{{ week | date }}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="macros-grid">
+        <div class="macro-item calories">
+          <span class="macro-value">{{ s.weekTotal.kcal }}</span>
+          <span class="macro-label">kcal</span>
+        </div>
+        <div class="macro-item protein">
+          <span class="macro-value">{{ s.weekTotal.protein }}g</span>
+          <span class="macro-label">{{ 'NUTRITION_SUMMARY.PROTEIN' | translate }}</span>
+        </div>
+        <div class="macro-item carbs">
+          <span class="macro-value">{{ s.weekTotal.carbs }}g</span>
+          <span class="macro-label">{{ 'NUTRITION_SUMMARY.CARBS' | translate }}</span>
+        </div>
+        <div class="macro-item fat">
+          <span class="macro-value">{{ s.weekTotal.fat }}g</span>
+          <span class="macro-label">{{ 'NUTRITION_SUMMARY.FAT' | translate }}</span>
+        </div>
+        <div class="macro-item fiber">
+          <span class="macro-value">{{ s.weekTotal.fiber }}g</span>
+          <span class="macro-label">{{ 'NUTRITION_SUMMARY.FIBER' | translate }}</span>
+        </div>
       </div>
-      <div class="macro-item protein">
-        <span class="macro-value">{{ s.weekTotal.protein }}g</span>
-        <span class="macro-label">{{ 'NUTRITION_SUMMARY.PROTEIN' | translate }}</span>
-      </div>
-      <div class="macro-item carbs">
-        <span class="macro-value">{{ s.weekTotal.carbs }}g</span>
-        <span class="macro-label">{{ 'NUTRITION_SUMMARY.CARBS' | translate }}</span>
-      </div>
-      <div class="macro-item fat">
-        <span class="macro-value">{{ s.weekTotal.fat }}g</span>
-        <span class="macro-label">{{ 'NUTRITION_SUMMARY.FAT' | translate }}</span>
-      </div>
-      <div class="macro-item fiber">
-        <span class="macro-value">{{ s.weekTotal.fiber }}g</span>
-        <span class="macro-label">{{ 'NUTRITION_SUMMARY.FIBER' | translate }}</span>
-      </div>
-    </div>
-  </div>
+    </ion-card-content>
+  </ion-card>
 
   <!-- Daily Average vs Recommended -->
-  @if (getPlannedDayCount() > 0) {
-  <div class="nutrition-card daily-avg-card">
-    <div class="card-header">
-      <ion-label class="card-title">{{ 'NUTRITION_SUMMARY.DAILY_AVG' | translate }}</ion-label>
-      <ion-button fill="clear" size="small" (click)="openProfileSurvey()">
+  <ion-card class="daily-avg-card">
+    <ion-item lines="none" class="ion-no-padding">
+      <ion-label class="ion-padding-start"
+        ><strong>{{ 'NUTRITION_SUMMARY.DAILY_AVG' | translate }}</strong></ion-label
+      >
+      <ion-button fill="clear" size="small" slot="end" (click)="openProfileSurvey()">
         <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
       </ion-button>
-    </div>
-    @if (!hasProfile()) {
-    <div class="profile-hint" (click)="openProfileSurvey()">
-      <ion-icon name="person-outline"></ion-icon>
-      <span>{{ 'NUTRITION_SUMMARY.SETUP_PROFILE' | translate }}</span>
-    </div>
-    }
-    <div class="progress-list">
+    </ion-item>
+    <ion-card-content>
+      @if (!hasProfile()) {
+      <ion-item
+        button
+        (click)="openProfileSurvey()"
+        detail="false"
+        lines="none"
+        color="light"
+        class="ion-margin-bottom"
+      >
+        <ion-icon name="person-outline" slot="start"></ion-icon>
+        <ion-label class="ion-text-wrap"
+          >{{ 'NUTRITION_SUMMARY.SETUP_PROFILE' | translate }}</ion-label
+        >
+      </ion-item>
+      } @if (getPlannedDayCount() > 0) {
       <div class="progress-row">
         <span class="progress-label">kcal</span>
-        <div class="progress-bar-container">
-          <div
-            class="progress-bar calories"
-            [style.width.%]="getBarWidth(getDailyAverage('kcal'), 'kcal')"
-          ></div>
-        </div>
+        <ion-progress-bar
+          [value]="getBarWidth(getDailyAverage('kcal'), 'kcal') / 100"
+          style="--progress-background: #ff9500"
+        ></ion-progress-bar>
         <span
           class="progress-value"
           [class.over]="getPercent(getDailyAverage('kcal'), 'kcal') > 100"
@@ -99,24 +110,20 @@
       </div>
       <div class="progress-row">
         <span class="progress-label">{{ 'NUTRITION_SUMMARY.PROTEIN_SHORT' | translate }}</span>
-        <div class="progress-bar-container">
-          <div
-            class="progress-bar protein"
-            [style.width.%]="getBarWidth(getDailyAverage('protein'), 'protein')"
-          ></div>
-        </div>
+        <ion-progress-bar
+          [value]="getBarWidth(getDailyAverage('protein'), 'protein') / 100"
+          style="--progress-background: #34c759"
+        ></ion-progress-bar>
         <span class="progress-value"
           >{{ getDailyAverage('protein') }}g / {{ recommended().protein }}g</span
         >
       </div>
       <div class="progress-row">
         <span class="progress-label">{{ 'NUTRITION_SUMMARY.CARBS_SHORT' | translate }}</span>
-        <div class="progress-bar-container">
-          <div
-            class="progress-bar carbs"
-            [style.width.%]="getBarWidth(getDailyAverage('carbs'), 'carbs')"
-          ></div>
-        </div>
+        <ion-progress-bar
+          [value]="getBarWidth(getDailyAverage('carbs'), 'carbs') / 100"
+          style="--progress-background: #007aff"
+        ></ion-progress-bar>
         <span
           class="progress-value"
           [class.over]="getPercent(getDailyAverage('carbs'), 'carbs') > 100"
@@ -125,43 +132,40 @@
       </div>
       <div class="progress-row">
         <span class="progress-label">{{ 'NUTRITION_SUMMARY.FAT_SHORT' | translate }}</span>
-        <div class="progress-bar-container">
-          <div
-            class="progress-bar fat"
-            [style.width.%]="getBarWidth(getDailyAverage('fat'), 'fat')"
-          ></div>
-        </div>
+        <ion-progress-bar
+          [value]="getBarWidth(getDailyAverage('fat'), 'fat') / 100"
+          style="--progress-background: #ff3b30"
+        ></ion-progress-bar>
         <span class="progress-value" [class.over]="getPercent(getDailyAverage('fat'), 'fat') > 100"
           >{{ getDailyAverage('fat') }}g / {{ recommended().fat }}g</span
         >
       </div>
       <div class="progress-row">
         <span class="progress-label">{{ 'NUTRITION_SUMMARY.FIBER_SHORT' | translate }}</span>
-        <div class="progress-bar-container">
-          <div
-            class="progress-bar fiber"
-            [style.width.%]="getBarWidth(getDailyAverage('fiber'), 'fiber')"
-          ></div>
-        </div>
+        <ion-progress-bar
+          [value]="getBarWidth(getDailyAverage('fiber'), 'fiber') / 100"
+          style="--progress-background: #af52de"
+        ></ion-progress-bar>
         <span class="progress-value"
           >{{ getDailyAverage('fiber') }}g / {{ recommended().fiber }}g</span
         >
       </div>
-    </div>
-  </div>
-  }
+      }
+    </ion-card-content>
+  </ion-card>
 
-  <!-- Per-Day Breakdown -->
+  <!-- Per-Day Breakdown (only shown if there is day data) -->
   @if (hasAnyDayData()) {
-  <div class="days-section">
-    <ion-label class="section-title">{{ 'NUTRITION_SUMMARY.PER_DAY' | translate }}</ion-label>
-
-    @for (day of weekDays; track day) { @if (getDayNutrition(day); as dayData) {
-    <div class="nutrition-card day-card">
-      <div class="card-header">
-        <ion-label class="card-title">{{ 'COMMON.WEEK_DAYS.' + day | translate }}</ion-label>
-        <ion-label class="week-label">{{ getPercent(dayData.kcal, 'kcal') }}%</ion-label>
-      </div>
+  <ion-list-header>
+    <ion-label>{{ 'NUTRITION_SUMMARY.PER_DAY' | translate }}</ion-label>
+  </ion-list-header>
+  @for (day of weekDays; track day) { @if (getDayNutrition(day); as dayData) {
+  <ion-card>
+    <ion-item lines="none">
+      <ion-label><strong>{{ 'COMMON.WEEK_DAYS.' + day | translate }}</strong></ion-label>
+      <ion-note slot="end">{{ getPercent(dayData.kcal, 'kcal') }}%</ion-note>
+    </ion-item>
+    <ion-card-content>
       <div class="macros-grid compact">
         <div class="macro-item calories">
           <span class="macro-value">{{ dayData.kcal }}</span>
@@ -184,18 +188,11 @@
           <span class="macro-label">{{ 'NUTRITION_SUMMARY.FIBER_SHORT' | translate }}</span>
         </div>
       </div>
-      <div class="day-progress-bar">
-        <div
-          class="progress-bar calories"
-          [style.width.%]="getBarWidth(dayData.kcal, 'kcal')"
-        ></div>
-      </div>
-    </div>
-    } }
-  </div>
-  } @else {
-  <div class="no-data">
-    <ion-label color="medium">{{ 'NUTRITION_SUMMARY.NO_DATA' | translate }}</ion-label>
-  </div>
-  } }
-</ion-content>
+      <ion-progress-bar
+        [value]="getBarWidth(dayData.kcal, 'kcal') / 100"
+        style="--progress-background: #ff9500; margin-top: 8px"
+      ></ion-progress-bar>
+    </ion-card-content>
+  </ion-card>
+  } } } }</ion-content
+>

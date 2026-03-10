@@ -4,12 +4,22 @@ import { ModalController } from '@ionic/angular';
 import {
   IonButton,
   IonButtons,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
   IonContent,
   IonHeader,
   IonIcon,
+  IonItem,
   IonLabel,
+  IonListHeader,
+  IonNote,
+  IonProgressBar,
   IonSegment,
   IonSegmentButton,
+  IonSpinner,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
@@ -46,6 +56,16 @@ import { ProfileSurveyComponent } from './profile-survey.modal';
     IonLabel,
     IonSegment,
     IonSegmentButton,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonCardContent,
+    IonProgressBar,
+    IonSpinner,
+    IonItem,
+    IonNote,
+    IonListHeader,
   ],
 })
 export class NutritionSummaryComponent implements OnInit {
@@ -76,6 +96,9 @@ export class NutritionSummaryComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadProfile();
+    if (!this.hasProfile()) {
+      this.openProfileSurvey();
+    }
     await this.loadSummary();
   }
 

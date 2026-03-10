@@ -1,48 +1,31 @@
-$c: (
-  cal: #ff9500,
-  pro: #34c759,
-  carb: #007aff,
+$colors: (
+  calories: #ff9500,
+  protein: #34c759,
+  carbs: #007aff,
   fat: #ff3b30,
-  fib: #af52de,
+  fiber: #af52de,
 );
 
-.loading-container,
-.no-data {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 48px 16px;
-  text-align: center;
-}
-
-.nutrition-card {
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-  .card-title {
-    font-weight: 700;
-    font-size: 1.1em;
-  }
-  .week-label {
-    font-size: 0.85em;
-    color: var(--ion-color-medium);
-  }
+ion-card {
+  margin: 0 0 12px;
 }
 
 .week-total {
-  background: linear-gradient(
+  --background: linear-gradient(
     135deg,
     rgba(var(--ion-color-primary-rgb), 0.08),
     rgba(var(--ion-color-primary-rgb), 0.02)
   );
   border: 1px solid rgba(var(--ion-color-primary-rgb), 0.15);
+}
+
+.daily-avg-card {
+  --background: linear-gradient(
+    135deg,
+    rgba(var(--ion-color-success-rgb), 0.06),
+    rgba(var(--ion-color-success-rgb), 0.02)
+  );
+  border: 1px solid rgba(var(--ion-color-success-rgb), 0.12);
 }
 
 .macros-grid {
@@ -62,7 +45,6 @@ $c: (
   padding: 8px 4px;
   border-radius: 8px;
   background: rgba(var(--ion-color-medium-rgb), 0.05);
-
   .macro-value {
     font-weight: 700;
     font-size: 1.05em;
@@ -74,12 +56,11 @@ $c: (
     margin-top: 2px;
     text-transform: uppercase;
   }
-
-  @each $n, $v in $c {
-    &.#{if($n == cal, 'calories', if($n == pro, 'protein', if($n == carb, 'carbs', if($n == fib, 'fiber', $n))))} {
-      background: rgba($v, 0.1);
+  @each $name, $color in $colors {
+    &.#{$name} {
+      background: rgba($color, 0.1);
       .macro-value {
-        color: $v;
+        color: $color;
       }
     }
   }
@@ -95,54 +76,11 @@ $c: (
   }
 }
 
-.section-title {
-  display: block;
-  font-weight: 600;
-  margin: 20px 0 12px;
-  color: var(--ion-color-medium);
-}
-
-.day-card .card-title {
-  font-size: 0.95em;
-  font-weight: 600;
-}
-
-.daily-avg-card {
-  background: linear-gradient(
-    135deg,
-    rgba(var(--ion-color-success-rgb), 0.06),
-    rgba(var(--ion-color-success-rgb), 0.02)
-  );
-  border: 1px solid rgba(var(--ion-color-success-rgb), 0.12);
-}
-
-.profile-hint {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  margin-bottom: 12px;
-  border-radius: 8px;
-  background: rgba(var(--ion-color-primary-rgb), 0.08);
-  cursor: pointer;
-  font-size: 0.85em;
-  color: var(--ion-color-primary);
-  ion-icon {
-    font-size: 1.2em;
-  }
-}
-
-.progress-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .progress-row {
   display: flex;
   align-items: center;
   gap: 8px;
-
+  margin-bottom: 8px;
   .progress-label {
     width: 36px;
     font-size: 0.75em;
@@ -151,21 +89,9 @@ $c: (
     color: var(--ion-color-medium);
     flex-shrink: 0;
   }
-  .progress-bar-container {
+  ion-progress-bar {
     flex: 1;
-    height: 8px;
-    background: rgba(var(--ion-color-medium-rgb), 0.1);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .progress-bar {
-    height: 100%;
-    border-radius: 4px;
-    @each $n, $v in $c {
-      &.#{if($n == cal, 'calories', if($n == pro, 'protein', if($n == carb, 'carbs', if($n == fib, 'fiber', $n))))} {
-        background: $v;
-      }
-    }
+    --border-radius: 4px;
   }
   .progress-value {
     font-size: 0.7em;
@@ -180,47 +106,6 @@ $c: (
   }
 }
 
-.day-progress-bar {
-  margin-top: 8px;
-  height: 4px;
-  background: rgba(var(--ion-color-medium-rgb), 0.1);
-  border-radius: 2px;
-  overflow: hidden;
-  .progress-bar {
-    height: 100%;
-    border-radius: 2px;
-    background: #ff9500;
-  }
-}
-
 ion-segment {
   margin-bottom: 16px;
-}
-
-.missing-warning {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 12px;
-  margin-bottom: 12px;
-  border-radius: 10px;
-  background: rgba(255, 149, 0, 0.1);
-  border: 1px solid rgba(255, 149, 0, 0.3);
-
-  ion-icon {
-    color: #ff9500;
-    font-size: 1.3em;
-    margin-top: 2px;
-    flex-shrink: 0;
-  }
-  .warning-text {
-    font-size: 0.85em;
-    line-height: 1.4;
-    strong {
-      color: #ff9500;
-    }
-    span {
-      color: var(--ion-color-medium);
-    }
-  }
 }

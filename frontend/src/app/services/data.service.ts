@@ -263,6 +263,7 @@ export class DataService {
           meal: planned_recipe.meal,
           servings: planned_recipe.servings,
           assignedTo: planned_recipe.assignedTo,
+          excludeFromShopping: planned_recipe.excludeFromShopping,
         },
         { context },
       ),
@@ -304,12 +305,20 @@ export class DataService {
     }
   }
 
-  async getShoppingList(week: string, groupId?: string): Promise<Ingredient[] | undefined> {
+  async getShoppingList(
+    week: string,
+    groupId?: string,
+    skipLoading = false,
+  ): Promise<Ingredient[] | undefined> {
     try {
       const params: Record<string, string> = {};
       if (groupId) params['groupId'] = groupId;
+      const context = skipLoading ? new HttpContext().set(SKIP_LOADING, true) : undefined;
       return await firstValueFrom(
-        this.http.get<Ingredient[]>(`${this.api}/planning/${week}/shopping-list`, { params }),
+        this.http.get<Ingredient[]>(`${this.api}/planning/${week}/shopping-list`, {
+          params,
+          ...(context ? { context } : {}),
+        }),
       );
     } catch {
       return undefined;
@@ -411,6 +420,7 @@ export class DataService {
           assignedTo?: string;
           minServings?: number;
           splitServings?: number;
+          excludeFromShopping?: boolean;
         };
         return {
           type: event.type,
@@ -428,6 +438,7 @@ export class DataService {
             assignedTo: payload.assignedTo,
             minServings: payload.minServings,
             splitServings: payload.splitServings,
+            excludeFromShopping: payload.excludeFromShopping,
           } as PlannedRecipe,
         };
       }),

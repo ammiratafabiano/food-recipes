@@ -52,8 +52,8 @@ export class LoadingService {
         return;
       }
       this.loadingElement = el;
-      this.setThemeColorForLoader(true);
       await el.present();
+      requestAnimationFrame(() => this.setThemeColorForLoader(true));
     } catch {
       // Ionic loading creation failed — nothing to do
     }
@@ -65,12 +65,12 @@ export class LoadingService {
     const el = this.loadingElement;
     if (!el) return;
     this.loadingElement = null;
+    this.setThemeColorForLoader(false);
     try {
       await el.dismiss();
     } catch {
       // Already dismissed or not attached — ignore
     }
-    this.setThemeColorForLoader(false);
   }
 
   /**

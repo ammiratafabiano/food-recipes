@@ -213,7 +213,7 @@
         "ALL": "All",
         "LOADING": "Loading...",
         "NO_DATA": "No nutritional data available for this week.",
-        "MISSING_DATA_TITLE": "Some foods have no nutritional data:",
+        "MISSING_DATA_TITLE": "Some recipes have no nutritional data:",
         "DAILY_AVG": "Daily Average",
         "VS_RECOMMENDED": "vs Recommended",
         "PROTEIN": "Protein",

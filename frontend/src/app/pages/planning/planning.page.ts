@@ -242,6 +242,7 @@ export class PlanningPage implements OnDestroy {
               meal: planned.meal ?? existing.meal,
               servings: planned.servings ?? existing.servings,
               assignedTo: planned.assignedTo ?? existing.assignedTo,
+              excludeFromShopping: planned.excludeFromShopping ?? existing.excludeFromShopping,
             };
             const newRecipes = currentPlanning.recipes.map((r) =>
               r.kind === 'recipe' && r.id === planned.id ? merged : r,
@@ -280,8 +281,7 @@ export class PlanningPage implements OnDestroy {
     this.membershipSub?.unsubscribe();
     this.membershipSub = this.dataService.groupMembershipChanged$.subscribe(async (event) => {
       if (!event) return;
-      // Refresh the group to pick up new members
-      const group = await this.dataService.retrieveGroup();
+      const group = await this.dataService.retrieveGroup(true);
       this.group.set(group);
     });
   }
@@ -406,6 +406,26 @@ export class PlanningPage implements OnDestroy {
     });
 
     this.dataService.deletePlanning(plannedRecipe.id).catch(() => {
+      this.planning.set({ ...currentPlanning, recipes: backup });
+    });
+  }
+
+  onToggleShoppingExclude(plannedRecipe: PlannedRecipe) {
+    const currentPlanning = this.planning();
+    if (!currentPlanning) return;
+
+    const backup = currentPlanning.recipes;
+    const updatedRecipe = {
+      ...plannedRecipe,
+      excludeFromShopping: !plannedRecipe.excludeFromShopping,
+    };
+
+    const newRecipes = currentPlanning.recipes.map((r) =>
+      r.kind === 'recipe' && r.id === plannedRecipe.id ? updatedRecipe : r,
+    );
+
+    this.planning.set({ ...currentPlanning, recipes: newRecipes });
+    this.dataService.editPlanning(updatedRecipe).catch(() => {
       this.planning.set({ ...currentPlanning, recipes: backup });
     });
   }

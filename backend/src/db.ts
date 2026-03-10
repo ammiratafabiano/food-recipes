@@ -220,6 +220,13 @@ export async function getDB(): Promise<Database> {
     }
   }
 
+  // Migration: add exclude_from_shopping to planning
+  try {
+    await db.run('ALTER TABLE planning ADD COLUMN exclude_from_shopping INTEGER DEFAULT 0');
+  } catch {
+    // Column might already exist
+  }
+
   // NOTE: NULL quantity_unit is now allowed (e.g. for items like eggs counted as PIECE).
   dbInstance = db;
   return db;

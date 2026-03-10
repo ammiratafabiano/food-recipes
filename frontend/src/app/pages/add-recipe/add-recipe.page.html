@@ -168,8 +168,12 @@
           <ion-icon slot="start" name="pricetag-outline" color="medium"></ion-icon>
         </ion-input>
       </ion-item>
-      <ion-item-options side="end" class="step-container-no-padding">
-        <ion-item-option color="danger" (click)="onRemoveIngredientClicked($index)"
+      <ion-item-options
+        side="end"
+        class="step-container-no-padding"
+        (ionSwipe)="onRemoveIngredientClicked($index)"
+      >
+        <ion-item-option color="danger" expandable (click)="onRemoveIngredientClicked($index)"
           >Rimuovi</ion-item-option
         >
       </ion-item-options>
@@ -210,8 +214,12 @@
         </ion-item>
       </ion-list>
     </ion-item>
-    <ion-item-options side="end" class="step-container-no-padding">
-      <ion-item-option color="danger" (click)="onRemoveStepClicked($index)"
+    <ion-item-options
+      side="end"
+      class="step-container-no-padding"
+      (ionSwipe)="onRemoveStepClicked($index)"
+    >
+      <ion-item-option color="danger" expandable (click)="onRemoveStepClicked($index)"
         >Rimuovi</ion-item-option
       >
     </ion-item-options>
