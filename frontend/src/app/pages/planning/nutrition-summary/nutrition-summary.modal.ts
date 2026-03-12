@@ -96,9 +96,6 @@ export class NutritionSummaryComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadProfile();
-    if (!this.hasProfile()) {
-      this.openProfileSurvey();
-    }
     await this.loadSummary();
   }
 
@@ -231,6 +228,12 @@ export class NutritionSummaryComponent implements OnInit {
   getCurrentUserId(): string {
     const user = this.authService.getCurrentUser();
     return user?.id || '';
+  }
+
+  /** Returns true when filter is 'all' or matches the current user's id */
+  isCurrentUserFilter(): boolean {
+    const f = this.selectedFilter();
+    return f === 'all' || f === this.getCurrentUserId();
   }
 
   dismiss() {

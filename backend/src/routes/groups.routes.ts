@@ -56,6 +56,22 @@ groupsRouter.post('/:id/join', async (req: any, res) => {
       req.params.id,
     );
     const userIds = members.map((m: { user_id: string }) => m.user_id);
+
+    // Auto-follow: create bidirectional follow between new member and all existing members
+    const otherIds = userIds.filter((id: string) => id !== me.id);
+    for (const otherId of otherIds) {
+      await db.run(
+        'INSERT OR IGNORE INTO followers (follower_id, followed_id) VALUES (?, ?)',
+        me.id,
+        otherId,
+      );
+      await db.run(
+        'INSERT OR IGNORE INTO followers (follower_id, followed_id) VALUES (?, ?)',
+        otherId,
+        me.id,
+      );
+    }
+
     emitGroupMembershipChanged(req.params.id, userIds);
     res.json({ id: req.params.id, users: userIds });
   } catch (err: unknown) {
@@ -68,18 +84,37 @@ groupsRouter.post('/:id/leave', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
+
+    // Get remaining members before removing
+    const membersBefore = await db.all(
+      'SELECT user_id FROM group_members WHERE group_id = ? AND user_id != ?',
+      req.params.id,
+      me.id,
+    );
+    const remainingIds = membersBefore.map((m: { user_id: string }) => m.user_id);
+
+    // Remove follow relationships between leaving user and remaining group members
+    for (const otherId of remainingIds) {
+      await db.run(
+        'DELETE FROM followers WHERE follower_id = ? AND followed_id = ?',
+        me.id,
+        otherId,
+      );
+      await db.run(
+        'DELETE FROM followers WHERE follower_id = ? AND followed_id = ?',
+        otherId,
+        me.id,
+      );
+    }
+
     await db.run(
       'DELETE FROM group_members WHERE group_id = ? AND user_id = ?',
       req.params.id,
       me.id,
     );
-    const leaveMembers = await db.all(
-      'SELECT user_id FROM group_members WHERE group_id = ?',
-      req.params.id,
-    );
-    const leaveUserIds = leaveMembers.map((m: { user_id: string }) => m.user_id);
-    emitGroupMembershipChanged(req.params.id, leaveUserIds);
-    res.json({ id: req.params.id, users: leaveUserIds });
+
+    emitGroupMembershipChanged(req.params.id, remainingIds);
+    res.json({ id: req.params.id, users: remainingIds });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     res.status(500).json({ error: message });

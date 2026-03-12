@@ -58,9 +58,13 @@ export class AppComponent {
         take(1),
       )
       .subscribe(async (user) => {
-        if (!user) return; // user === 0 means not logged in — handled by login page
-        // Clean url
+        // Clean url regardless of login state
         window.history.replaceState({}, '', window.location.pathname);
+        if (!user) {
+          // Not logged in — save group ID for after login
+          this.sessionService.setPendingGroupId(groupId);
+          return;
+        }
 
         // Wait for translations to be loaded before building the alert
         const translations = await firstValueFrom(

@@ -189,6 +189,8 @@ export class PlanningPage implements OnDestroy {
               currentPlanning.startDate,
               foodId,
               foodName,
+              undefined,
+              !!item.custom,
             );
             // Add the new item directly to the local list instead of refetching
             if (result?.item) {
@@ -238,11 +240,15 @@ export class PlanningPage implements OnDestroy {
             const existing = currentPlanning.recipes[existingIdx] as PlannedRecipe;
             const merged = {
               ...existing,
-              day: planned.day ?? existing.day,
-              meal: planned.meal ?? existing.meal,
-              servings: planned.servings ?? existing.servings,
-              assignedTo: planned.assignedTo ?? existing.assignedTo,
-              excludeFromShopping: planned.excludeFromShopping ?? existing.excludeFromShopping,
+              day: planned.day !== undefined ? planned.day : existing.day,
+              meal: planned.meal !== undefined ? planned.meal : existing.meal,
+              servings: planned.servings !== undefined ? planned.servings : existing.servings,
+              assignedTo:
+                planned.assignedTo !== undefined ? planned.assignedTo : existing.assignedTo,
+              excludeFromShopping:
+                planned.excludeFromShopping !== undefined
+                  ? planned.excludeFromShopping
+                  : existing.excludeFromShopping,
             };
             const newRecipes = currentPlanning.recipes.map((r) =>
               r.kind === 'recipe' && r.id === planned.id ? merged : r,

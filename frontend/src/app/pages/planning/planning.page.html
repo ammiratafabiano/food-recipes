@@ -74,13 +74,15 @@
         @if (planned.kind === 'recipe') {
         <ion-item-options side="end" (ionSwipe)="onRemoveRecipeClicked(planned)">
           <ion-item-option
-            [color]="planned.excludeFromShopping ? 'success' : 'medium'"
+            [color]="planned.excludeFromShopping ? 'primary' : 'medium'"
             (click)="onToggleShoppingExclude(planned)"
           >
             <ion-icon
-              slot="icon-only"
+              slot="start"
               [name]="planned.excludeFromShopping ? 'cart' : 'cart-outline'"
             ></ion-icon>
+            {{ (planned.excludeFromShopping ? 'PLANNING_PAGE.ENABLE_SHOPPING' :
+            'PLANNING_PAGE.DISABLE_SHOPPING') | translate }}
           </ion-item-option>
           <ion-item-option color="danger" expandable (click)="onRemoveRecipeClicked(planned)">
             {{ 'PLANNING_PAGE.DELETE_RECIPE_BUTTON' | translate }}

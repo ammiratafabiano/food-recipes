@@ -23,7 +23,9 @@
         "TITLE": "Planning",
         "DELETE_RECIPE_BUTTON": "Delete",
         "MEAL_RESET": "Reset",
-        "MEAL_CHOICE": "Which meal?"
+        "MEAL_CHOICE": "Which meal?",
+        "ENABLE_SHOPPING": "Shopping",
+        "DISABLE_SHOPPING": "No shop"
     },
     "SHOPPING_LIST_PAGE": {
         "TITLE": "Shopping list",
@@ -214,6 +216,7 @@
         "LOADING": "Loading...",
         "NO_DATA": "No nutritional data available for this week.",
         "MISSING_DATA_TITLE": "Some recipes have no nutritional data:",
+        "MISSING_DATA_DISCLAIMER": "Data does not include recipes for which nutritional information is not available:",
         "DAILY_AVG": "Daily Average",
         "VS_RECOMMENDED": "vs Recommended",
         "PROTEIN": "Protein",

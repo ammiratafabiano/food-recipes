@@ -242,12 +242,18 @@ export class DataService {
     return firstValueFrom(this.http.delete(`${this.api}/planning/${planning_id}`, { context }));
   }
 
-  async quickAddPlanning(week: string, foodId: string, foodName: string, day?: WeekDay) {
+  async quickAddPlanning(
+    week: string,
+    foodId: string,
+    foodName: string,
+    day?: WeekDay,
+    isCustom = false,
+  ) {
     const context = new HttpContext().set(SKIP_LOADING, true);
     return firstValueFrom(
       this.http.post<{ success: boolean; item: PlannedRecipe }>(
         `${this.api}/planning/${week}/quick-add`,
-        { foodId, foodName, day },
+        { foodId, foodName, day, isCustom },
         { context },
       ),
     );

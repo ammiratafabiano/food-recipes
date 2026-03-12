@@ -27,13 +27,13 @@
     <ion-spinner name="crescent"></ion-spinner>
   </div>
   } @else if (summary(); as s) {
-  <!-- Missing nutrition warning -->
+  <!-- Missing nutrition disclaimer -->
   @if (s.missingNutritionFoods && s.missingNutritionFoods.length > 0) {
-  <ion-item color="warning" lines="none" class="ion-margin-bottom">
-    <ion-icon name="warning-outline" slot="start"></ion-icon>
+  <ion-item color="light" lines="none" class="ion-margin-bottom">
+    <ion-icon name="information-circle-outline" slot="start" color="medium"></ion-icon>
     <ion-label class="ion-text-wrap">
-      <strong>{{ 'NUTRITION_SUMMARY.MISSING_DATA_TITLE' | translate }}</strong>
-      <p>{{ s.missingNutritionFoods.join(', ') }}</p>
+      <p>{{ 'NUTRITION_SUMMARY.MISSING_DATA_DISCLAIMER' | translate }}</p>
+      <p><strong>{{ s.missingNutritionFoods.join(', ') }}</strong></p>
     </ion-label>
   </ion-item>
   }
@@ -76,12 +76,14 @@
       <ion-label class="ion-padding-start"
         ><strong>{{ 'NUTRITION_SUMMARY.DAILY_AVG' | translate }}</strong></ion-label
       >
+      @if (isCurrentUserFilter()) {
       <ion-button fill="clear" size="small" slot="end" (click)="openProfileSurvey()">
         <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
       </ion-button>
+      }
     </ion-item>
     <ion-card-content>
-      @if (!hasProfile()) {
+      @if (isCurrentUserFilter() && !hasProfile()) {
       <ion-item
         button
         (click)="openProfileSurvey()"

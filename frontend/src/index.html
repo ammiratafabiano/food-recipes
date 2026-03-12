@@ -18,19 +18,9 @@
 
     <!-- add to homescreen for ios -->
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="theme-color" content="#f7f7f7" />
-    <script>
-      // Sync theme-color with system color scheme for reliable notch color on iOS
-      (function () {
-        var meta = document.querySelector('meta[name="theme-color"]');
-        var mq = window.matchMedia('(prefers-color-scheme: dark)');
-        function update() {
-          meta.content = mq.matches ? '#0d0d0d' : '#f7f7f7';
-        }
-        update();
-        mq.addEventListener('change', update);
-      })();
-    </script>
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content="#f7f7f7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
     <link rel="manifest" href="manifest.webmanifest" />
 
     <!-- Google Identity Services (for Google Sign-In) -->

@@ -76,7 +76,7 @@ planningRouter.get('/:week', async (req: any, res) => {
 planningRouter.post('/:week/quick-add', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
-    const { foodId, foodName, day } = req.body;
+    const { foodId, foodName, day, isCustom } = req.body;
     const db = await getDB();
 
     if (!foodId || !foodName) {
@@ -141,7 +141,7 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
       day || null,
       me.id,
       servings,
-      1,
+      isCustom ? 1 : 0,
     );
 
     const inserted = await db.get(

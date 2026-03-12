@@ -53,7 +53,6 @@ export class LoadingService {
       }
       this.loadingElement = el;
       await el.present();
-      requestAnimationFrame(() => this.setThemeColorForLoader(true));
     } catch {
       // Ionic loading creation failed — nothing to do
     }
@@ -65,37 +64,10 @@ export class LoadingService {
     const el = this.loadingElement;
     if (!el) return;
     this.loadingElement = null;
-    this.setThemeColorForLoader(false);
     try {
       await el.dismiss();
     } catch {
       // Already dismissed or not attached — ignore
-    }
-  }
-
-  /**
-   * Updates the meta theme-color tag to match the loader backdrop on iOS.
-   * When the Ionic loading overlay is visible, the backdrop darkens the page
-   * but the status bar / notch area still shows the original theme color.
-   * This syncs the theme-color to the darkened value while the loader is active.
-   */
-  private setThemeColorForLoader(loaderVisible: boolean): void {
-    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (!meta) return;
-
-    if (loaderVisible) {
-      if (!meta.dataset['originalContent']) {
-        meta.dataset['originalContent'] = meta.content;
-      }
-      // Ionic loading backdrop is black at ~32% opacity.
-      // Blend: original * (1 - 0.32) ≈ original * 0.68
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      meta.content = isDark ? '#090909' : '#a8a8a8';
-    } else {
-      if (meta.dataset['originalContent']) {
-        meta.content = meta.dataset['originalContent'];
-        delete meta.dataset['originalContent'];
-      }
     }
   }
 }

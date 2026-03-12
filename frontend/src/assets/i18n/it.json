@@ -23,7 +23,9 @@
         "TITLE": "Planning",
         "DELETE_RECIPE_BUTTON": "Elimina",
         "MEAL_RESET": "Resetta",
-        "MEAL_CHOICE": "Quale pasto?"
+        "MEAL_CHOICE": "Quale pasto?",
+        "ENABLE_SHOPPING": "Spesa",
+        "DISABLE_SHOPPING": "No spesa"
     },
     "SHOPPING_LIST_PAGE": {
         "TITLE": "Lista della spesa",
@@ -214,6 +216,7 @@
         "LOADING": "Caricamento...",
         "NO_DATA": "Nessun dato nutrizionale disponibile per questa settimana.",
         "MISSING_DATA_TITLE": "Alcune ricette non hanno dati nutrizionali:",
+        "MISSING_DATA_DISCLAIMER": "I dati non includono le ricette per cui non sono disponibili informazioni nutrizionali:",
         "DAILY_AVG": "Media giornaliera",
         "VS_RECOMMENDED": "vs Consigliato",
         "PROTEIN": "Proteine",
