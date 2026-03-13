@@ -31,7 +31,7 @@
       <ion-label> {{ item.name }} </ion-label>
       @if (item.quantity.value) {
       <ion-label class="quantity-label">
-        {{ item.quantity.value }}{{ item.quantity.unit ? ('COMMON.WEIGHT_UNITS.' +
+        {{ item.quantity.value | number:'1.0-1' }}{{ item.quantity.unit ? ('COMMON.WEIGHT_UNITS.' +
         item.quantity.unit | translate) : '' }}
       </ion-label>
       } @else {

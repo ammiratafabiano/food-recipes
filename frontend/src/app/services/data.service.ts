@@ -75,7 +75,10 @@ export class DataService {
 
   async getUserProfile(): Promise<UserProfile | undefined> {
     try {
-      return await firstValueFrom(this.http.get<UserProfile>(`${this.api}/users/me/profile`));
+      const context = new HttpContext().set(SKIP_LOADING, true);
+      return await firstValueFrom(
+        this.http.get<UserProfile>(`${this.api}/users/me/profile`, { context }),
+      );
     } catch {
       return undefined;
     }
@@ -342,9 +345,11 @@ export class DataService {
       const params: Record<string, string> = {};
       if (groupId) params['groupId'] = groupId;
       if (assignedTo) params['assignedTo'] = assignedTo;
+      const context = new HttpContext().set(SKIP_LOADING, true);
       return await firstValueFrom(
         this.http.get<NutritionSummary>(`${this.api}/planning/${week}/nutrition-summary`, {
           params,
+          context,
         }),
       );
     } catch {

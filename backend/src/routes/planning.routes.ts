@@ -417,19 +417,20 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
 
     // Round values and remove empty/unassigned days
     const round = (v: number) => Math.round(v * 10) / 10;
-    delete days['UNASSIGNED'];
     for (const key of Object.keys(days)) {
       days[key].kcal = round(days[key].kcal);
       days[key].protein = round(days[key].protein);
       days[key].fat = round(days[key].fat);
       days[key].carbs = round(days[key].carbs);
       days[key].fiber = round(days[key].fiber);
+      // Remove UNASSIGNED and all-zero entries from per-day breakdown
       if (
-        !days[key].kcal &&
-        !days[key].protein &&
-        !days[key].fat &&
-        !days[key].carbs &&
-        !days[key].fiber
+        key === 'UNASSIGNED' ||
+        (!days[key].kcal &&
+          !days[key].protein &&
+          !days[key].fat &&
+          !days[key].carbs &&
+          !days[key].fiber)
       ) {
         delete days[key];
       }
@@ -546,19 +547,19 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
        JOIN recipes r ON r.id = p.recipe_id
        JOIN recipe_ingredients ri ON ri.recipe_id = p.recipe_id
        LEFT JOIN foods f ON ri.food_id = f.id
-       WHERE p.week = ? AND p.user_id IN (${placeholders}) AND (p.exclude_from_shopping IS NULL OR p.exclude_from_shopping = 0) AND r.type != 'PRODUCT'`,
+       WHERE p.week = ? AND p.user_id IN (${placeholders}) AND (p.exclude_from_shopping IS NULL OR p.exclude_from_shopping = 0)`,
       req.params.week,
       ...userIds,
     );
 
-    // Find planned recipes with NO ingredients OR PRODUCT-type → add "Cose per [recipe]" entries
+    // Find planned recipes with NO ingredients (WIP) → add "Cose per [recipe]" entries
     const wipRows = await db.all(
       `SELECT DISTINCT r.name as recipe_name, p.recipe_id
        FROM planning p
        JOIN recipes r ON r.id = p.recipe_id
        WHERE p.week = ? AND p.user_id IN (${placeholders})
          AND (p.exclude_from_shopping IS NULL OR p.exclude_from_shopping = 0)
-         AND (NOT EXISTS (SELECT 1 FROM recipe_ingredients ri WHERE ri.recipe_id = r.id) OR r.type = 'PRODUCT')`,
+         AND NOT EXISTS (SELECT 1 FROM recipe_ingredients ri WHERE ri.recipe_id = r.id)`,
       req.params.week,
       ...userIds,
     );
@@ -598,7 +599,45 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
       };
     }
 
-    res.json(Object.values(map));
+    // Round quantities and filter out basic staples
+    const round1 = (v: number) => Math.round(v * 10) / 10;
+    const basicStaples = new Set([
+      'salt',
+      'sale',
+      'pepper',
+      'pepe',
+      'pepe nero',
+      'water',
+      'acqua',
+      'olive oil',
+      "olio d'oliva",
+      "olio extravergine d'oliva",
+      'olio extra vergine di oliva',
+      'olio evo',
+      'seed oil',
+      'olio di semi',
+      'olio di semi di girasole',
+      'olio di semi vari',
+    ]);
+    const result = Object.values(map)
+      .map((item) => ({
+        ...item,
+        quantity: { ...item.quantity, value: round1(item.quantity.value) },
+      }))
+      .filter((item) => {
+        const nameLower = item.name.toLowerCase().trim();
+        if (!basicStaples.has(nameLower)) return true;
+        // Keep staple only if large quantity (> 50g or > 3 pieces)
+        const qty = item.quantity.value;
+        if (item.quantity.unit === 'KILO' && qty > 0) return true;
+        if ((item.quantity.unit === 'GRAM' || item.quantity.unit === 'MILLILITER') && qty > 50) {
+          item.name = (lang === 'it' ? 'Controllare ' : 'Check ') + item.name;
+          return true;
+        }
+        return false;
+      });
+
+    res.json(result);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     res.status(500).json({ error: message });

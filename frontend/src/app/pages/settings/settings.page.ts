@@ -18,12 +18,14 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
+import { ModalController } from '@ionic/angular';
 import { NavigationPath, SettingsNavigationPath } from 'src/app/models/navigation-path.enum';
 import { UserData } from 'src/app/models/user-data.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
 import { FeatureFlag, FeatureFlagService } from 'src/app/services/feature-flag.service';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { ProfileSurveyComponent } from '../planning/nutrition-summary/profile-survey.modal';
 
 @Component({
   selector: 'app-settings',
@@ -56,6 +58,7 @@ export class SettingsPage implements OnInit {
   private readonly loadingService = inject(LoadingService);
   private readonly dataService = inject(DataService);
   private readonly featureFlagService = inject(FeatureFlagService);
+  private readonly modalCtrl = inject(ModalController);
 
   get isSocialEnabled(): boolean {
     return this.featureFlagService.isEnabled(FeatureFlag.Social);
@@ -99,5 +102,12 @@ export class SettingsPage implements OnInit {
 
   async onDeleteClicked() {
     this.navigationService.push(SettingsNavigationPath.DeleteUser);
+  }
+
+  async onNutritionProfileClicked() {
+    const modal = await this.modalCtrl.create({
+      component: ProfileSurveyComponent,
+    });
+    await modal.present();
   }
 }

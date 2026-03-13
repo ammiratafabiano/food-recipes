@@ -105,7 +105,7 @@
     <ion-item>
       @if (ingredient.quantity.value) {
       <ion-label class="quantity-label">
-        {{ ingredient.quantity.value * multiplier() }}{{ ingredient.quantity.unit ?
+        {{ ingredient.quantity.value * multiplier() | number:'1.0-1' }}{{ ingredient.quantity.unit ?
         ('COMMON.WEIGHT_UNITS.' + ingredient.quantity.unit | translate) : '' }}
       </ion-label>
       } @else {

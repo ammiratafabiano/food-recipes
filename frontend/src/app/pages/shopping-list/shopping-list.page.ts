@@ -13,6 +13,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { DecimalPipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
 import { AlertService } from 'src/app/services/alert.service';
@@ -30,6 +31,7 @@ import { Subscription } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    DecimalPipe,
     TranslateModule,
     IonHeader,
     IonToolbar,
@@ -109,7 +111,7 @@ export class ShoppingListPage implements OnDestroy {
     const header = this.translateService.instant('SHOPPING_LIST_PAGE.CSV_HEADER');
     const rows = list.map((item) => {
       const name = item.name.replace(/"/g, '""');
-      const qty = item.quantity?.value ?? '';
+      const qty = item.quantity?.value ? Math.round(item.quantity.value * 10) / 10 : '';
       const unit = item.quantity?.unit
         ? this.translateService.instant('COMMON.WEIGHT_UNITS.' + item.quantity.unit)
         : '';

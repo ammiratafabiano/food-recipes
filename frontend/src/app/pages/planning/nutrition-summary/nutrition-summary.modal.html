@@ -59,29 +59,12 @@
   </ion-card>
 
   <!-- Daily Average vs Recommended -->
+  @if (getPlannedDayCount() > 0) {
   <ion-card class="daily-avg-card">
     <ion-item lines="none" class="ion-no-padding">
-      <ion-button fill="clear" size="small" slot="start" (click)="openProfileSurvey()">
-        <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
-      </ion-button>
       <ion-label><strong>{{ 'NUTRITION_SUMMARY.DAILY_AVG' | translate }}</strong></ion-label>
     </ion-item>
     <ion-card-content>
-      @if (!hasProfile()) {
-      <ion-item
-        button
-        (click)="openProfileSurvey()"
-        detail="false"
-        lines="none"
-        color="light"
-        class="ion-margin-bottom"
-      >
-        <ion-icon name="person-outline" slot="start"></ion-icon>
-        <ion-label class="ion-text-wrap"
-          >{{ 'NUTRITION_SUMMARY.SETUP_PROFILE' | translate }}</ion-label
-        >
-      </ion-item>
-      } @if (getPlannedDayCount() > 0) {
       <div class="progress-row">
         <span class="progress-label">kcal</span>
         <ion-progress-bar
@@ -136,9 +119,9 @@
           >{{ getDailyAverage('fiber') }}g / {{ recommended().fiber }}g</span
         >
       </div>
-      }
     </ion-card-content>
   </ion-card>
+  }
 
   <!-- Per-Day Breakdown (only shown if there is day data) -->
   @if (hasAnyDayData()) {

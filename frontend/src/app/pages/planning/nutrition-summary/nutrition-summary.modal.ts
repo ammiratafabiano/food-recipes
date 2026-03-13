@@ -32,7 +32,6 @@ import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { Group } from 'src/app/models/group.model';
 import { WeekDay } from 'src/app/models/weekDay.enum';
-import { ProfileSurveyComponent } from './profile-survey.modal';
 
 @Component({
   selector: 'app-nutrition-summary-modal',
@@ -75,7 +74,6 @@ export class NutritionSummaryComponent implements OnInit {
   readonly summary = signal<NutritionSummary | undefined>(undefined);
   readonly loading = signal<boolean>(true);
   readonly recommended = signal<RecommendedDaily>(DEFAULT_RECOMMENDED_DAILY);
-  readonly hasProfile = signal<boolean>(false);
 
   readonly weekDays: WeekDay[] = [
     WeekDay.Monday,
@@ -101,7 +99,6 @@ export class NutritionSummaryComponent implements OnInit {
       profile?.sex &&
       profile?.activity_level
     ) {
-      this.hasProfile.set(true);
       const rec = this.calculateRecommended({
         weight: profile.weight,
         height: profile.height,
@@ -141,18 +138,6 @@ export class NutritionSummaryComponent implements OnInit {
       carbs: Math.round((tdee * 0.45) / 4),
       fiber: 25,
     };
-  }
-
-  async openProfileSurvey() {
-    const modal = await this.modalCtrl.create({
-      component: ProfileSurveyComponent,
-    });
-    await modal.present();
-    const { data } = await modal.onDidDismiss();
-    if (data) {
-      this.recommended.set(data);
-      this.hasProfile.set(true);
-    }
   }
 
   async loadSummary() {
@@ -205,11 +190,6 @@ export class NutritionSummaryComponent implements OnInit {
     const dayCount = this.getPlannedDayCount();
     if (dayCount === 0) return 0;
     return Math.round((s.weekTotal[macro] / dayCount) * 10) / 10;
-  }
-
-  getCurrentUserName(): string {
-    const user = this.authService.getCurrentUser();
-    return user?.name || '';
   }
 
   getCurrentUserId(): string {

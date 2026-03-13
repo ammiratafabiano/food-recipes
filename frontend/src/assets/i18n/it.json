@@ -43,7 +43,8 @@
         "RECIPES": "Ricette",
         "LOGOUT_BUTTON": "Esci",
         "DELETE_USER_BUTTON": "Cancella account",
-        "GROUP_BUTTON": "Gestione gruppo"
+        "GROUP_BUTTON": "Gestione gruppo",
+        "NUTRITION_PROFILE": "Profilo nutrizionale"
     },
     "GROUP_MANAGEMENT_PAGE": {
         "TITLE": "Gestione gruppo",
