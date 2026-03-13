@@ -415,14 +415,24 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
       weekTotal.fiber += fiber;
     }
 
-    // Round values
+    // Round values and remove empty/unassigned days
     const round = (v: number) => Math.round(v * 10) / 10;
+    delete days['UNASSIGNED'];
     for (const key of Object.keys(days)) {
       days[key].kcal = round(days[key].kcal);
       days[key].protein = round(days[key].protein);
       days[key].fat = round(days[key].fat);
       days[key].carbs = round(days[key].carbs);
       days[key].fiber = round(days[key].fiber);
+      if (
+        !days[key].kcal &&
+        !days[key].protein &&
+        !days[key].fat &&
+        !days[key].carbs &&
+        !days[key].fiber
+      ) {
+        delete days[key];
+      }
     }
 
     res.json({
@@ -536,19 +546,19 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
        JOIN recipes r ON r.id = p.recipe_id
        JOIN recipe_ingredients ri ON ri.recipe_id = p.recipe_id
        LEFT JOIN foods f ON ri.food_id = f.id
-       WHERE p.week = ? AND p.user_id IN (${placeholders}) AND (p.exclude_from_shopping IS NULL OR p.exclude_from_shopping = 0)`,
+       WHERE p.week = ? AND p.user_id IN (${placeholders}) AND (p.exclude_from_shopping IS NULL OR p.exclude_from_shopping = 0) AND r.type != 'PRODUCT'`,
       req.params.week,
       ...userIds,
     );
 
-    // Find planned recipes with NO ingredients (WIP) → add "Cose per [recipe]" entries
+    // Find planned recipes with NO ingredients OR PRODUCT-type → add "Cose per [recipe]" entries
     const wipRows = await db.all(
       `SELECT DISTINCT r.name as recipe_name, p.recipe_id
        FROM planning p
        JOIN recipes r ON r.id = p.recipe_id
        WHERE p.week = ? AND p.user_id IN (${placeholders})
          AND (p.exclude_from_shopping IS NULL OR p.exclude_from_shopping = 0)
-         AND NOT EXISTS (SELECT 1 FROM recipe_ingredients ri WHERE ri.recipe_id = r.id)`,
+         AND (NOT EXISTS (SELECT 1 FROM recipe_ingredients ri WHERE ri.recipe_id = r.id) OR r.type = 'PRODUCT')`,
       req.params.week,
       ...userIds,
     );

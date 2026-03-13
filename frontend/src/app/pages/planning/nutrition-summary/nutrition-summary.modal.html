@@ -10,19 +10,7 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <!-- Filter by user (only if group exists) -->
-  @if (group && groupUsers && groupUsers.length > 1) {
-  <ion-segment [value]="selectedFilter()" (ionChange)="onFilterChanged($any($event))">
-    <ion-segment-button value="all">
-      <ion-label>{{ 'NUTRITION_SUMMARY.ALL' | translate }}</ion-label>
-    </ion-segment-button>
-    @for (user of groupUsers; track user.id) {
-    <ion-segment-button [value]="user.id">
-      <ion-label>{{ user.name.split(' ')[0] }}</ion-label>
-    </ion-segment-button>
-    }
-  </ion-segment>
-  } @if (loading()) {
+  @if (loading()) {
   <div class="ion-text-center ion-padding">
     <ion-spinner name="crescent"></ion-spinner>
   </div>
@@ -73,17 +61,13 @@
   <!-- Daily Average vs Recommended -->
   <ion-card class="daily-avg-card">
     <ion-item lines="none" class="ion-no-padding">
-      <ion-label class="ion-padding-start"
-        ><strong>{{ 'NUTRITION_SUMMARY.DAILY_AVG' | translate }}</strong></ion-label
-      >
-      @if (isCurrentUserFilter()) {
-      <ion-button fill="clear" size="small" slot="end" (click)="openProfileSurvey()">
+      <ion-button fill="clear" size="small" slot="start" (click)="openProfileSurvey()">
         <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
       </ion-button>
-      }
+      <ion-label><strong>{{ 'NUTRITION_SUMMARY.DAILY_AVG' | translate }}</strong></ion-label>
     </ion-item>
     <ion-card-content>
-      @if (isCurrentUserFilter() && !hasProfile()) {
+      @if (!hasProfile()) {
       <ion-item
         button
         (click)="openProfileSurvey()"

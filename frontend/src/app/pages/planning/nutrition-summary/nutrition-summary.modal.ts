@@ -17,8 +17,6 @@ import {
   IonListHeader,
   IonNote,
   IonProgressBar,
-  IonSegment,
-  IonSegmentButton,
   IonSpinner,
   IonTitle,
   IonToolbar,
@@ -33,7 +31,6 @@ import {
 import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { Group } from 'src/app/models/group.model';
-import { UserData } from 'src/app/models/user-data.model';
 import { WeekDay } from 'src/app/models/weekDay.enum';
 import { ProfileSurveyComponent } from './profile-survey.modal';
 
@@ -54,8 +51,6 @@ import { ProfileSurveyComponent } from './profile-survey.modal';
     IonButton,
     IonIcon,
     IonLabel,
-    IonSegment,
-    IonSegmentButton,
     IonCard,
     IonCardHeader,
     IonCardTitle,
@@ -76,11 +71,9 @@ export class NutritionSummaryComponent implements OnInit {
 
   @Input() week!: string;
   @Input() group?: Group;
-  @Input() groupUsers?: UserData[];
 
   readonly summary = signal<NutritionSummary | undefined>(undefined);
   readonly loading = signal<boolean>(true);
-  readonly selectedFilter = signal<string>('all');
   readonly recommended = signal<RecommendedDaily>(DEFAULT_RECOMMENDED_DAILY);
   readonly hasProfile = signal<boolean>(false);
 
@@ -164,20 +157,14 @@ export class NutritionSummaryComponent implements OnInit {
 
   async loadSummary() {
     this.loading.set(true);
-    const filter = this.selectedFilter();
-    const assignedTo = filter === 'all' ? undefined : filter;
+    const currentUserId = this.getCurrentUserId();
     const summary = await this.dataService.getNutritionSummary(
       this.week,
       this.group?.id,
-      assignedTo,
+      currentUserId || undefined,
     );
     this.summary.set(summary);
     this.loading.set(false);
-  }
-
-  async onFilterChanged(event: CustomEvent) {
-    this.selectedFilter.set(event.detail.value);
-    await this.loadSummary();
   }
 
   getDayNutrition(day: string): DayNutrition | null {
@@ -228,12 +215,6 @@ export class NutritionSummaryComponent implements OnInit {
   getCurrentUserId(): string {
     const user = this.authService.getCurrentUser();
     return user?.id || '';
-  }
-
-  /** Returns true when filter is 'all' or matches the current user's id */
-  isCurrentUserFilter(): boolean {
-    const f = this.selectedFilter();
-    return f === 'all' || f === this.getCurrentUserId();
   }
 
   dismiss() {

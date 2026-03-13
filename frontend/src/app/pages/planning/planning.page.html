@@ -67,7 +67,7 @@
             <ion-icon name="person" [style.color]="getUserColor(userId)"></ion-icon>
             } }
           </div>
-          <ion-reorder slot="end"></ion-reorder>
+          <ion-reorder slot="start"></ion-reorder>
           }
         </ion-item>
 
@@ -78,7 +78,7 @@
             (click)="onToggleShoppingExclude(planned)"
           >
             <ion-icon
-              slot="start"
+              slot="top"
               [name]="planned.excludeFromShopping ? 'cart' : 'cart-outline'"
             ></ion-icon>
             {{ (planned.excludeFromShopping ? 'PLANNING_PAGE.ENABLE_SHOPPING' :

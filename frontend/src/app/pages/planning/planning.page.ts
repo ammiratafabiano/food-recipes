@@ -44,7 +44,6 @@ import {
 import { createPlanning } from 'src/app/utils/model-factories';
 import { LoadingService } from 'src/app/services/loading.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { UserData } from 'src/app/models/user-data.model';
 import { NutritionSummaryComponent } from './nutrition-summary/nutrition-summary.modal';
 import {
   MealSuggestionsComponent,
@@ -714,24 +713,11 @@ export class PlanningPage implements OnDestroy {
     const currentPlanning = this.planning();
     if (!currentPlanning) return;
 
-    // Fetch group users for the filter
-    let groupUsers: UserData[] = [];
-    if (group) {
-      const users = await this.dataService.getUsers();
-      const currentUser = this.authService.getCurrentUser();
-      const allUsers = [...(users || [])];
-      if (currentUser) {
-        allUsers.push(currentUser);
-      }
-      groupUsers = allUsers.filter((u) => group.users.includes(u.id));
-    }
-
     const modal = await this.modalCtrl.create({
       component: NutritionSummaryComponent,
       componentProps: {
         week: currentPlanning.startDate,
         group,
-        groupUsers,
       },
     });
     await modal.present();
