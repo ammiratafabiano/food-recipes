@@ -29,7 +29,7 @@ planningRouter.get('/:week', async (req: any, res) => {
 
     const placeholders = userIds.map(() => '?').join(',');
     const rows = await db.all(
-      `SELECT p.*, r.name as recipe_name_lookup, r.min_servings, r.split_servings FROM planning p LEFT JOIN recipes r ON r.id = p.recipe_id WHERE p.week = ? AND p.user_id IN (${placeholders})`,
+      `SELECT p.*, r.name as recipe_name_lookup, r.min_servings, r.split_servings FROM planning p LEFT JOIN recipes r ON r.id = p.recipe_id WHERE p.week = ? AND p.user_id IN (${placeholders}) ORDER BY p.sort_order`,
       req.params.week,
       ...userIds,
     );
@@ -49,6 +49,7 @@ planningRouter.get('/:week', async (req: any, res) => {
         min_servings: number;
         split_servings: number;
         exclude_from_shopping: number;
+        sort_order: number;
       }) => ({
         kind: 'recipe' as const,
         id: r.id,
@@ -63,6 +64,7 @@ planningRouter.get('/:week', async (req: any, res) => {
         minServings: r.min_servings || 1,
         splitServings: r.split_servings || 1,
         excludeFromShopping: r.exclude_from_shopping === 1,
+        sortOrder: r.sort_order || 0,
       }),
     );
 
@@ -132,8 +134,16 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
       servings = members.length || 1;
     }
 
+    // Compute next sort_order for this week
+    const maxOrder = await db.get(
+      'SELECT COALESCE(MAX(sort_order), 0) as max_order FROM planning WHERE week = ? AND user_id = ?',
+      req.params.week,
+      me.id,
+    );
+    const sortOrder = (maxOrder?.max_order || 0) + 1;
+
     await db.run(
-      'INSERT INTO planning (id, recipe_id, recipe_name, week, day, user_id, servings, exclude_from_shopping) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO planning (id, recipe_id, recipe_name, week, day, user_id, servings, exclude_from_shopping, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       pId,
       recipe.id,
       recipe.name,
@@ -142,6 +152,7 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
       me.id,
       servings,
       isCustom ? 1 : 0,
+      sortOrder,
     );
 
     const inserted = await db.get(
@@ -163,6 +174,7 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
       minServings: inserted.min_servings,
       splitServings: inserted.split_servings,
       excludeFromShopping: inserted.exclude_from_shopping === 1,
+      sortOrder: inserted.sort_order || 0,
     };
 
     res.json({ success: true, item });
@@ -183,8 +195,17 @@ planningRouter.post('/', async (req: any, res) => {
     const { recipe_id, recipe_name, week, day, meal, servings, assignedTo } = req.body;
     const db = await getDB();
     const id = uuidv4();
+
+    // Compute next sort_order for this week
+    const maxOrder = await db.get(
+      'SELECT COALESCE(MAX(sort_order), 0) as max_order FROM planning WHERE week = ? AND user_id = ?',
+      week,
+      me.id,
+    );
+    const sortOrder = (maxOrder?.max_order || 0) + 1;
+
     await db.run(
-      'INSERT INTO planning (id, recipe_id, recipe_name, week, day, meal, user_id, servings, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO planning (id, recipe_id, recipe_name, week, day, meal, user_id, servings, assigned_to, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       id,
       recipe_id,
       recipe_name || '',
@@ -194,6 +215,7 @@ planningRouter.post('/', async (req: any, res) => {
       me.id,
       servings || 1,
       assignedTo || null,
+      sortOrder,
     );
     const result = {
       kind: 'recipe',
@@ -206,6 +228,7 @@ planningRouter.post('/', async (req: any, res) => {
       meal,
       servings: servings || 1,
       assignedTo: assignedTo || null,
+      sortOrder,
     };
     res.json(result);
 
@@ -224,15 +247,16 @@ planningRouter.post('/', async (req: any, res) => {
 planningRouter.put('/:id', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
-    const { day, meal, servings, assignedTo, excludeFromShopping } = req.body;
+    const { day, meal, servings, assignedTo, excludeFromShopping, sortOrder } = req.body;
     const db = await getDB();
     await db.run(
-      'UPDATE planning SET day = ?, meal = ?, servings = ?, assigned_to = ?, exclude_from_shopping = ? WHERE id = ?',
+      'UPDATE planning SET day = ?, meal = ?, servings = ?, assigned_to = ?, exclude_from_shopping = ?, sort_order = COALESCE(?, sort_order) WHERE id = ?',
       day || null,
       meal || null,
       servings || 1,
       assignedTo || null,
       excludeFromShopping != null ? (excludeFromShopping ? 1 : 0) : 0,
+      sortOrder ?? null,
       req.params.id,
     );
     const updated = await db.get('SELECT * FROM planning WHERE id = ?', req.params.id);
@@ -276,6 +300,34 @@ planningRouter.delete('/:id', async (req: any, res) => {
         user_id: me.id,
       });
       emitShoppingListInvalidate(groupId, item.week);
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+planningRouter.put('/:week/reorder', async (req: any, res) => {
+  try {
+    const me = req.user as JwtPayload;
+    const { ids } = req.body as { ids: string[] };
+    if (!Array.isArray(ids)) {
+      return res.status(400).json({ error: 'ids must be an array' });
+    }
+    const db = await getDB();
+    for (let i = 0; i < ids.length; i++) {
+      await db.run(
+        'UPDATE planning SET sort_order = ? WHERE id = ? AND user_id = ?',
+        i,
+        ids[i],
+        me.id,
+      );
+    }
+    res.json({ success: true });
+
+    const groupId = await findUserGroupId(me.id);
+    if (groupId) {
+      emitPlanningChange(groupId, 'planning:updated', { week: req.params.week, user_id: me.id });
     }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -478,6 +530,13 @@ planningRouter.get('/:week/suggestions', async (req: any, res) => {
       currentWeekRecipes.map((r: { recipe_id: string }) => r.recipe_id),
     );
 
+    // Get dismissed suggestions for the current user
+    const dismissedRows = await db.all(
+      'SELECT recipe_id FROM dismissed_suggestions WHERE user_id = ?',
+      me.id,
+    );
+    const dismissedIds = new Set(dismissedRows.map((r: { recipe_id: string }) => r.recipe_id));
+
     // Get most frequently planned recipes from past weeks, with last used info
     const rows = await db.all(
       `SELECT 
@@ -499,7 +558,10 @@ planningRouter.get('/:week/suggestions', async (req: any, res) => {
     );
 
     const suggestions = rows
-      .filter((r: { recipe_id: string }) => !currentRecipeIds.has(r.recipe_id))
+      .filter(
+        (r: { recipe_id: string }) =>
+          !currentRecipeIds.has(r.recipe_id) && !dismissedIds.has(r.recipe_id),
+      )
       .slice(0, 15)
       .map(
         (r: {
@@ -521,6 +583,22 @@ planningRouter.get('/:week/suggestions', async (req: any, res) => {
       );
 
     res.json(suggestions);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+planningRouter.post('/:week/suggestions/:recipeId/dismiss', async (req: any, res) => {
+  try {
+    const me = req.user as JwtPayload;
+    const db = await getDB();
+    await db.run(
+      'INSERT OR IGNORE INTO dismissed_suggestions (user_id, recipe_id) VALUES (?, ?)',
+      me.id,
+      req.params.recipeId,
+    );
+    res.json({ success: true });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     res.status(500).json({ error: message });

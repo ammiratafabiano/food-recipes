@@ -44,7 +44,8 @@
         "LOGOUT_BUTTON": "Esci",
         "DELETE_USER_BUTTON": "Cancella account",
         "GROUP_BUTTON": "Gestione gruppo",
-        "NUTRITION_PROFILE": "Profilo nutrizionale"
+        "NUTRITION_PROFILE": "Profilo nutrizionale",
+        "PLANNING_TOGGLE": "Attiva planning"
     },
     "GROUP_MANAGEMENT_PAGE": {
         "TITLE": "Gestione gruppo",

@@ -51,6 +51,10 @@ groupsRouter.post('/:id/join', async (req: any, res) => {
       req.params.id,
       me.id,
     );
+
+    // Auto-enable planning for users joining a group
+    await db.run('UPDATE users SET planning_enabled = 1 WHERE id = ?', me.id);
+
     const members = await db.all(
       'SELECT user_id FROM group_members WHERE group_id = ?',
       req.params.id,

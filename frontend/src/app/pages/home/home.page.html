@@ -12,6 +12,7 @@
       <ion-label>{{ 'RECIPE_LIST_PAGE.TITLE' | translate }}</ion-label>
     </ion-tab-button>
 
+    @if (planningEnabled()) {
     <ion-tab-button tab="planning">
       <ion-icon name="calendar"></ion-icon>
       <ion-label>{{ 'PLANNING_PAGE.TITLE' | translate }}</ion-label>
@@ -21,6 +22,7 @@
       <ion-icon name="basket"></ion-icon>
       <ion-label>{{ 'SHOPPING_LIST_PAGE.TITLE' | translate }}</ion-label>
     </ion-tab-button>
+    }
 
     <ion-tab-button tab="settings">
       <ion-icon name="cog"></ion-icon>

@@ -273,7 +273,26 @@ export class DataService {
           servings: planned_recipe.servings,
           assignedTo: planned_recipe.assignedTo,
           excludeFromShopping: planned_recipe.excludeFromShopping,
+          sortOrder: planned_recipe.sortOrder,
         },
+        { context },
+      ),
+    );
+  }
+
+  async reorderPlanning(week: string, ids: string[]) {
+    const context = new HttpContext().set(SKIP_LOADING, true);
+    return firstValueFrom(
+      this.http.put(`${this.api}/planning/${week}/reorder`, { ids }, { context }),
+    );
+  }
+
+  async dismissSuggestion(week: string, recipeId: string) {
+    const context = new HttpContext().set(SKIP_LOADING, true);
+    return firstValueFrom(
+      this.http.post(
+        `${this.api}/planning/${week}/suggestions/${recipeId}/dismiss`,
+        {},
         { context },
       ),
     );
@@ -345,11 +364,9 @@ export class DataService {
       const params: Record<string, string> = {};
       if (groupId) params['groupId'] = groupId;
       if (assignedTo) params['assignedTo'] = assignedTo;
-      const context = new HttpContext().set(SKIP_LOADING, true);
       return await firstValueFrom(
         this.http.get<NutritionSummary>(`${this.api}/planning/${week}/nutrition-summary`, {
           params,
-          context,
         }),
       );
     } catch {

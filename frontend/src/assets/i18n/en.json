@@ -44,7 +44,8 @@
         "LOGOUT_BUTTON": "Logout",
         "DELETE_USER_BUTTON": "Delete account",
         "GROUP_BUTTON": "Group management",
-        "NUTRITION_PROFILE": "Nutrition profile"
+        "NUTRITION_PROFILE": "Nutrition profile",
+        "PLANNING_TOGGLE": "Enable planning"
     },
     "GROUP_MANAGEMENT_PAGE": {
         "TITLE": "Group management",

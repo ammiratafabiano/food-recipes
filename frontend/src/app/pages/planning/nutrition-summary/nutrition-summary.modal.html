@@ -10,11 +10,7 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  @if (loading()) {
-  <div class="ion-text-center ion-padding">
-    <ion-spinner name="crescent"></ion-spinner>
-  </div>
-  } @else if (summary(); as s) {
+  @if (summary(); as s) {
   <!-- Missing nutrition disclaimer -->
   @if (s.missingNutritionFoods && s.missingNutritionFoods.length > 0) {
   <ion-item color="light" lines="none" class="ion-margin-bottom">

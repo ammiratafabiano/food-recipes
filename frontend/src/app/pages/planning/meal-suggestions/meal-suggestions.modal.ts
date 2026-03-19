@@ -7,6 +7,9 @@ import {
   IonHeader,
   IonIcon,
   IonItem,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
   IonLabel,
   IonList,
   IonTitle,
@@ -41,6 +44,9 @@ export interface MealSuggestion {
     IonButton,
     IonIcon,
     IonItem,
+    IonItemSliding,
+    IonItemOption,
+    IonItemOptions,
     IonLabel,
     IonList,
   ],
@@ -66,6 +72,11 @@ export class MealSuggestionsComponent implements OnInit {
   getMealsLabel(meals: string[]): string {
     if (!meals || meals.length === 0) return '';
     return meals.map((m) => this.translateService.instant('COMMON.MEAL_TYPE.' + m)).join(', ');
+  }
+
+  async onDismissClicked(suggestion: MealSuggestion) {
+    this.suggestions.update((list) => list.filter((s) => s.recipe_id !== suggestion.recipe_id));
+    await this.dataService.dismissSuggestion(this.week, suggestion.recipe_id);
   }
 
   onAddClicked(suggestion: MealSuggestion) {

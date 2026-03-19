@@ -20,6 +20,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataService } from 'src/app/services/data.service';
 import { UserProfile } from 'src/app/models/user-data.model';
 import { RecommendedDaily } from 'src/app/models/nutrition-summary.model';
+import { calculateRecommendedDaily, ACTIVITY_MULTIPLIERS } from 'src/app/utils/nutrition-rules';
 
 @Component({
   selector: 'app-profile-survey-modal',
@@ -232,31 +233,9 @@ export class ProfileSurveyComponent implements OnInit {
       return;
     }
 
-    // Mifflin-St Jeor equation
-    let bmr: number;
-    if (s === 'male') {
-      bmr = 10 * w + 6.25 * h - 5 * a + 5;
-    } else {
-      bmr = 10 * w + 6.25 * h - 5 * a - 161;
-    }
-
-    const activityMultipliers: Record<string, number> = {
-      sedentary: 1.2,
-      light: 1.375,
-      moderate: 1.55,
-      active: 1.725,
-      very_active: 1.9,
-    };
-
-    const tdee = Math.round(bmr * (activityMultipliers[al] || 1.2));
-
-    // Macro split: 30% protein, 25% fat, 45% carbs
-    const protein = Math.round((tdee * 0.3) / 4);
-    const fat = Math.round((tdee * 0.25) / 9);
-    const carbs = Math.round((tdee * 0.45) / 4);
-    const fiber = 25;
-
-    this.calculated.set({ kcal: tdee, protein, fat, carbs, fiber });
+    this.calculated.set(
+      calculateRecommendedDaily({ weight: w, height: h, age: a, sex: s, activity_level: al }),
+    );
   }
 
   async onSave() {

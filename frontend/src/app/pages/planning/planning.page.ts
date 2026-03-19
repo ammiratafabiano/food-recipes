@@ -328,17 +328,6 @@ export class PlanningPage implements OnDestroy {
     // Filter out any existing separators to prevent duplication
     const justRecipes = response.recipes.filter((r) => r.kind === 'recipe') as PlannedRecipe[];
 
-    // Sort recipes by meal within each day for consistent ordering
-    const mealOrder = Object.values(Meal);
-    justRecipes.sort((a, b) => {
-      if (a.day === b.day) {
-        const ia = a.meal ? mealOrder.indexOf(a.meal) : -1;
-        const ib = b.meal ? mealOrder.indexOf(b.meal) : -1;
-        return ia - ib;
-      }
-      return 0;
-    });
-
     justRecipes.forEach((planned) => {
       if (planned.day) {
         const first = recipes.findIndex((x) => x.kind === 'separator' && x.day == planned.day);
@@ -372,8 +361,15 @@ export class PlanningPage implements OnDestroy {
 
       this.planning.set({ ...currentPlanning, recipes: newRecipes });
 
+      // Persist the new order to the backend
+      const orderedIds = newRecipes
+        .filter((r): r is PlannedRecipe => r.kind === 'recipe')
+        .map((r) => r.id);
+
       this.dataService.editPlanning(updatedElement).then(
-        () => {},
+        () => {
+          this.dataService.reorderPlanning(currentPlanning.startDate, orderedIds);
+        },
         () => {
           this.planning.set({ ...currentPlanning, recipes: backup });
         },
@@ -393,7 +389,7 @@ export class PlanningPage implements OnDestroy {
   private sortList() {
     const currentPlanning = this.planning();
     if (!currentPlanning) return;
-    // Rebuild separator structure with proper meal ordering
+    // Rebuild separator structure
     this.handleResponse(currentPlanning);
   }
 

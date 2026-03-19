@@ -14,6 +14,7 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonTitle,
+  IonToggle,
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
@@ -50,6 +51,7 @@ import { ProfileSurveyComponent } from '../planning/nutrition-summary/profile-su
     IonAvatar,
     IonRefresher,
     IonRefresherContent,
+    IonToggle,
   ],
 })
 export class SettingsPage implements OnInit {
@@ -65,12 +67,21 @@ export class SettingsPage implements OnInit {
   }
 
   readonly userData = signal<UserData | undefined>(undefined);
+  readonly planningEnabled = signal<boolean>(false);
 
   constructor() {}
 
   ngOnInit() {
     this.userData.set(this.authService.getCurrentUser());
     this.getUserStats();
+    this.loadPlanningEnabled();
+  }
+
+  private async loadPlanningEnabled() {
+    const profile = await this.dataService.getUserProfile();
+    if (profile?.planning_enabled) {
+      this.planningEnabled.set(true);
+    }
   }
 
   private async getUserStats() {
@@ -109,5 +120,11 @@ export class SettingsPage implements OnInit {
       component: ProfileSurveyComponent,
     });
     await modal.present();
+  }
+
+  async onPlanningToggle(event: CustomEvent) {
+    const enabled = event.detail.checked;
+    this.planningEnabled.set(enabled);
+    await this.dataService.updateUserProfile({ planning_enabled: enabled } as any);
   }
 }

@@ -227,6 +227,32 @@ export async function getDB(): Promise<Database> {
     // Column might already exist
   }
 
+  // Migration: add sort_order to planning (for user-defined ordering)
+  try {
+    await db.run('ALTER TABLE planning ADD COLUMN sort_order INTEGER DEFAULT 0');
+  } catch {
+    // Column might already exist
+  }
+
+  // Migration: add planning_enabled to users (recipe-only mode by default)
+  try {
+    await db.run('ALTER TABLE users ADD COLUMN planning_enabled INTEGER DEFAULT 0');
+  } catch {
+    // Column might already exist
+  }
+
+  // Migration: dismissed_suggestions table
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS dismissed_suggestions (
+      user_id       TEXT NOT NULL,
+      recipe_id     TEXT NOT NULL,
+      dismissed_at  TEXT DEFAULT (datetime('now')),
+      PRIMARY KEY(user_id, recipe_id),
+      FOREIGN KEY(user_id)   REFERENCES users(id)   ON DELETE CASCADE,
+      FOREIGN KEY(recipe_id) REFERENCES recipes(id)  ON DELETE CASCADE
+    );
+  `);
+
   // NOTE: NULL quantity_unit is now allowed (e.g. for items like eggs counted as PIECE).
   dbInstance = db;
   return db;

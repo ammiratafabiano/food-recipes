@@ -29,4 +29,5 @@ export interface PlannedRecipe {
   minServings?: number;
   splitServings?: number;
   excludeFromShopping?: boolean;
+  sortOrder?: number;
 }

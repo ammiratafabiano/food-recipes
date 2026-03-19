@@ -17,7 +17,6 @@ import {
   IonListHeader,
   IonNote,
   IonProgressBar,
-  IonSpinner,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
@@ -30,8 +29,10 @@ import {
 } from 'src/app/models/nutrition-summary.model';
 import { DataService } from 'src/app/services/data.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { LoadingService } from 'src/app/services/loading.service';
 import { Group } from 'src/app/models/group.model';
 import { WeekDay } from 'src/app/models/weekDay.enum';
+import { calculateRecommendedDaily } from 'src/app/utils/nutrition-rules';
 
 @Component({
   selector: 'app-nutrition-summary-modal',
@@ -50,13 +51,12 @@ import { WeekDay } from 'src/app/models/weekDay.enum';
     IonButton,
     IonIcon,
     IonLabel,
-    IonCard,
     IonCardHeader,
     IonCardTitle,
     IonCardSubtitle,
+    IonCard,
     IonCardContent,
     IonProgressBar,
-    IonSpinner,
     IonItem,
     IonNote,
     IonListHeader,
@@ -67,12 +67,12 @@ export class NutritionSummaryComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly modalCtrl = inject(ModalController);
   private readonly translateService = inject(TranslateService);
+  private readonly loadingService = inject(LoadingService);
 
   @Input() week!: string;
   @Input() group?: Group;
 
   readonly summary = signal<NutritionSummary | undefined>(undefined);
-  readonly loading = signal<boolean>(true);
   readonly recommended = signal<RecommendedDaily>(DEFAULT_RECOMMENDED_DAILY);
 
   readonly weekDays: WeekDay[] = [
@@ -86,8 +86,10 @@ export class NutritionSummaryComponent implements OnInit {
   ];
 
   async ngOnInit() {
-    await this.loadProfile();
-    await this.loadSummary();
+    await this.loadingService.withLoader(async () => {
+      await this.loadProfile();
+      await this.loadSummary();
+    });
   }
 
   private async loadProfile() {
@@ -99,7 +101,7 @@ export class NutritionSummaryComponent implements OnInit {
       profile?.sex &&
       profile?.activity_level
     ) {
-      const rec = this.calculateRecommended({
+      const rec = calculateRecommendedDaily({
         weight: profile.weight,
         height: profile.height,
         age: profile.age,
@@ -110,38 +112,7 @@ export class NutritionSummaryComponent implements OnInit {
     }
   }
 
-  private calculateRecommended(profile: {
-    weight: number;
-    height: number;
-    age: number;
-    sex: string;
-    activity_level: string;
-  }): RecommendedDaily {
-    let bmr: number;
-    if (profile.sex === 'male') {
-      bmr = 10 * profile.weight + 6.25 * profile.height - 5 * profile.age + 5;
-    } else {
-      bmr = 10 * profile.weight + 6.25 * profile.height - 5 * profile.age - 161;
-    }
-    const multipliers: Record<string, number> = {
-      sedentary: 1.2,
-      light: 1.375,
-      moderate: 1.55,
-      active: 1.725,
-      very_active: 1.9,
-    };
-    const tdee = Math.round(bmr * (multipliers[profile.activity_level] || 1.2));
-    return {
-      kcal: tdee,
-      protein: Math.round((tdee * 0.3) / 4),
-      fat: Math.round((tdee * 0.25) / 9),
-      carbs: Math.round((tdee * 0.45) / 4),
-      fiber: 25,
-    };
-  }
-
   async loadSummary() {
-    this.loading.set(true);
     const currentUserId = this.getCurrentUserId();
     const summary = await this.dataService.getNutritionSummary(
       this.week,
@@ -149,7 +120,6 @@ export class NutritionSummaryComponent implements OnInit {
       currentUserId || undefined,
     );
     this.summary.set(summary);
-    this.loading.set(false);
   }
 
   getDayNutrition(day: string): DayNutrition | null {

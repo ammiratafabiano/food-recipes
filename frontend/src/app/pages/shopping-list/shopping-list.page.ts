@@ -139,7 +139,7 @@ export class ShoppingListPage implements OnDestroy {
       try {
         const blob = new Blob([csvPayload], { type: 'text/csv' });
         const file = new File([blob], 'shopping-list.csv', { type: 'text/csv' });
-        await navigator.share({ title, files: [file] });
+        await navigator.share({ files: [file] });
       } catch {
         this.alertService.presentInfoPopup(this.translateService.instant('COMMON.CLIPBOARD'));
       }
