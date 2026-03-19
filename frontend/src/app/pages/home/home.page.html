@@ -1,6 +1,6 @@
 <ion-tabs>
   <ion-tab-bar slot="bottom">
-    @if (isDiscoverEnabled) {
+    @if (dataService.socialEnabled()) {
     <ion-tab-button tab="discover">
       <ion-icon name="library"></ion-icon>
       <ion-label>{{ 'DISCOVER_PAGE.TITLE' | translate }}</ion-label>
@@ -12,7 +12,7 @@
       <ion-label>{{ 'RECIPE_LIST_PAGE.TITLE' | translate }}</ion-label>
     </ion-tab-button>
 
-    @if (planningEnabled()) {
+    @if (dataService.planningEnabled()) {
     <ion-tab-button tab="planning">
       <ion-icon name="calendar"></ion-icon>
       <ion-label>{{ 'PLANNING_PAGE.TITLE' | translate }}</ion-label>

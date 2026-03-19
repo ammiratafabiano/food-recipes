@@ -45,7 +45,10 @@
         "DELETE_USER_BUTTON": "Cancella account",
         "GROUP_BUTTON": "Gestione gruppo",
         "NUTRITION_PROFILE": "Profilo nutrizionale",
-        "PLANNING_TOGGLE": "Attiva planning"
+        "PLANNING_TOGGLE": "Planning settimanale",
+        "SOCIAL_TOGGLE": "Modalità social",
+        "STATUS_ON": "Attivo",
+        "STATUS_OFF": "Non attivo"
     },
     "GROUP_MANAGEMENT_PAGE": {
         "TITLE": "Gestione gruppo",
@@ -253,6 +256,19 @@
         "TITLE": "Suggerimenti",
         "LOADING": "Caricamento...",
         "NO_DATA": "Nessun suggerimento disponibile. Aggiungi ricette al planning per ricevere suggerimenti nelle prossime settimane.",
-        "USED_TIMES": "Usata {{count}} volte"
+        "USED_TIMES": "Usata {{count}} volte",
+        "DISMISS": "Nascondi"
+    },
+    "PLANNING_DETAIL": {
+        "TITLE": "Planning settimanale",
+        "DESCRIPTION": "Il planning settimanale ti permette di organizzare i pasti della settimana. Potrai aggiungere ricette ai diversi giorni, generare automaticamente la lista della spesa e ricevere suggerimenti basati sulle tue abitudini.",
+        "ENABLE": "Attiva planning",
+        "DISABLE": "Disattiva planning"
+    },
+    "SOCIAL_DETAIL": {
+        "TITLE": "Modalità social",
+        "DESCRIPTION": "La modalità social ti permette di scoprire ricette condivise da altri utenti, seguire i tuoi amici e salvare le loro ricette nella tua collezione.",
+        "ENABLE": "Attiva modalità social",
+        "DISABLE": "Disattiva modalità social"
     }
 }

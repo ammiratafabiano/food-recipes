@@ -134,11 +134,10 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
       servings = members.length || 1;
     }
 
-    // Compute next sort_order for this week
+    // Compute next sort_order for this week (global across all users)
     const maxOrder = await db.get(
-      'SELECT COALESCE(MAX(sort_order), 0) as max_order FROM planning WHERE week = ? AND user_id = ?',
+      'SELECT COALESCE(MAX(sort_order), 0) as max_order FROM planning WHERE week = ?',
       req.params.week,
-      me.id,
     );
     const sortOrder = (maxOrder?.max_order || 0) + 1;
 
@@ -196,11 +195,10 @@ planningRouter.post('/', async (req: any, res) => {
     const db = await getDB();
     const id = uuidv4();
 
-    // Compute next sort_order for this week
+    // Compute next sort_order for this week (global across all users)
     const maxOrder = await db.get(
-      'SELECT COALESCE(MAX(sort_order), 0) as max_order FROM planning WHERE week = ? AND user_id = ?',
+      'SELECT COALESCE(MAX(sort_order), 0) as max_order FROM planning WHERE week = ?',
       week,
-      me.id,
     );
     const sortOrder = (maxOrder?.max_order || 0) + 1;
 
@@ -316,12 +314,7 @@ planningRouter.put('/:week/reorder', async (req: any, res) => {
     }
     const db = await getDB();
     for (let i = 0; i < ids.length; i++) {
-      await db.run(
-        'UPDATE planning SET sort_order = ? WHERE id = ? AND user_id = ?',
-        i,
-        ids[i],
-        me.id,
-      );
+      await db.run('UPDATE planning SET sort_order = ? WHERE id = ?', i, ids[i]);
     }
     res.json({ success: true });
 

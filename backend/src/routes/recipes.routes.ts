@@ -155,10 +155,11 @@ recipesRouter.get('/', async (req: any, res) => {
     const lang = req.acceptsLanguages('it', 'en') || 'en';
     const userId = (req.query.userId as string) || me.id;
     const db = await getDB();
-    const rows = await db.all(
-      'SELECT * FROM recipes WHERE user_id = ? ORDER BY created_at DESC',
-      userId,
-    );
+    const isOwnRecipes = userId === me.id;
+    const query = isOwnRecipes
+      ? 'SELECT * FROM recipes WHERE user_id = ? ORDER BY created_at DESC'
+      : 'SELECT * FROM recipes WHERE user_id = ? AND (wip IS NULL OR wip = 0) ORDER BY created_at DESC';
+    const rows = await db.all(query, userId);
     const recipes = await Promise.all(
       rows.map(
         (r: {
@@ -227,7 +228,9 @@ recipesRouter.get('/discover', async (req: any, res) => {
     const me = req.user as JwtPayload;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
     const db = await getDB();
-    const rows = await db.all('SELECT * FROM recipes ORDER BY created_at DESC LIMIT 50');
+    const rows = await db.all(
+      'SELECT * FROM recipes WHERE (wip IS NULL OR wip = 0) ORDER BY created_at DESC LIMIT 50',
+    );
     const recipes = await Promise.all(
       rows.map(
         (r: {
@@ -262,6 +265,11 @@ recipesRouter.get('/:id', async (req: any, res) => {
     const db = await getDB();
     const row = await db.get('SELECT * FROM recipes WHERE id = ?', req.params.id);
     if (!row) {
+      res.status(404).json({ error: 'Recipe not found' });
+      return;
+    }
+    // WIP recipes are only visible to their owner
+    if (row.wip && row.user_id !== me.id) {
       res.status(404).json({ error: 'Recipe not found' });
       return;
     }

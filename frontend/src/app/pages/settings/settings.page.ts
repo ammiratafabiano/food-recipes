@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import {
   IonAvatar,
+  IonBadge,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -14,7 +15,6 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonTitle,
-  IonToggle,
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
@@ -24,7 +24,6 @@ import { NavigationPath, SettingsNavigationPath } from 'src/app/models/navigatio
 import { UserData } from 'src/app/models/user-data.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
-import { FeatureFlag, FeatureFlagService } from 'src/app/services/feature-flag.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { ProfileSurveyComponent } from '../planning/nutrition-summary/profile-survey.modal';
 
@@ -49,39 +48,25 @@ import { ProfileSurveyComponent } from '../planning/nutrition-summary/profile-su
     IonCardTitle,
     IonCardSubtitle,
     IonAvatar,
+    IonBadge,
     IonRefresher,
     IonRefresherContent,
-    IonToggle,
   ],
 })
 export class SettingsPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly navigationService = inject(NavigationService);
   private readonly loadingService = inject(LoadingService);
-  private readonly dataService = inject(DataService);
-  private readonly featureFlagService = inject(FeatureFlagService);
+  readonly dataService = inject(DataService);
   private readonly modalCtrl = inject(ModalController);
 
-  get isSocialEnabled(): boolean {
-    return this.featureFlagService.isEnabled(FeatureFlag.Social);
-  }
-
   readonly userData = signal<UserData | undefined>(undefined);
-  readonly planningEnabled = signal<boolean>(false);
 
   constructor() {}
 
   ngOnInit() {
     this.userData.set(this.authService.getCurrentUser());
     this.getUserStats();
-    this.loadPlanningEnabled();
-  }
-
-  private async loadPlanningEnabled() {
-    const profile = await this.dataService.getUserProfile();
-    if (profile?.planning_enabled) {
-      this.planningEnabled.set(true);
-    }
   }
 
   private async getUserStats() {
@@ -122,9 +107,11 @@ export class SettingsPage implements OnInit {
     await modal.present();
   }
 
-  async onPlanningToggle(event: CustomEvent) {
-    const enabled = event.detail.checked;
-    this.planningEnabled.set(enabled);
-    await this.dataService.updateUserProfile({ planning_enabled: enabled } as any);
+  onPlanningDetailClicked() {
+    this.navigationService.push(SettingsNavigationPath.PlanningDetail);
+  }
+
+  onSocialDetailClicked() {
+    this.navigationService.push(SettingsNavigationPath.SocialDetail);
   }
 }

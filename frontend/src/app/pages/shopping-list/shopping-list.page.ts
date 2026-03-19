@@ -89,7 +89,7 @@ export class ShoppingListPage implements OnDestroy {
   }
 
   async getShoppingList(startDate?: string, skipLoading = false) {
-    if (!startDate) startDate = dayjs().startOf('week').format('YYYY-MM-DD');
+    if (!startDate) startDate = dayjs().add(1, 'week').startOf('week').format('YYYY-MM-DD');
     const response = await this.dataService.getShoppingList(startDate, this.group?.id, skipLoading);
     this.shoppingList.set(response && response.length > 0 ? response : []);
   }

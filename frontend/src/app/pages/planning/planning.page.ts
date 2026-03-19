@@ -138,7 +138,7 @@ export class PlanningPage implements OnDestroy {
 
   async ionViewDidEnter() {
     const week = this.navigationService.getParams<{ week: string }>()?.week;
-    const targetStartDate = week || dayjs().startOf('week').format('YYYY-MM-DD');
+    const targetStartDate = week || dayjs().add(1, 'week').startOf('week').format('YYYY-MM-DD');
 
     // If data is already loaded for the same week, do a silent background
     // refetch so any recipes added while away are picked up immediately.
@@ -303,7 +303,7 @@ export class PlanningPage implements OnDestroy {
       // Always refresh group to pick up membership changes
       const group = await this.dataService.retrieveGroup();
       this.group.set(group);
-      if (!startDate) startDate = dayjs().startOf('week').format('YYYY-MM-DD');
+      if (!startDate) startDate = dayjs().add(1, 'week').startOf('week').format('YYYY-MM-DD');
       const response = await this.dataService.getPlanning(startDate, group);
       this.handleResponse(response);
       this.dataLoaded.set(true);
@@ -380,7 +380,7 @@ export class PlanningPage implements OnDestroy {
 
   async handleRefresh(event: CustomEvent) {
     await this.refetchPlanning(
-      this.planning()?.startDate || dayjs().startOf('week').format('YYYY-MM-DD'),
+      this.planning()?.startDate || dayjs().add(1, 'week').startOf('week').format('YYYY-MM-DD'),
     );
     const target = event.target as HTMLIonRefresherElement | null;
     target?.complete();

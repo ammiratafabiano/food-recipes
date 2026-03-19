@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { PlannedRecipe, Planning } from '../models/planning.model';
@@ -28,6 +28,26 @@ export class DataService {
 
   private cachedUsers?: UserData[];
   private cachedFoods?: Ingredient[];
+
+  // ── User settings (shared signals) ────────────────
+  readonly planningEnabled = signal(false);
+  readonly socialEnabled = signal(false);
+
+  async loadUserSettings() {
+    const profile = await this.getUserProfile();
+    this.planningEnabled.set(!!profile?.planning_enabled);
+    this.socialEnabled.set(!!profile?.social_enabled);
+  }
+
+  async setPlanningEnabled(enabled: boolean) {
+    this.planningEnabled.set(enabled);
+    await this.updateUserProfile({ planning_enabled: enabled } as any);
+  }
+
+  async setSocialEnabled(enabled: boolean) {
+    this.socialEnabled.set(enabled);
+    await this.updateUserProfile({ social_enabled: enabled } as any);
+  }
 
   // ── Users ──────────────────────────────────────────
 

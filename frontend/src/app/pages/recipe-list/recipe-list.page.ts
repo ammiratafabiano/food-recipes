@@ -32,7 +32,6 @@ import { RecipeType } from 'src/app/models/recipe-type.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { AlertService } from 'src/app/services/alert.service';
 import { DataService } from 'src/app/services/data.service';
-import { FeatureFlag, FeatureFlagService } from 'src/app/services/feature-flag.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { createRecipeTagFilter, createRecipeTypeFilter } from 'src/app/utils/model-factories';
@@ -65,17 +64,12 @@ import { trackById, trackByType } from 'src/app/utils/track-by';
   ],
 })
 export class RecipeListPage {
-  private readonly dataService = inject(DataService);
+  readonly dataService = inject(DataService);
   private readonly loadingService = inject(LoadingService);
   private readonly translateService = inject(TranslateService);
   private readonly actionSheetCtrl = inject(ActionSheetController);
   private readonly navigationService = inject(NavigationService);
   private readonly alertService = inject(AlertService);
-  private readonly featureFlagService = inject(FeatureFlagService);
-
-  get isSocialEnabled(): boolean {
-    return this.featureFlagService.isEnabled(FeatureFlag.Social);
-  }
 
   readonly recipes = signal<Recipe[] | undefined>(undefined);
   readonly othersRecipes = signal<Recipe[] | undefined>(undefined);

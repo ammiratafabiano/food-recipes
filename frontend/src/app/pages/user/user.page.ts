@@ -34,7 +34,6 @@ import { AlertService } from 'src/app/services/alert.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
-import { FeatureFlag, FeatureFlagService } from 'src/app/services/feature-flag.service';
 import { environment } from 'src/environments/environment';
 import { trackById } from 'src/app/utils/track-by';
 import { shareOrCopy } from 'src/app/utils/clipboard';
@@ -65,22 +64,17 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
   ],
 })
 export class UserPage implements OnInit {
-  private readonly dataService = inject(DataService);
+  readonly dataService = inject(DataService);
   private readonly loadingService = inject(LoadingService);
   private readonly navigationService = inject(NavigationService);
   private readonly authService = inject(AuthService);
   private readonly alertService = inject(AlertService);
   private readonly translateService = inject(TranslateService);
-  private readonly featureFlagService = inject(FeatureFlagService);
 
   private readonly route = inject(ActivatedRoute);
 
   readonly user = signal<UserData | undefined>(undefined);
   readonly isUserLogged = computed(() => !!this.authService.currentUser());
-
-  get isSocialEnabled(): boolean {
-    return this.featureFlagService.isEnabled(FeatureFlag.Social);
-  }
 
   readonly trackByRecipe = trackById;
 

@@ -26,7 +26,7 @@
         <ion-card-subtitle>{{ userData.email }}</ion-card-subtitle>
       </ion-card-header>
       <ion-card-content>
-        @if (userData.stats && isSocialEnabled) {
+        @if (userData.stats && dataService.socialEnabled()) {
         <ion-item lines="none">
           <ion-label>
             <h3>Followers</h3>
@@ -47,9 +47,18 @@
     }
 
     <ion-list lines="inset" inset="true">
-      <ion-item>
-        <ion-toggle [checked]="planningEnabled()" (ionChange)="onPlanningToggle($event)"
-          >{{ 'SETTINGS_PAGE.PLANNING_TOGGLE' | translate }}</ion-toggle
+      <ion-item button (click)="onPlanningDetailClicked()">
+        <ion-label>{{ 'SETTINGS_PAGE.PLANNING_TOGGLE' | translate }}</ion-label>
+        <ion-badge slot="end" [color]="dataService.planningEnabled() ? 'success' : 'medium'"
+          >{{ (dataService.planningEnabled() ? 'SETTINGS_PAGE.STATUS_ON' :
+          'SETTINGS_PAGE.STATUS_OFF') | translate }}</ion-badge
+        >
+      </ion-item>
+      <ion-item button (click)="onSocialDetailClicked()">
+        <ion-label>{{ 'SETTINGS_PAGE.SOCIAL_TOGGLE' | translate }}</ion-label>
+        <ion-badge slot="end" [color]="dataService.socialEnabled() ? 'success' : 'medium'"
+          >{{ (dataService.socialEnabled() ? 'SETTINGS_PAGE.STATUS_ON' : 'SETTINGS_PAGE.STATUS_OFF')
+          | translate }}</ion-badge
         >
       </ion-item>
       <ion-item button (click)="onGroupManagementClicked()">

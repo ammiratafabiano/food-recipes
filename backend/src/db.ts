@@ -241,6 +241,13 @@ export async function getDB(): Promise<Database> {
     // Column might already exist
   }
 
+  // Migration: add social_enabled to users (social features opt-in)
+  try {
+    await db.run('ALTER TABLE users ADD COLUMN social_enabled INTEGER DEFAULT 0');
+  } catch {
+    // Column might already exist
+  }
+
   // Migration: dismissed_suggestions table
   await db.exec(`
     CREATE TABLE IF NOT EXISTS dismissed_suggestions (

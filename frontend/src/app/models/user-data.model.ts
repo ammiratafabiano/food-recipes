@@ -25,4 +25,5 @@ export interface UserProfile {
   sex?: 'male' | 'female';
   activity_level?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
   planning_enabled?: boolean;
+  social_enabled?: boolean;
 }

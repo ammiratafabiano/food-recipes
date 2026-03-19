@@ -25,7 +25,7 @@ usersRouter.get('/me/profile', async (req: any, res) => {
     const me = req.user as JwtPayload;
     const db = await getDB();
     const user = await db.get(
-      'SELECT id, name, weight, height, age, sex, activity_level, planning_enabled FROM users WHERE id = ?',
+      'SELECT id, name, weight, height, age, sex, activity_level, planning_enabled, social_enabled FROM users WHERE id = ?',
       me.id,
     );
     res.json(user || {});
@@ -39,15 +39,16 @@ usersRouter.put('/me/profile', async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
-    const { weight, height, age, sex, activity_level, planning_enabled } = req.body;
+    const { weight, height, age, sex, activity_level, planning_enabled, social_enabled } = req.body;
     await db.run(
-      `UPDATE users SET weight = ?, height = ?, age = ?, sex = ?, activity_level = ?, planning_enabled = COALESCE(?, planning_enabled) WHERE id = ?`,
+      `UPDATE users SET weight = ?, height = ?, age = ?, sex = ?, activity_level = ?, planning_enabled = COALESCE(?, planning_enabled), social_enabled = COALESCE(?, social_enabled) WHERE id = ?`,
       weight ?? null,
       height ?? null,
       age ?? null,
       sex ?? null,
       activity_level ?? null,
       planning_enabled ?? null,
+      social_enabled ?? null,
       me.id,
     );
     res.json({ success: true });

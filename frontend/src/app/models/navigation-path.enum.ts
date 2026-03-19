@@ -45,4 +45,6 @@ export enum SettingsNavigationPath {
   Base = '',
   GroupManagement = 'group-management',
   DeleteUser = 'delete-user',
+  PlanningDetail = 'planning-detail',
+  SocialDetail = 'social-detail',
 }

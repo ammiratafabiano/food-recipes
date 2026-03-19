@@ -16,4 +16,14 @@ export const SETTINGS_ROUTES: Routes = [
     path: SettingsNavigationPath.DeleteUser,
     loadComponent: () => import('../delete-user/delete-user.page').then((m) => m.DeleteUserPage),
   },
+  {
+    path: SettingsNavigationPath.PlanningDetail,
+    loadComponent: () =>
+      import('./planning-detail/planning-detail.page').then((m) => m.PlanningDetailPage),
+  },
+  {
+    path: SettingsNavigationPath.SocialDetail,
+    loadComponent: () =>
+      import('./social-detail/social-detail.page').then((m) => m.SocialDetailPage),
+  },
 ];
