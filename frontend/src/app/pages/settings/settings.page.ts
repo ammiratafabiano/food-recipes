@@ -19,13 +19,11 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
-import { ModalController } from '@ionic/angular';
 import { NavigationPath, SettingsNavigationPath } from 'src/app/models/navigation-path.enum';
 import { UserData } from 'src/app/models/user-data.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
-import { ProfileSurveyComponent } from '../planning/nutrition-summary/profile-survey.modal';
 
 @Component({
   selector: 'app-settings',
@@ -58,7 +56,6 @@ export class SettingsPage implements OnInit {
   private readonly navigationService = inject(NavigationService);
   private readonly loadingService = inject(LoadingService);
   readonly dataService = inject(DataService);
-  private readonly modalCtrl = inject(ModalController);
 
   readonly userData = signal<UserData | undefined>(undefined);
 
@@ -101,10 +98,7 @@ export class SettingsPage implements OnInit {
   }
 
   async onNutritionProfileClicked() {
-    const modal = await this.modalCtrl.create({
-      component: ProfileSurveyComponent,
-    });
-    await modal.present();
+    this.navigationService.push(SettingsNavigationPath.NutritionProfile);
   }
 
   onPlanningDetailClicked() {

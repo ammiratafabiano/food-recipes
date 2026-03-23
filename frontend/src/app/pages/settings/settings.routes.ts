@@ -26,4 +26,9 @@ export const SETTINGS_ROUTES: Routes = [
     loadComponent: () =>
       import('./social-detail/social-detail.page').then((m) => m.SocialDetailPage),
   },
+  {
+    path: SettingsNavigationPath.NutritionProfile,
+    loadComponent: () =>
+      import('./nutrition-profile/nutrition-profile.page').then((m) => m.NutritionProfilePage),
+  },
 ];

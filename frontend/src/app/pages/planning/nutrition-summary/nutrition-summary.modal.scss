@@ -30,7 +30,7 @@ ion-card {
 
 .macros-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   text-align: center;
   &.compact {
@@ -47,8 +47,9 @@ ion-card {
   background: rgba(var(--ion-color-medium-rgb), 0.05);
   .macro-value {
     font-weight: 700;
-    font-size: 1.05em;
+    font-size: clamp(0.72em, 2.2vw, 1em);
     line-height: 1.2;
+    word-break: break-all;
   }
   .macro-label {
     font-size: 0.7em;
@@ -97,7 +98,7 @@ ion-card {
     font-size: 0.7em;
     color: var(--ion-color-medium);
     white-space: nowrap;
-    min-width: 70px;
+    min-width: 90px;
     text-align: right;
     &.over {
       color: #ff3b30;

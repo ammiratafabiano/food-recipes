@@ -44,12 +44,12 @@ export class AlertService {
   ) {
     let buttons: AlertButton[] = [
       {
-        text: this.translateService.instant(confirmButton),
-        handler: () => onConfirmClicked && onConfirmClicked(),
-      },
-      {
         role: 'cancel',
         text: this.translateService.instant('COMMON.GENERIC_ALERT.CANCEL_BUTTON'),
+      },
+      {
+        text: this.translateService.instant(confirmButton),
+        handler: () => onConfirmClicked && onConfirmClicked(),
       },
     ];
     return this.presentGenericPopup(undefined, message, undefined, buttons);
@@ -64,12 +64,12 @@ export class AlertService {
   ) {
     let buttons: AlertButton[] = [
       {
-        text: this.translateService.instant(okButtonText),
-        handler: (result) => onConfirmClicked(result),
-      },
-      {
         role: 'cancel',
         text: this.translateService.instant('COMMON.GENERIC_ALERT.CANCEL_BUTTON'),
+      },
+      {
+        text: this.translateService.instant(okButtonText),
+        handler: (result) => onConfirmClicked(result),
       },
     ];
     return this.presentGenericPopup(header, message, inputs, buttons);

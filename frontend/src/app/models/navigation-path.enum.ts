@@ -47,4 +47,5 @@ export enum SettingsNavigationPath {
   DeleteUser = 'delete-user',
   PlanningDetail = 'planning-detail',
   SocialDetail = 'social-detail',
+  NutritionProfile = 'nutrition-profile',
 }

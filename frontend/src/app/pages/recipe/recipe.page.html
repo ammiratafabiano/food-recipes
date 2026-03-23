@@ -1,12 +1,13 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
+      @if (isUserLogged()) {
+      <ion-back-button defaultHref="/home/recipe-list"></ion-back-button>
+      } @else {
       <ion-button (click)="onBackClicked()">
-        <ion-icon
-          slot="icon-only"
-          [name]="isUserLogged() ? 'chevron-back-outline' : 'home-outline'"
-        ></ion-icon>
+        <ion-icon slot="icon-only" name="home-outline"></ion-icon>
       </ion-button>
+      }
     </ion-buttons>
     <ion-title>{{ 'RECIPE_PAGE.TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">

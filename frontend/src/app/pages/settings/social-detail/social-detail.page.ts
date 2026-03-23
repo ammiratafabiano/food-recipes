@@ -4,6 +4,7 @@ import {
   IonButton,
   IonButtons,
   IonContent,
+  IonFooter,
   IonHeader,
   IonTitle,
   IonToolbar,
@@ -24,7 +25,9 @@ import { DataService } from 'src/app/services/data.service';
     </ion-header>
     <ion-content class="ion-padding">
       <p>{{ 'SOCIAL_DETAIL.DESCRIPTION' | translate }}</p>
-      <div class="ion-margin-top">
+    </ion-content>
+    <ion-footer class="ion-padding">
+      <ion-toolbar>
         @if (dataService.socialEnabled()) {
           <ion-button expand="block" color="danger" (click)="onToggle()">
             {{ 'SOCIAL_DETAIL.DISABLE' | translate }}
@@ -34,8 +37,8 @@ import { DataService } from 'src/app/services/data.service';
             {{ 'SOCIAL_DETAIL.ENABLE' | translate }}
           </ion-button>
         }
-      </div>
-    </ion-content>
+      </ion-toolbar>
+    </ion-footer>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
@@ -45,6 +48,7 @@ import { DataService } from 'src/app/services/data.service';
     IonToolbar,
     IonTitle,
     IonContent,
+    IonFooter,
     IonButtons,
     IonBackButton,
     IonButton,

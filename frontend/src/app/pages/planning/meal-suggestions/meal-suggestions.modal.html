@@ -28,7 +28,7 @@
         </ion-label>
         <ion-icon slot="end" name="add-circle-outline" color="primary"></ion-icon>
       </ion-item>
-      <ion-item-options side="end">
+      <ion-item-options side="end" (ionSwipe)="onDismissClicked(suggestion)">
         <ion-item-option color="danger" expandable (click)="onDismissClicked(suggestion)">
           <ion-icon slot="start" name="eye-off-outline"></ion-icon>
           {{ 'MEAL_SUGGESTIONS.DISMISS' | translate }}

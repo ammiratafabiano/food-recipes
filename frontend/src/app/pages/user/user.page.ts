@@ -9,6 +9,7 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import {
   IonAvatar,
+  IonBackButton,
   IonButton,
   IonButtons,
   IonCard,
@@ -51,6 +52,7 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
     IonTitle,
     IonContent,
     IonButtons,
+    IonBackButton,
     IonButton,
     IonIcon,
     IonLabel,
