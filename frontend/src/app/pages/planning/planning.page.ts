@@ -315,7 +315,7 @@ export class PlanningPage implements OnDestroy {
   private handleResponse(response: Planning | undefined) {
     if (!response) return;
 
-    const recipes: PlanningItem[] = [
+    const daySeparators: PlanningItem[] = [
       { kind: 'separator', day: WeekDay.Monday },
       { kind: 'separator', day: WeekDay.Tuesday },
       { kind: 'separator', day: WeekDay.Wednesday },
@@ -328,14 +328,27 @@ export class PlanningPage implements OnDestroy {
     // Filter out any existing separators to prevent duplication
     const justRecipes = response.recipes.filter((r) => r.kind === 'recipe') as PlannedRecipe[];
 
-    justRecipes.forEach((planned) => {
-      if (planned.day) {
-        const first = recipes.findIndex((x) => x.kind === 'separator' && x.day == planned.day);
-        recipes.splice(first + 1, 0, planned);
-      } else {
-        recipes.unshift(planned);
+    const unassigned = justRecipes.filter((r) => !r.day);
+    const assigned = justRecipes.filter((r) => !!r.day);
+
+    // Start with day separators, then append assigned recipes preserving their order
+    const recipes: PlanningItem[] = [...daySeparators];
+    assigned.forEach((planned) => {
+      // Find the end of this day's group so we always append (preserve order, not reverse)
+      const sepIdx = recipes.findIndex((x) => x.kind === 'separator' && x.day === planned.day);
+      let insertAt = sepIdx + 1;
+      while (
+        insertAt < recipes.length &&
+        recipes[insertAt].kind === 'recipe' &&
+        (recipes[insertAt] as PlannedRecipe).day === planned.day
+      ) {
+        insertAt++;
       }
+      recipes.splice(insertAt, 0, planned);
     });
+
+    // Prepend unassigned items at the top, preserving their order
+    recipes.unshift(...unassigned);
 
     this.planning.set({
       ...createPlanning(),
@@ -475,12 +488,10 @@ export class PlanningPage implements OnDestroy {
         );
 
         this.planning.set({ ...currentPlanning, recipes: newRecipes });
-        this.sortList();
         this.dataService.editPlanning(updatedRecipe).then(
           () => {},
           () => {
             this.planning.set({ ...currentPlanning, recipes: backup });
-            this.sortList();
           },
         );
       }

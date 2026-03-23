@@ -11,7 +11,6 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
-import { HomeNavigationPath, NavigationPath } from 'src/app/models/navigation-path.enum';
 import { UserData } from 'src/app/models/user-data.model';
 import { DataService } from 'src/app/services/data.service';
 import { NavigationService } from 'src/app/services/navigation.service';
@@ -56,7 +55,7 @@ export class DiscoverPage {
   }
 
   async onUserClicked(user: UserData) {
-    this.navigationService.setRoot([NavigationPath.Base, NavigationPath.User], {
+    this.navigationService.push('user', {
       queryParams: {
         id: user.id,
       },

@@ -15,6 +15,19 @@ export class NavigationService {
   private readonly navController = inject(NavController);
 
   private stack: NavigationStackElement[] = [];
+  private _navigationBusy = false;
+
+  /** Returns true if a navigation transition is currently in flight. */
+  get isNavigationBusy(): boolean {
+    return this._navigationBusy;
+  }
+
+  private setBusy(promise: Promise<unknown>): void {
+    this._navigationBusy = true;
+    promise.finally(() => {
+      this._navigationBusy = false;
+    });
+  }
 
   public get currentUrl(): string {
     let url = this.router.parseUrl(this.router.url).toString();
@@ -32,6 +45,7 @@ export class NavigationService {
    * @returns void
    */
   push(path: string, navigationData?: NavigationData): Promise<void> {
+    if (this._navigationBusy) return Promise.resolve();
     this.logService.Info('NavigationService', 'push', 'page=' + JSON.stringify(path));
     const from = this.currentUrl.split('/');
     let to = [...from];
@@ -51,7 +65,7 @@ export class NavigationService {
       });
       this.stack.push(navigationStackElement);
     }
-    return this.navController
+    const promise = this.navController
       .navigateForward(to, { queryParams: navigationData?.queryParams })
       .then((success) => {
         if (success) {
@@ -63,6 +77,8 @@ export class NavigationService {
           'values=' + JSON.stringify(this.stack.map((x) => x.to)),
         );
       });
+    this.setBusy(promise);
+    return promise;
   }
 
   /**
@@ -71,6 +87,7 @@ export class NavigationService {
    * @returns void
    */
   pop(params?: unknown): Promise<void> {
+    if (this._navigationBusy) return Promise.resolve();
     this.logService.Info('NavigationService', 'pop', '');
     const from = this.currentUrl.split('/');
     let toSegments = from.slice(0, from.length - 1);
@@ -85,7 +102,7 @@ export class NavigationService {
       toSegments = targetRoute ? targetRoute.split('/') : toSegments;
     }
 
-    return this.navController.navigateBack(toSegments).then(() => {
+    const promise = this.navController.navigateBack(toSegments).then(() => {
       navigationData?.dismissCallback && navigationData.dismissCallback(params);
       this.logService.Info(
         'NavigationService',
@@ -93,6 +110,8 @@ export class NavigationService {
         'values=' + JSON.stringify(this.stack.map((x) => x.to)),
       );
     });
+    this.setBusy(promise);
+    return promise;
   }
 
   /**
@@ -102,6 +121,7 @@ export class NavigationService {
    * @returns void
    */
   setRoot(path: string | string[], navigationData?: NavigationData): Promise<void> {
+    if (this._navigationBusy) return Promise.resolve();
     this.logService.Info('NavigationService', 'setRoot', 'page=' + JSON.stringify(path));
     const from = this.currentUrl.split('/');
     const to = Array.isArray(path) ? path : [path];
@@ -129,13 +149,17 @@ export class NavigationService {
         'values=' + JSON.stringify(this.stack.map((x) => x.to)),
       );
     };
+    let promise: Promise<boolean>;
     if (navigationData?.animationDirection == 'forward') {
-      return this.navController.navigateForward(to, options).then(successCallback);
+      promise = this.navController.navigateForward(to, options);
     } else if (navigationData?.animationDirection == 'back') {
-      return this.navController.navigateBack(to, options).then(successCallback);
+      promise = this.navController.navigateBack(to, options);
     } else {
-      return this.navController.navigateRoot(to, options).then(successCallback);
+      promise = this.navController.navigateRoot(to, options);
     }
+    const voidPromise = promise.then(successCallback);
+    this.setBusy(voidPromise);
+    return voidPromise;
   }
 
   /**
@@ -154,6 +178,7 @@ export class NavigationService {
    * @returns void
    */
   goToPreviousPage(params?: unknown) {
+    if (this._navigationBusy) return;
     this.logService.Info('NavigationService', 'goToPreviousPage', '');
     if (this.stack.length > 0) {
       const lastStackElement = this.stack.pop();
@@ -167,7 +192,7 @@ export class NavigationService {
         navigationData.animationDirection = 'back';
       }
 
-      this.navController
+      const promise = this.navController
         .navigateBack(toPath, {
           replaceUrl: true,
           queryParams: navigationData?.queryParams,
@@ -180,6 +205,7 @@ export class NavigationService {
             'values=' + JSON.stringify(this.stack.map((x) => x.to)),
           );
         });
+      this.setBusy(promise);
     } else {
       this.navController.navigateBack(['/']);
     }

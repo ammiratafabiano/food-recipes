@@ -7,7 +7,6 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ActionSheetController } from '@ionic/angular';
 import {
   IonButton,
   IonButtons,
@@ -81,7 +80,6 @@ export class RecipePage implements OnInit {
   private readonly loadingService = inject(LoadingService);
   private readonly alertService = inject(AlertService);
   private readonly translateService = inject(TranslateService);
-  private readonly actionSheetCtrl = inject(ActionSheetController);
   private readonly navigationService = inject(NavigationService);
   private readonly authService = inject(AuthService);
 
@@ -227,67 +225,38 @@ export class RecipePage implements OnInit {
     const currentRecipe = this.recipe();
     if (!currentRecipe) return;
 
-    const actionSheet = await this.actionSheetCtrl.create({
-      header: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.CHOICE'),
-      buttons: [
+    const week = dayjs().add(1, 'week').startOf('week').format('YYYY-MM-DD');
+    const recipeToAdd = { ...currentRecipe, servings: this.currentMultiplier() };
+    const group = await this.dataService.retrieveGroup();
+    const res = await this.dataService.addToPlanning(
+      recipeToAdd,
+      week,
+      undefined,
+      undefined,
+      group,
+    );
+    if (res) {
+      this.navigationService.setRoot(
+        [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],
         {
-          text: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.THIS_WEEK'),
-          data: {
-            action: dayjs().startOf('week').format('YYYY-MM-DD'),
-          },
+          params: { week },
+          queryParams: { week },
         },
-        {
-          text: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.NEXT_WEEK'),
-          data: {
-            action: dayjs().startOf('week').add(1, 'week').format('YYYY-MM-DD'),
-          },
-        },
-        {
-          text: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.CANCEL'),
-          role: 'cancel',
-        },
-      ],
-    });
-
-    await actionSheet.present();
-    const result = await actionSheet.onDidDismiss();
-    if (result?.data?.action) {
-      const recipeToAdd = { ...currentRecipe, servings: this.currentMultiplier() };
-      const group = await this.dataService.retrieveGroup();
-      const res = await this.dataService.addToPlanning(
-        recipeToAdd,
-        result.data.action,
-        undefined,
-        undefined,
-        group,
       );
-      if (res) {
-        this.navigationService.setRoot(
-          [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],
-          {
-            params: {
-              week: result?.data?.action,
-            },
-            queryParams: {
-              week: result?.data?.action,
-            },
-          },
-        );
-      } else {
-        this.alertService.presentAlertPopup(
-          'COMMON.GENERIC_ALERT.ERROR_HEADER',
-          'COMMON.PLANNINGS.NO_GROUP_ERROR',
-          () => {
-            this.navigationService.setRoot([
-              NavigationPath.Base,
-              NavigationPath.Home,
-              HomeNavigationPath.Settings,
-              SettingsNavigationPath.GroupManagement,
-            ]);
-          },
-          'COMMON.PLANNINGS.GO_TO_GROUP_MANAGEMENT_BUTTON',
-        );
-      }
+    } else {
+      this.alertService.presentAlertPopup(
+        'COMMON.GENERIC_ALERT.ERROR_HEADER',
+        'COMMON.PLANNINGS.NO_GROUP_ERROR',
+        () => {
+          this.navigationService.setRoot([
+            NavigationPath.Base,
+            NavigationPath.Home,
+            HomeNavigationPath.Settings,
+            SettingsNavigationPath.GroupManagement,
+          ]);
+        },
+        'COMMON.PLANNINGS.GO_TO_GROUP_MANAGEMENT_BUTTON',
+      );
     }
   }
 

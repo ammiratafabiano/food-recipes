@@ -248,7 +248,7 @@ export async function getDB(): Promise<Database> {
     // Column might already exist
   }
 
-  // Migration: dismissed_suggestions table
+  // Migration: dismissed_suggestions table (kept for backward compat, no longer actively used)
   await db.exec(`
     CREATE TABLE IF NOT EXISTS dismissed_suggestions (
       user_id       TEXT NOT NULL,
@@ -256,6 +256,18 @@ export async function getDB(): Promise<Database> {
       dismissed_at  TEXT DEFAULT (datetime('now')),
       PRIMARY KEY(user_id, recipe_id),
       FOREIGN KEY(user_id)   REFERENCES users(id)   ON DELETE CASCADE,
+      FOREIGN KEY(recipe_id) REFERENCES recipes(id)  ON DELETE CASCADE
+    );
+  `);
+
+  // Migration: recipe_usage table (tracks per-user planning usage count per recipe)
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS recipe_usage (
+      user_id   TEXT NOT NULL,
+      recipe_id TEXT NOT NULL,
+      count     INTEGER NOT NULL DEFAULT 0,
+      PRIMARY KEY(user_id, recipe_id),
+      FOREIGN KEY(user_id)   REFERENCES users(id)    ON DELETE CASCADE,
       FOREIGN KEY(recipe_id) REFERENCES recipes(id)  ON DELETE CASCADE
     );
   `);

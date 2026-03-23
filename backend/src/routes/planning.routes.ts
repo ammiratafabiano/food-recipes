@@ -154,6 +154,13 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
       sortOrder,
     );
 
+    // Track usage for suggestions
+    await db.run(
+      'INSERT INTO recipe_usage (user_id, recipe_id, count) VALUES (?, ?, 1) ON CONFLICT(user_id, recipe_id) DO UPDATE SET count = count + 1',
+      me.id,
+      recipe.id,
+    );
+
     const inserted = await db.get(
       'SELECT p.*, r.name as recipe_name_lookup, r.min_servings, r.split_servings FROM planning p LEFT JOIN recipes r ON r.id = p.recipe_id WHERE p.id = ?',
       pId,
@@ -215,6 +222,14 @@ planningRouter.post('/', async (req: any, res) => {
       assignedTo || null,
       sortOrder,
     );
+
+    // Track usage for suggestions
+    await db.run(
+      'INSERT INTO recipe_usage (user_id, recipe_id, count) VALUES (?, ?, 1) ON CONFLICT(user_id, recipe_id) DO UPDATE SET count = count + 1',
+      me.id,
+      recipe_id,
+    );
+
     const result = {
       kind: 'recipe',
       id,
@@ -523,43 +538,33 @@ planningRouter.get('/:week/suggestions', async (req: any, res) => {
       currentWeekRecipes.map((r: { recipe_id: string }) => r.recipe_id),
     );
 
-    // Get dismissed suggestions for the current user
-    const dismissedRows = await db.all(
-      'SELECT recipe_id FROM dismissed_suggestions WHERE user_id = ?',
-      me.id,
-    );
-    const dismissedIds = new Set(dismissedRows.map((r: { recipe_id: string }) => r.recipe_id));
-
-    // Get most frequently planned recipes from past weeks, with last used info
+    // Query recipe_usage: sum counts across all group members, order by total usage
     const rows = await db.all(
-      `SELECT 
-        p.recipe_id,
-        p.recipe_name,
+      `SELECT
+        ru.recipe_id,
         r.name as recipe_name_lookup,
         r.type as recipe_type,
-        COUNT(*) as frequency,
+        SUM(ru.count) as frequency,
         MAX(p.week) as last_used_week,
         GROUP_CONCAT(DISTINCT p.meal) as meals_used
-       FROM planning p
-       LEFT JOIN recipes r ON r.id = p.recipe_id
-       WHERE p.week != ? AND p.user_id IN (${placeholders})
-       GROUP BY p.recipe_id
-       ORDER BY frequency DESC
+       FROM recipe_usage ru
+       JOIN recipes r ON r.id = ru.recipe_id
+       LEFT JOIN planning p ON p.recipe_id = ru.recipe_id AND p.user_id IN (${placeholders})
+       WHERE ru.user_id IN (${placeholders})
+       GROUP BY ru.recipe_id
+       HAVING SUM(ru.count) > 0
+       ORDER BY SUM(ru.count) DESC
        LIMIT 30`,
-      req.params.week,
+      ...userIds,
       ...userIds,
     );
 
     const suggestions = rows
-      .filter(
-        (r: { recipe_id: string }) =>
-          !currentRecipeIds.has(r.recipe_id) && !dismissedIds.has(r.recipe_id),
-      )
+      .filter((r: { recipe_id: string }) => !currentRecipeIds.has(r.recipe_id))
       .slice(0, 15)
       .map(
         (r: {
           recipe_id: string;
-          recipe_name: string;
           recipe_name_lookup: string;
           recipe_type: string;
           frequency: number;
@@ -567,7 +572,7 @@ planningRouter.get('/:week/suggestions', async (req: any, res) => {
           meals_used: string;
         }) => ({
           recipe_id: r.recipe_id,
-          recipe_name: r.recipe_name || r.recipe_name_lookup || '',
+          recipe_name: r.recipe_name_lookup || '',
           recipe_type: r.recipe_type || 'OTHER',
           frequency: r.frequency,
           last_used_week: r.last_used_week,
@@ -586,8 +591,9 @@ planningRouter.post('/:week/suggestions/:recipeId/dismiss', async (req: any, res
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
+    // Reset the usage count so the recipe can reappear once used again
     await db.run(
-      'INSERT OR IGNORE INTO dismissed_suggestions (user_id, recipe_id) VALUES (?, ?)',
+      'INSERT INTO recipe_usage (user_id, recipe_id, count) VALUES (?, ?, 0) ON CONFLICT(user_id, recipe_id) DO UPDATE SET count = 0',
       me.id,
       req.params.recipeId,
     );

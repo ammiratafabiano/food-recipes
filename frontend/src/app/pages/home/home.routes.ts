@@ -9,7 +9,7 @@ export const HOME_ROUTES: Routes = [
     children: [
       {
         path: HomeNavigationPath.Discover,
-        loadComponent: () => import('../discover/discover.page').then((m) => m.DiscoverPage),
+        loadChildren: () => import('../discover/discover.routes').then((m) => m.DISCOVER_ROUTES),
       },
       {
         path: HomeNavigationPath.RecipeList,
