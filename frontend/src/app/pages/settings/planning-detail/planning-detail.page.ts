@@ -1,16 +1,17 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
-  IonBackButton,
   IonButton,
   IonButtons,
   IonContent,
   IonFooter,
   IonHeader,
+  IonIcon,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataService } from 'src/app/services/data.service';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
   selector: 'app-planning-detail',
@@ -18,7 +19,9 @@ import { DataService } from 'src/app/services/data.service';
     <ion-header [translucent]="true">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="/home/settings"></ion-back-button>
+          <ion-button (click)="onBackClicked()">
+            <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+          </ion-button>
         </ion-buttons>
         <ion-title>{{ 'PLANNING_DETAIL.TITLE' | translate }}</ion-title>
       </ion-toolbar>
@@ -50,12 +53,17 @@ import { DataService } from 'src/app/services/data.service';
     IonContent,
     IonFooter,
     IonButtons,
-    IonBackButton,
     IonButton,
+    IonIcon,
   ],
 })
 export class PlanningDetailPage {
   readonly dataService = inject(DataService);
+  private readonly navigationService = inject(NavigationService);
+
+  onBackClicked() {
+    this.navigationService.goToPreviousPage();
+  }
 
   async onToggle() {
     await this.dataService.setPlanningEnabled(!this.dataService.planningEnabled());

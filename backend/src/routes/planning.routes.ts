@@ -113,14 +113,18 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
         'MINUTES',
         me.id,
       );
-      await db.run(
-        'INSERT INTO recipe_ingredients (recipe_id, food_id, name, quantity_value, quantity_unit) VALUES (?, ?, ?, ?, ?)',
-        rId,
-        foodId,
-        foodName,
-        safePortion,
-        safeUnit,
-      );
+      // Custom items have no ingredients so the shopping list shows them as "Cose per X";
+      // non-custom items get a proper ingredient row so quantities are aggregated normally.
+      if (!isCustom) {
+        await db.run(
+          'INSERT INTO recipe_ingredients (recipe_id, food_id, name, quantity_value, quantity_unit) VALUES (?, ?, ?, ?, ?)',
+          rId,
+          foodId,
+          foodName,
+          safePortion,
+          safeUnit,
+        );
+      }
       recipe = { id: rId, name: foodName };
     }
 
@@ -150,7 +154,7 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
       day || null,
       me.id,
       servings,
-      isCustom ? 1 : 0,
+      0,
       sortOrder,
     );
 

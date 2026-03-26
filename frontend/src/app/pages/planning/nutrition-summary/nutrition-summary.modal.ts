@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, Input, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ModalController } from '@ionic/angular';
+import { NavController } from '@ionic/angular';
 import {
   IonButton,
   IonButtons,
@@ -66,6 +67,7 @@ export class NutritionSummaryComponent implements OnInit {
   private readonly dataService = inject(DataService);
   private readonly authService = inject(AuthService);
   private readonly modalCtrl = inject(ModalController);
+  private readonly navController = inject(NavController);
   private readonly translateService = inject(TranslateService);
   private readonly loadingService = inject(LoadingService);
 
@@ -169,5 +171,10 @@ export class NutritionSummaryComponent implements OnInit {
 
   dismiss() {
     this.modalCtrl.dismiss();
+  }
+
+  async onEditProfileClicked() {
+    await this.modalCtrl.dismiss();
+    this.navController.navigateForward('/home/settings/nutrition-profile');
   }
 }

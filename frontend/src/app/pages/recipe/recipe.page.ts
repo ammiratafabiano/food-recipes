@@ -137,6 +137,7 @@ export class RecipePage implements OnInit {
       dismissCallback: (params?: unknown) => {
         const typedParams = params as { needToRefresh?: boolean } | undefined;
         if (typedParams?.needToRefresh) {
+          this.refreshOnDismiss = true;
           const recipeId = this.recipe()?.id;
           if (recipeId) this.getRecipe(recipeId);
         }
@@ -228,14 +229,13 @@ export class RecipePage implements OnInit {
     if (!currentRecipe) return;
 
     const week = dayjs().add(1, 'week').startOf('week').format('YYYY-MM-DD');
-    const recipeToAdd = { ...currentRecipe, servings: this.currentMultiplier() };
-    const group = await this.dataService.retrieveGroup();
     const res = await this.dataService.addToPlanning(
-      recipeToAdd,
+      currentRecipe,
       week,
       undefined,
       undefined,
       group,
+      this.currentMultiplier(),
     );
     if (res) {
       this.navigationService.setRoot(

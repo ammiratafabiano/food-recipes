@@ -1,14 +1,35 @@
 .step-item {
   border-radius: 10px;
-  margin: 16px;
+  margin: 8px 16px;
   width: unset;
   > ion-item {
     --padding-start: 0;
     --inner-padding-end: 0;
+    --min-height: unset;
     --background: transparent;
-    ion-list {
-      margin: 0;
-    }
+  }
+  .step-inner-list {
+    margin: 0;
+    width: 100%;
+  }
+  .file-input-item {
+    --min-height: 40px;
+    --padding-start: 12px;
+  }
+  .step-image {
+    width: 100%;
+    max-width: 280px;
+    border-radius: 8px;
+  }
+}
+
+.time-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  ion-input,
+  ion-select {
+    flex: 1;
   }
 }
 

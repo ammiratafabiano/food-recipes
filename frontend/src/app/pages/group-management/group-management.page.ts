@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  IonBackButton,
   IonButton,
   IonButtons,
   IonContent,
@@ -38,7 +37,6 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
     IonTitle,
     IonContent,
     IonButtons,
-    IonBackButton,
     IonButton,
     IonIcon,
     IonLabel,
@@ -73,6 +71,10 @@ export class GroupManagementPage {
   ionViewDidEnter() {
     this.dataLoaded.set(false);
     this.getGroup();
+  }
+
+  onBackClicked() {
+    this.navigationService.goToPreviousPage();
   }
 
   private async getGroup() {

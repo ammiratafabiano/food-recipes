@@ -221,9 +221,10 @@ export class DataService {
     day?: WeekDay,
     meal?: Meal,
     group?: Group,
+    overrideServings?: number,
   ): Promise<PlannedRecipe | undefined> {
     try {
-      const servings = this.computeGroupServings(recipe, group);
+      const servings = overrideServings ?? this.computeGroupServings(recipe, group);
       const body = {
         recipe_id: recipe.id,
         recipe_name: recipe.name,

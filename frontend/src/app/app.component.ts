@@ -14,6 +14,7 @@ import { LoadingService } from './services/loading.service';
 import { AuthService } from './services/auth.service';
 import { DataService } from './services/data.service';
 import { SessionService } from './services/session.service';
+import { NavigationPath, HomeNavigationPath } from './models/navigation-path.enum';
 
 @Component({
   selector: 'app-root',
@@ -38,7 +39,63 @@ export class AppComponent {
   constructor() {
     this.handleLanguage();
     this.handleAndroidBackButton();
+    this.handleSharedLinks();
     this.handleGroupInviteQueryParam();
+  }
+
+  /**
+   * Handles ?recipe=xxx and ?user=xxx query params from the root URL.
+   * These are shared deep-links that must work for both anonymous and logged-in users.
+   * Angular's auth guard strips them during the home redirect, so we intercept here
+   * via window.location.search before the router processes anything.
+   */
+  private handleSharedLinks() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const recipeId = urlParams.get('recipe');
+    const userId = urlParams.get('user');
+    if (!recipeId && !userId) return;
+
+    // Clean the URL immediately so the params are not re-processed
+    window.history.replaceState({}, '', window.location.pathname);
+
+    this.authService
+      .getCurrentUserAsync()
+      .pipe(
+        filter((u) => u !== undefined),
+        take(1),
+      )
+      .subscribe((user) => {
+        const isLogged = !!user && user !== 0;
+        if (recipeId) {
+          this.navigationService.setRoot(NavigationPath.Recipe, {
+            queryParams: { id: recipeId },
+            dismissCallback: () => {
+              if (isLogged) {
+                this.navigationService.setRoot(
+                  [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.RecipeList],
+                  { animationDirection: 'back' },
+                );
+              } else {
+                this.navigationService.setRoot(NavigationPath.Login);
+              }
+            },
+          });
+        } else if (userId) {
+          this.navigationService.setRoot(NavigationPath.User, {
+            queryParams: { id: userId },
+            dismissCallback: () => {
+              if (isLogged) {
+                this.navigationService.setRoot(
+                  [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Discover],
+                  { animationDirection: 'back' },
+                );
+              } else {
+                this.navigationService.setRoot(NavigationPath.Login);
+              }
+            },
+          });
+        }
+      });
   }
 
   /**

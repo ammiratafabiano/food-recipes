@@ -22,16 +22,17 @@
 <ion-content>
   <ion-list lines="inset" inset="true">
     <ion-item>
-      <ion-label>{{ 'COMMON.RECIPE' | translate }}</ion-label>
       <ion-input
+        labelPlacement="stacked"
+        label="{{ 'COMMON.RECIPE' | translate }}"
         [(ngModel)]="recipe.name"
         [placeholder]="'ADD_RECIPE_PAGE.NAME_PLACEHOLDER' | translate"
-        slot="end"
       ></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>{{ 'COMMON.RECIPE_TYPE' | translate }}</ion-label>
       <ion-select
+        labelPlacement="stacked"
+        label="{{ 'COMMON.RECIPE_TYPE' | translate }}"
         [(ngModel)]="recipe.type"
         interface="action-sheet"
         [placeholder]="'ADD_RECIPE_PAGE.RECIPE_TYPE_PLACEHOLDER' | translate"
@@ -44,21 +45,21 @@
       </ion-select>
     </ion-item>
     <ion-item>
-      <ion-label>{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
       <ion-textarea
+        labelPlacement="stacked"
+        label="{{ 'COMMON.DESCRIPTION' | translate }}"
         [(ngModel)]="recipe.description"
         [autoGrow]="true"
         [placeholder]="'ADD_RECIPE_PAGE.DESCRIPTION_PLACEHOLDER' | translate"
-        slot="end"
       ></ion-textarea>
     </ion-item>
     <ion-item>
-      <ion-label>{{ 'ADD_RECIPE_PAGE.NOTES' | translate }}</ion-label>
       <ion-textarea
+        labelPlacement="stacked"
+        label="{{ 'ADD_RECIPE_PAGE.NOTES' | translate }}"
         [(ngModel)]="recipe.notes"
         [autoGrow]="true"
         [placeholder]="'ADD_RECIPE_PAGE.NOTES_PLACEHOLDER' | translate"
-        slot="end"
       ></ion-textarea>
     </ion-item>
     <ion-item>
@@ -66,38 +67,40 @@
       <ion-toggle [(ngModel)]="recipe.wip" slot="end"></ion-toggle>
     </ion-item>
     <ion-item>
-      <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
       <ion-input
+        labelPlacement="stacked"
+        label="{{ 'COMMON.CUISINE' | translate }}"
         [value]="recipe.cuisine ? ('COMMON.CUISINE_TYPES.' + recipe.cuisine | translate) : undefined"
         (click)="onAddCuisineClicked()"
         [placeholder]="'COMMON.CUISINE' | translate"
-        slot="end"
+        readonly
       ></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>
-      <ion-input
-        [(ngModel)]="recipe.time.value"
-        type="number"
-        [placeholder]="'ADD_RECIPE_PAGE.TIME_QUANTITY_PLACEHOLDER' | translate"
-        slot="end"
-      ></ion-input>
-      <ion-select
-        [(ngModel)]="recipe.time.unit"
-        interface="action-sheet"
-        [placeholder]="'ADD_RECIPE_PAGE.UNIT_PLACEHOLDER' | translate"
-        slot="end"
-      >
-        @for (option of timeUnitList; track trackByOption($index, option)) {
-        <ion-select-option [value]="option">
-          {{ 'COMMON.TIME_UNITS.' + option | translate }}
-        </ion-select-option>
-        }
-      </ion-select>
+      <ion-label position="stacked">{{ 'COMMON.TIME' | translate }}</ion-label>
+      <div class="time-row">
+        <ion-input
+          [(ngModel)]="recipe.time.value"
+          type="number"
+          [placeholder]="'ADD_RECIPE_PAGE.TIME_QUANTITY_PLACEHOLDER' | translate"
+        ></ion-input>
+        <ion-select
+          [(ngModel)]="recipe.time.unit"
+          interface="action-sheet"
+          [placeholder]="'ADD_RECIPE_PAGE.UNIT_PLACEHOLDER' | translate"
+        >
+          @for (option of timeUnitList; track trackByOption($index, option)) {
+          <ion-select-option [value]="option">
+            {{ 'COMMON.TIME_UNITS.' + option | translate }}
+          </ion-select-option>
+          }
+        </ion-select>
+      </div>
     </ion-item>
     <ion-item>
-      <ion-label>{{ 'COMMON.DIFFICULTY' | translate }}</ion-label>
       <ion-select
+        labelPlacement="stacked"
+        label="{{ 'COMMON.DIFFICULTY' | translate }}"
         [(ngModel)]="recipe.difficulty"
         interface="action-sheet"
         [placeholder]="'ADD_RECIPE_PAGE.DIFFICULTY_PLACEHOLDER' | translate"
@@ -114,8 +117,9 @@
   <p class="ion-padding">{{ 'COMMON.INGREDIENTS' | translate }}</p>
   <ion-list lines="inset" inset="true">
     <ion-item>
-      <ion-label>{{ 'ADD_RECIPE_PAGE.SERVINGS' | translate }}</ion-label>
       <ion-input
+        labelPlacement="stacked"
+        label="{{ 'ADD_RECIPE_PAGE.SERVINGS' | translate }}"
         [(ngModel)]="recipe.servings"
         type="number"
         min="1"
@@ -123,16 +127,18 @@
       ></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>Min Servings</ion-label>
       <ion-input
+        labelPlacement="stacked"
+        label="Min Servings"
         [(ngModel)]="recipe.minServings"
         type="number"
         placeholder="Min Servings"
       ></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>Split Servings</ion-label>
       <ion-input
+        labelPlacement="stacked"
+        label="Split Servings"
         [(ngModel)]="recipe.splitServings"
         type="number"
         placeholder="Split Servings"
@@ -188,28 +194,25 @@
   @for (selected of selectedRecipe().steps; track trackByStep($index)) {
   <ion-item-sliding class="step-item">
     <ion-item>
-      <ion-list lines="inset" inset="true">
+      <ion-list lines="inset" class="step-inner-list">
         <ion-item>
-          <ion-label>{{ 'COMMON.STEP_INDEX' | translate : ({ i: $index + 1 }) }}</ion-label>
-        </ion-item>
-        <ion-item>
-          <ion-label>{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
           <ion-textarea
+            [label]="'COMMON.STEP_INDEX' | translate : ({ i: $index + 1 })"
+            labelPlacement="stacked"
             [(ngModel)]="selected.text"
             [autoGrow]="true"
             [placeholder]="'ADD_RECIPE_PAGE.DESCRIPTION_PLACEHOLDER' | translate"
-            slot="end"
           ></ion-textarea>
         </ion-item>
         @if (selected.imageUrl) {
         <ion-item>
-          <ion-button fill="clear" (click)="onRemoveStepImage($index)">
+          <ion-button fill="clear" size="small" (click)="onRemoveStepImage($index)">
             <ion-icon slot="icon-only" name="close"></ion-icon>
           </ion-button>
-          <img [src]="selected.imageUrl" />
+          <img [src]="selected.imageUrl" class="step-image" />
         </ion-item>
         }
-        <ion-item>
+        <ion-item class="file-input-item">
           <input type="file" (change)="onStepImageChange($event, selected)" accept="image/*" />
         </ion-item>
       </ion-list>

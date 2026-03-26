@@ -2,6 +2,10 @@
   <ion-toolbar>
     <ion-title>{{ 'NUTRITION_SUMMARY.TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
+      <ion-button (click)="onEditProfileClicked()" fill="clear" size="small">
+        <ion-icon slot="start" name="person-outline"></ion-icon>
+        {{ 'PROFILE_SURVEY.EDIT_PROFILE' | translate }}
+      </ion-button>
       <ion-button (click)="dismiss()">
         <ion-icon slot="icon-only" name="close"></ion-icon>
       </ion-button>

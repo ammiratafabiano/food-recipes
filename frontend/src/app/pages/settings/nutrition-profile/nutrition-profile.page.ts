@@ -1,12 +1,20 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  IonBackButton,
   IonButton,
   IonButtons,
   IonContent,
   IonFooter,
   IonHeader,
+  IonIcon,
   IonInput,
   IonItem,
   IonLabel,
@@ -19,7 +27,6 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 import { DataService } from 'src/app/services/data.service';
 import { UserProfile } from 'src/app/models/user-data.model';
-import { RecommendedDaily } from 'src/app/models/nutrition-summary.model';
 import { calculateRecommendedDaily } from 'src/app/utils/nutrition-rules';
 import { NavigationService } from 'src/app/services/navigation.service';
 
@@ -29,7 +36,9 @@ import { NavigationService } from 'src/app/services/navigation.service';
     <ion-header [translucent]="true">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="/home/settings"></ion-back-button>
+          <ion-button (click)="onBackClicked()">
+            <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+          </ion-button>
         </ion-buttons>
         <ion-title>{{ 'PROFILE_SURVEY.TITLE' | translate }}</ion-title>
       </ion-toolbar>
@@ -182,8 +191,8 @@ import { NavigationService } from 'src/app/services/navigation.service';
     IonContent,
     IonFooter,
     IonButtons,
-    IonBackButton,
     IonButton,
+    IonIcon,
     IonList,
     IonItem,
     IonInput,
@@ -195,13 +204,31 @@ import { NavigationService } from 'src/app/services/navigation.service';
 export class NutritionProfilePage implements OnInit {
   private readonly dataService = inject(DataService);
   private readonly navigationService = inject(NavigationService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  onBackClicked() {
+    this.navigationService.goToPreviousPage();
+  }
 
   readonly weight = signal<number | null>(null);
   readonly height = signal<number | null>(null);
   readonly age = signal<number | null>(null);
   readonly sex = signal<'male' | 'female' | null>(null);
   readonly activityLevel = signal<string | null>(null);
-  readonly calculated = signal<RecommendedDaily | null>(null);
+
+  readonly calculated = computed(() => {
+    const w = Number(this.weight());
+    const h = Number(this.height());
+    const a = Number(this.age());
+    const s = this.sex();
+    const al = this.activityLevel();
+    if (!w || !h || !a || !s || !al) return null;
+    return calculateRecommendedDaily({ weight: w, height: h, age: a, sex: s, activity_level: al });
+  });
+
+  readonly isValid = computed(
+    () => !!(this.weight() && this.height() && this.age() && this.sex() && this.activityLevel()),
+  );
 
   async ngOnInit() {
     const profile = await this.dataService.getUserProfile();
@@ -211,31 +238,11 @@ export class NutritionProfilePage implements OnInit {
       if (profile.age) this.age.set(profile.age);
       if (profile.sex) this.sex.set(profile.sex);
       if (profile.activity_level) this.activityLevel.set(profile.activity_level);
-      this.recalculate();
+      this.cdr.markForCheck();
     }
-  }
-
-  isValid(): boolean {
-    return !!(this.weight() && this.height() && this.age() && this.sex() && this.activityLevel());
-  }
-
-  private recalculate() {
-    const w = Number(this.weight());
-    const h = Number(this.height());
-    const a = Number(this.age());
-    const s = this.sex();
-    const al = this.activityLevel();
-    if (!w || !h || !a || !s || !al) {
-      this.calculated.set(null);
-      return;
-    }
-    this.calculated.set(
-      calculateRecommendedDaily({ weight: w, height: h, age: a, sex: s, activity_level: al }),
-    );
   }
 
   async onSave() {
-    this.recalculate();
     await this.dataService.updateUserProfile({
       weight: Number(this.weight()) || undefined,
       height: Number(this.height()) || undefined,
