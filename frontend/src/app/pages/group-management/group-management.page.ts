@@ -108,10 +108,6 @@ export class GroupManagementPage {
     this.userNameMap.set(nameMap);
   }
 
-  async onBackClicked() {
-    return this.navigationService.pop();
-  }
-
   async onCreateGroupClicked() {
     await this.loadingService.withLoader(async () => {
       const group = await this.dataService.createGroup();

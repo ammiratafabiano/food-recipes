@@ -65,7 +65,7 @@ export class AppComponent {
         take(1),
       )
       .subscribe((user) => {
-        const isLogged = !!user && user !== 0;
+        const isLogged = !!user;
         if (recipeId) {
           this.navigationService.setRoot(NavigationPath.Recipe, {
             queryParams: { id: recipeId },

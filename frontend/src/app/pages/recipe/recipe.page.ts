@@ -234,7 +234,7 @@ export class RecipePage implements OnInit {
       week,
       undefined,
       undefined,
-      group,
+      undefined,
       this.currentMultiplier(),
     );
     if (res) {
