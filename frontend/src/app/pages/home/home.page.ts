@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, ViewChild } from '@angular/core';
 import { IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataService } from 'src/app/services/data.service';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
   selector: 'app-home',
@@ -13,8 +14,16 @@ import { DataService } from 'src/app/services/data.service';
 })
 export class HomePage implements OnInit {
   readonly dataService = inject(DataService);
+  private readonly navigationService = inject(NavigationService);
+
+  @ViewChild(IonTabs) tabs!: IonTabs;
 
   ngOnInit() {
     this.dataService.loadUserSettings();
+  }
+
+  onTabsDidChange() {
+    // Reset navigation stack when switching tabs to avoid stale back-navigation
+    this.navigationService.clearStack();
   }
 }

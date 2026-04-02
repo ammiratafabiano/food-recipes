@@ -2,10 +2,6 @@
   <ion-toolbar>
     <ion-title>{{ 'NUTRITION_SUMMARY.TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="onEditProfileClicked()" fill="clear" size="small">
-        <ion-icon slot="start" name="person-outline"></ion-icon>
-        {{ 'PROFILE_SURVEY.EDIT_PROFILE' | translate }}
-      </ion-button>
       <ion-button (click)="dismiss()">
         <ion-icon slot="icon-only" name="close"></ion-icon>
       </ion-button>
@@ -14,7 +10,27 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  @if (summary(); as s) {
+  @if (!hasProfile()) {
+  <ion-item
+    color="warning"
+    lines="none"
+    class="ion-margin-bottom profile-warning"
+    button
+    (click)="onEditProfileClicked()"
+  >
+    <ion-icon name="alert-circle-outline" slot="start"></ion-icon>
+    <ion-label class="ion-text-wrap">
+      {{ 'NUTRITION_SUMMARY.NO_PROFILE_WARNING' | translate }}
+    </ion-label>
+    <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+  </ion-item>
+  } @else {
+  <ion-item lines="none" class="ion-margin-bottom" button (click)="onEditProfileClicked()">
+    <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
+    <ion-label color="primary">{{ 'PROFILE_SURVEY.EDIT_PROFILE' | translate }}</ion-label>
+    <ion-icon name="chevron-forward-outline" slot="end" color="primary"></ion-icon>
+  </ion-item>
+  } @if (summary(); as s) {
   <!-- Missing nutrition disclaimer -->
   @if (s.missingNutritionFoods && s.missingNutritionFoods.length > 0) {
   <ion-item color="light" lines="none" class="ion-margin-bottom">
@@ -59,7 +75,7 @@
   </ion-card>
 
   <!-- Daily Average vs Recommended -->
-  @if (getPlannedDayCount() > 0) {
+  @if (hasProfile() && getPlannedDayCount() > 0) {
   <ion-card class="daily-avg-card">
     <ion-item lines="none" class="ion-no-padding">
       <ion-label><strong>{{ 'NUTRITION_SUMMARY.DAILY_AVG' | translate }}</strong></ion-label>
@@ -132,7 +148,9 @@
   <ion-card>
     <ion-item lines="none">
       <ion-label><strong>{{ 'COMMON.WEEK_DAYS.' + day | translate }}</strong></ion-label>
+      @if (hasProfile()) {
       <ion-note slot="end">{{ getPercent(dayData.kcal, 'kcal') }}%</ion-note>
+      }
     </ion-item>
     <ion-card-content>
       <div class="macros-grid compact">
@@ -157,10 +175,12 @@
           <span class="macro-label">{{ 'NUTRITION_SUMMARY.FIBER_SHORT' | translate }}</span>
         </div>
       </div>
+      @if (hasProfile()) {
       <ion-progress-bar
         [value]="getBarWidth(dayData.kcal, 'kcal') / 100"
         style="--progress-background: #ff9500; margin-top: 8px"
       ></ion-progress-bar>
+      }
     </ion-card-content>
   </ion-card>
   } } } }</ion-content

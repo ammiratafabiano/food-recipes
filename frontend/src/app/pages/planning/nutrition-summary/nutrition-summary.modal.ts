@@ -33,6 +33,11 @@ import { AuthService } from 'src/app/services/auth.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { Group } from 'src/app/models/group.model';
 import { WeekDay } from 'src/app/models/weekDay.enum';
+import {
+  HomeNavigationPath,
+  NavigationPath,
+  SettingsNavigationPath,
+} from 'src/app/models/navigation-path.enum';
 import { calculateRecommendedDaily } from 'src/app/utils/nutrition-rules';
 
 @Component({
@@ -76,6 +81,7 @@ export class NutritionSummaryComponent implements OnInit {
 
   readonly summary = signal<NutritionSummary | undefined>(undefined);
   readonly recommended = signal<RecommendedDaily>(DEFAULT_RECOMMENDED_DAILY);
+  readonly hasProfile = signal<boolean>(false);
 
   readonly weekDays: WeekDay[] = [
     WeekDay.Monday,
@@ -111,6 +117,7 @@ export class NutritionSummaryComponent implements OnInit {
         activity_level: profile.activity_level,
       });
       this.recommended.set(rec);
+      this.hasProfile.set(true);
     }
   }
 
@@ -175,6 +182,11 @@ export class NutritionSummaryComponent implements OnInit {
 
   async onEditProfileClicked() {
     await this.modalCtrl.dismiss();
-    this.navController.navigateForward('/home/settings/nutrition-profile');
+    this.navController.navigateForward([
+      NavigationPath.Base,
+      NavigationPath.Home,
+      HomeNavigationPath.Settings,
+      SettingsNavigationPath.NutritionProfile,
+    ]);
   }
 }

@@ -207,7 +207,7 @@ export class NutritionProfilePage implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
 
   onBackClicked() {
-    this.navigationService.goToPreviousPage();
+    this.navigationService.pop();
   }
 
   readonly weight = signal<number | null>(null);
@@ -250,6 +250,6 @@ export class NutritionProfilePage implements OnInit {
       sex: this.sex() || undefined,
       activity_level: this.activityLevel() as UserProfile['activity_level'],
     });
-    this.navigationService.goToPreviousPage();
+    this.navigationService.pop();
   }
 }

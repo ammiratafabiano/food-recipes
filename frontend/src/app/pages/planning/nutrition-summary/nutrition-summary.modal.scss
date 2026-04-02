@@ -10,6 +10,11 @@ ion-card {
   margin: 0 0 12px;
 }
 
+.profile-warning {
+  --border-radius: 8px;
+  margin-bottom: 12px;
+}
+
 .week-total {
   --background: linear-gradient(
     135deg,

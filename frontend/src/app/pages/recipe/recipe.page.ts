@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
-  IonBackButton,
   IonButton,
   IonButtons,
   IonCard,
@@ -62,7 +61,6 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
     IonContent,
     IonFooter,
     IonButtons,
-    IonBackButton,
     IonButton,
     IonIcon,
     IonLabel,

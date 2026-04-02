@@ -27,7 +27,7 @@
       </ion-card-header>
       <ion-card-content>
         @if (userData.stats && dataService.socialEnabled()) {
-        <ion-item lines="none">
+        <div class="stats-row">
           <ion-label>
             <h3>Followers</h3>
             <p>{{ userData.stats.followers !== undefined ? userData.stats.followers : '/' }}</p>
@@ -40,7 +40,7 @@
             <h3>Saved</h3>
             <p>{{ userData.stats.saved !== undefined ? userData.stats.saved : '/' }}</p>
           </ion-label>
-        </ion-item>
+        </div>
         }
       </ion-card-content>
     </ion-card>

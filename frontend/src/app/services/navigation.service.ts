@@ -25,7 +25,10 @@ export class NavigationService {
   private setBusy(promise: Promise<unknown>): void {
     this._navigationBusy = true;
     promise.finally(() => {
-      this._navigationBusy = false;
+      // Small delay to let Ionic finish the page transition animation
+      setTimeout(() => {
+        this._navigationBusy = false;
+      }, 350);
     });
   }
 
@@ -102,14 +105,16 @@ export class NavigationService {
       toSegments = targetRoute ? targetRoute.split('/') : toSegments;
     }
 
-    const promise = this.navController.navigateBack(toSegments).then(() => {
-      navigationData?.dismissCallback && navigationData.dismissCallback(params);
-      this.logService.Info(
-        'NavigationService',
-        'stack',
-        'values=' + JSON.stringify(this.stack.map((x) => x.to)),
-      );
-    });
+    const promise = this.navController
+      .navigateBack(['/', ...toSegments.filter((s) => s !== '')])
+      .then(() => {
+        navigationData?.dismissCallback && navigationData.dismissCallback(params);
+        this.logService.Info(
+          'NavigationService',
+          'stack',
+          'values=' + JSON.stringify(this.stack.map((x) => x.to)),
+        );
+      });
     this.setBusy(promise);
     return promise;
   }
@@ -192,9 +197,9 @@ export class NavigationService {
         navigationData.animationDirection = 'back';
       }
 
+      const toSegments = toPath.split('/').filter((s) => s !== '');
       const promise = this.navController
-        .navigateBack(toPath, {
-          replaceUrl: true,
+        .navigateBack(['/', ...toSegments], {
           queryParams: navigationData?.queryParams,
         })
         .then(() => {
@@ -217,5 +222,12 @@ export class NavigationService {
    */
   private getCurrentPage(): NavigationStackElement {
     return this.stack[this.stack.length - 1];
+  }
+
+  /**
+   * @description Clears the navigation stack. Call when switching tabs.
+   */
+  clearStack() {
+    this.stack = [];
   }
 }

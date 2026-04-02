@@ -5,12 +5,17 @@
   > ion-item {
     --padding-start: 0;
     --inner-padding-end: 0;
+    --inner-padding-start: 0;
     --min-height: unset;
     --background: transparent;
   }
   .step-inner-list {
     margin: 0;
+    padding: 0;
     width: 100%;
+    ion-item {
+      --padding-start: 12px;
+    }
   }
   .file-input-item {
     --min-height: 40px;
@@ -34,6 +39,32 @@
 }
 
 .ingredient-item {
+  --inner-padding-end: 0;
+  .ingredient-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0;
+  }
+  .ingredient-main-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  .ingredient-brand-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding-top: 4px;
+    ion-icon {
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    ion-input {
+      font-size: 0.85em;
+      --color: var(--ion-color-medium);
+    }
+  }
   .clickable {
     pointer-events: all;
   }
@@ -42,21 +73,6 @@
   }
   ion-input {
     text-align: right;
-  }
-}
-
-.brand-item {
-  --padding-start: 16px;
-  --min-height: 36px;
-
-  ion-input {
-    font-size: 0.85em;
-    --color: var(--ion-color-medium);
-  }
-
-  ion-icon {
-    font-size: 14px;
-    margin-right: 4px;
   }
 }
 

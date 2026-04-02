@@ -1,11 +1,10 @@
 import express from 'express';
 import { getDB } from '../db';
-import { authenticateToken, JwtPayload } from '../auth.middleware';
+import { authenticateToken, optionalAuthenticateToken, JwtPayload } from '../auth.middleware';
 
 export const usersRouter = express.Router();
-usersRouter.use(authenticateToken);
 
-usersRouter.get('/', async (req: any, res) => {
+usersRouter.get('/', authenticateToken, async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
@@ -20,7 +19,7 @@ usersRouter.get('/', async (req: any, res) => {
   }
 });
 
-usersRouter.get('/me/profile', async (req: any, res) => {
+usersRouter.get('/me/profile', authenticateToken, async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
@@ -35,7 +34,7 @@ usersRouter.get('/me/profile', async (req: any, res) => {
   }
 });
 
-usersRouter.put('/me/profile', async (req: any, res) => {
+usersRouter.put('/me/profile', authenticateToken, async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
@@ -58,9 +57,9 @@ usersRouter.put('/me/profile', async (req: any, res) => {
   }
 });
 
-usersRouter.get('/:id', async (req: any, res) => {
+usersRouter.get('/:id', optionalAuthenticateToken, async (req: any, res) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = req.user as JwtPayload | undefined;
     const db = await getDB();
     const user = await db.get(
       'SELECT id, name, email, avatar_url FROM users WHERE id = ?',
@@ -70,12 +69,16 @@ usersRouter.get('/:id', async (req: any, res) => {
       res.status(404).json({ error: 'User not found' });
       return;
     }
-    const followed = await db.get(
-      'SELECT 1 FROM followers WHERE follower_id = ? AND followed_id = ?',
-      me.id,
-      req.params.id,
-    );
-    user.isFollowed = !!followed;
+    if (me) {
+      const followed = await db.get(
+        'SELECT 1 FROM followers WHERE follower_id = ? AND followed_id = ?',
+        me.id,
+        req.params.id,
+      );
+      user.isFollowed = !!followed;
+    } else {
+      user.isFollowed = false;
+    }
     res.json(user);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -83,7 +86,7 @@ usersRouter.get('/:id', async (req: any, res) => {
   }
 });
 
-usersRouter.get('/:id/stats', async (req: any, res) => {
+usersRouter.get('/:id/stats', authenticateToken, async (req: any, res) => {
   try {
     const db = await getDB();
     const userId = req.params.id;
@@ -107,7 +110,7 @@ usersRouter.get('/:id/stats', async (req: any, res) => {
   }
 });
 
-usersRouter.post('/:id/follow', async (req: any, res) => {
+usersRouter.post('/:id/follow', authenticateToken, async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
@@ -123,7 +126,7 @@ usersRouter.post('/:id/follow', async (req: any, res) => {
   }
 });
 
-usersRouter.delete('/:id/follow', async (req: any, res) => {
+usersRouter.delete('/:id/follow', authenticateToken, async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();

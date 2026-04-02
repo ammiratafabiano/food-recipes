@@ -232,7 +232,8 @@
         "CARBS_SHORT": "Carb",
         "FAT_SHORT": "Fat",
         "FIBER_SHORT": "Fiber",
-        "SETUP_PROFILE": "Set up your profile for personalized recommendations"
+        "SETUP_PROFILE": "Set up your profile for personalized recommendations",
+        "NO_PROFILE_WARNING": "Set up your nutritional profile to see daily goals and comparisons"
     },
     "PROFILE_SURVEY": {
         "TITLE": "Nutrition Profile",

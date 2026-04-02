@@ -2,10 +2,9 @@ import express from 'express';
 import { getDB } from '../db';
 import crypto from 'crypto';
 const uuidv4 = () => crypto.randomUUID();
-import { authenticateToken, JwtPayload } from '../auth.middleware';
+import { authenticateToken, optionalAuthenticateToken, JwtPayload } from '../auth.middleware';
 
 export const recipesRouter = express.Router();
-recipesRouter.use(authenticateToken);
 
 function toMinOne(value: unknown, fallback: number) {
   const parsed = Number(value);
@@ -149,17 +148,22 @@ async function saveRecipeDetails(
   }
 }
 
-recipesRouter.get('/', async (req: any, res) => {
+recipesRouter.get('/', optionalAuthenticateToken, async (req: any, res) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = req.user as JwtPayload | undefined;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
-    const userId = (req.query.userId as string) || me.id;
+    const userId = req.query.userId as string | undefined;
+    if (!userId && !me) {
+      res.status(401).json({ error: 'Missing token' });
+      return;
+    }
+    const effectiveUserId = userId || me!.id;
     const db = await getDB();
-    const isOwnRecipes = userId === me.id;
+    const isOwnRecipes = me && effectiveUserId === me.id;
     const query = isOwnRecipes
       ? 'SELECT * FROM recipes WHERE user_id = ? ORDER BY created_at DESC'
       : 'SELECT * FROM recipes WHERE user_id = ? AND (wip IS NULL OR wip = 0) ORDER BY created_at DESC';
-    const rows = await db.all(query, userId);
+    const rows = await db.all(query, effectiveUserId);
     const recipes = await Promise.all(
       rows.map(
         (r: {
@@ -177,7 +181,7 @@ recipesRouter.get('/', async (req: any, res) => {
           split_servings?: number;
           wip?: number;
           notes?: string;
-        }) => buildRecipe(r, me.id, lang),
+        }) => buildRecipe(r, me?.id, lang),
       ),
     );
     res.json(recipes);
@@ -187,7 +191,7 @@ recipesRouter.get('/', async (req: any, res) => {
   }
 });
 
-recipesRouter.get('/saved', async (req: any, res) => {
+recipesRouter.get('/saved', authenticateToken, async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
@@ -223,7 +227,7 @@ recipesRouter.get('/saved', async (req: any, res) => {
   }
 });
 
-recipesRouter.get('/discover', async (req: any, res) => {
+recipesRouter.get('/discover', authenticateToken, async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
@@ -258,9 +262,9 @@ recipesRouter.get('/discover', async (req: any, res) => {
   }
 });
 
-recipesRouter.get('/:id', async (req: any, res) => {
+recipesRouter.get('/:id', optionalAuthenticateToken, async (req: any, res) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = req.user as JwtPayload | undefined;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
     const db = await getDB();
     const row = await db.get('SELECT * FROM recipes WHERE id = ?', req.params.id);
@@ -269,11 +273,11 @@ recipesRouter.get('/:id', async (req: any, res) => {
       return;
     }
     // WIP recipes are only visible to their owner
-    if (row.wip && row.user_id !== me.id) {
+    if (row.wip && (!me || row.user_id !== me.id)) {
       res.status(404).json({ error: 'Recipe not found' });
       return;
     }
-    const recipe = await buildRecipe(row, me.id, lang);
+    const recipe = await buildRecipe(row, me?.id, lang);
     res.json(recipe);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -281,7 +285,7 @@ recipesRouter.get('/:id', async (req: any, res) => {
   }
 });
 
-recipesRouter.post('/', async (req: any, res) => {
+recipesRouter.post('/', authenticateToken, async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const {
@@ -338,7 +342,7 @@ recipesRouter.post('/', async (req: any, res) => {
   }
 });
 
-recipesRouter.put('/:id', async (req: any, res) => {
+recipesRouter.put('/:id', authenticateToken, async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const {
@@ -394,7 +398,7 @@ recipesRouter.put('/:id', async (req: any, res) => {
   }
 });
 
-recipesRouter.delete('/:id', async (req: any, res) => {
+recipesRouter.delete('/:id', authenticateToken, async (req: any, res) => {
   try {
     const db = await getDB();
     await db.run('DELETE FROM recipes WHERE id = ?', req.params.id);
@@ -405,7 +409,7 @@ recipesRouter.delete('/:id', async (req: any, res) => {
   }
 });
 
-recipesRouter.post('/:id/save', async (req: any, res) => {
+recipesRouter.post('/:id/save', authenticateToken, async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();
@@ -421,7 +425,7 @@ recipesRouter.post('/:id/save', async (req: any, res) => {
   }
 });
 
-recipesRouter.delete('/:id/save', async (req: any, res) => {
+recipesRouter.delete('/:id/save', authenticateToken, async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;
     const db = await getDB();

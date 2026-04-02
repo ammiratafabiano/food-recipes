@@ -6,8 +6,27 @@ ion-card {
   ion-card-content {
     padding: 0;
     ion-item {
-      text-align: center;
       --background: transparent;
+    }
+    .stats-row {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+      padding: 8px 0;
+      ion-label {
+        flex: 1;
+        min-width: 0;
+        h3 {
+          font-size: 0.75em;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        p {
+          font-weight: 600;
+          font-size: 1em;
+        }
+      }
     }
   }
 }

@@ -1,13 +1,12 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      @if (isUserLogged()) {
-      <ion-back-button defaultHref="/home/recipe-list"></ion-back-button>
-      } @else {
       <ion-button (click)="onBackClicked()">
-        <ion-icon slot="icon-only" name="home-outline"></ion-icon>
+        <ion-icon
+          slot="icon-only"
+          [name]="isUserLogged() ? 'chevron-back-outline' : 'home-outline'"
+        ></ion-icon>
       </ion-button>
-      }
     </ion-buttons>
     <ion-title>{{ 'RECIPE_PAGE.TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
@@ -65,27 +64,29 @@
   <ion-item lines="full">
     <ion-icon name="nutrition" slot="start"></ion-icon>
     <ion-label>{{ 'COMMON.RECIPE_TYPE' | translate }}</ion-label>
-    <ion-label>{{ 'COMMON.RECIPE_TYPES.' + recipe()?.type | translate }}</ion-label>
+    <ion-note slot="end">{{ 'COMMON.RECIPE_TYPES.' + recipe()?.type | translate }}</ion-note>
   </ion-item>
   } @if (recipe()?.cuisine) {
   <ion-item lines="full">
     <ion-icon name="earth-outline" slot="start"></ion-icon>
     <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
-    <ion-label>{{ 'COMMON.CUISINE_TYPES.' + recipe()?.cuisine | translate }}</ion-label>
+    <ion-note slot="end">{{ 'COMMON.CUISINE_TYPES.' + recipe()?.cuisine | translate }}</ion-note>
   </ion-item>
   } @if (recipe()?.time?.value) {
   <ion-item lines="full">
     <ion-icon name="timer" slot="start"></ion-icon>
     <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>
-    <ion-label>
+    <ion-note slot="end">
       {{ recipe()?.time?.value }} {{ 'COMMON.TIME_UNITS.' + recipe()?.time?.unit | translate }}
-    </ion-label>
+    </ion-note>
   </ion-item>
   } @if (recipe()?.difficulty) {
   <ion-item lines="full">
     <ion-icon name="podium" slot="start"></ion-icon>
     <ion-label>{{ 'COMMON.DIFFICULTY' | translate }}</ion-label>
-    <ion-label>{{ 'COMMON.DIFFICULTY_LEVEL.' + recipe()?.difficulty | translate }}</ion-label>
+    <ion-note slot="end"
+      >{{ 'COMMON.DIFFICULTY_LEVEL.' + recipe()?.difficulty | translate }}</ion-note
+    >
   </ion-item>
   } @if (recipe()) {
   <ion-item>
