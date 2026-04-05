@@ -167,6 +167,14 @@ export class DataService {
     }
   }
 
+  async getGroupRecipeList(): Promise<Recipe[] | undefined> {
+    try {
+      return await firstValueFrom(this.http.get<Recipe[]>(`${this.api}/recipes/group`));
+    } catch {
+      return undefined;
+    }
+  }
+
   // ── Foods ──────────────────────────────────────────
 
   async getFoodList(): Promise<Ingredient[] | undefined> {
@@ -289,10 +297,10 @@ export class DataService {
       this.http.put(
         `${this.api}/planning/${planned_recipe.id}`,
         {
-          day: planned_recipe.day,
-          meal: planned_recipe.meal,
+          day: planned_recipe.day ?? null,
+          meal: planned_recipe.meal ?? null,
           servings: planned_recipe.servings,
-          assignedTo: planned_recipe.assignedTo,
+          assignedTo: planned_recipe.assignedTo ?? null,
           excludeFromShopping: planned_recipe.excludeFromShopping,
           sortOrder: planned_recipe.sortOrder,
         },

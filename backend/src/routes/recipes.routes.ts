@@ -227,6 +227,67 @@ recipesRouter.get('/saved', authenticateToken, async (req: any, res) => {
   }
 });
 
+recipesRouter.get('/group', authenticateToken, async (req: any, res) => {
+  try {
+    const me = req.user as JwtPayload;
+    const lang = req.acceptsLanguages('it', 'en') || 'en';
+    const db = await getDB();
+
+    // Find the user's group
+    const membership = await db.get(
+      'SELECT group_id FROM group_members WHERE user_id = ? LIMIT 1',
+      me.id,
+    );
+    if (!membership) {
+      res.json([]);
+      return;
+    }
+
+    // Get all group members except the current user
+    const members = await db.all(
+      'SELECT user_id FROM group_members WHERE group_id = ? AND user_id != ?',
+      membership.group_id,
+      me.id,
+    );
+    if (members.length === 0) {
+      res.json([]);
+      return;
+    }
+
+    const memberIds = members.map((m: { user_id: string }) => m.user_id);
+    const placeholders = memberIds.map(() => '?').join(',');
+    const rows = await db.all(
+      `SELECT * FROM recipes WHERE user_id IN (${placeholders}) AND (wip IS NULL OR wip = 0) AND type != 'PRODUCT' ORDER BY name COLLATE NOCASE`,
+      ...memberIds,
+    );
+
+    const recipes = await Promise.all(
+      rows.map(
+        (r: {
+          id: string;
+          user_id: string;
+          name: string;
+          description?: string;
+          cuisine?: string;
+          type?: string;
+          time_value?: number;
+          time_unit?: string;
+          difficulty?: string;
+          servings?: number;
+          min_servings?: number;
+          split_servings?: number;
+          wip?: number;
+          notes?: string;
+        }) => buildRecipe(r, me.id, lang),
+      ),
+    );
+    res.json(recipes);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
 recipesRouter.get('/discover', authenticateToken, async (req: any, res) => {
   try {
     const me = req.user as JwtPayload;

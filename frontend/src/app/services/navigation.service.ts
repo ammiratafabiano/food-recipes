@@ -25,10 +25,11 @@ export class NavigationService {
   private setBusy(promise: Promise<unknown>): void {
     this._navigationBusy = true;
     promise.finally(() => {
-      // Small delay to let Ionic finish the page transition animation
+      // Delay to let Ionic finish the page transition animation.
+      // Ionic transitions are ~300ms; 500ms gives enough margin for slower devices.
       setTimeout(() => {
         this._navigationBusy = false;
-      }, 350);
+      }, 500);
     });
   }
 
@@ -212,7 +213,8 @@ export class NavigationService {
         });
       this.setBusy(promise);
     } else {
-      this.navController.navigateBack(['/']);
+      const promise = this.navController.navigateBack(['/']);
+      this.setBusy(promise);
     }
   }
 

@@ -62,7 +62,7 @@ export class SocialDetailPage {
   private readonly navigationService = inject(NavigationService);
 
   onBackClicked() {
-    this.navigationService.goToPreviousPage();
+    this.navigationService.pop();
   }
 
   async onToggle() {

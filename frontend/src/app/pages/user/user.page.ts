@@ -92,7 +92,9 @@ export class UserPage implements OnInit {
       const userData = await this.dataService.getUser(id);
       if (userData) {
         const recipes = (await this.dataService.getRecipeList(userData.id)) || [];
-        userData.recipes = recipes.filter((r) => r.type !== RecipeType.Product);
+        userData.recipes = recipes
+          .filter((r) => r.type !== RecipeType.Product)
+          .sort((a, b) => a.name.localeCompare(b.name));
       }
       this.user.set(userData);
     });

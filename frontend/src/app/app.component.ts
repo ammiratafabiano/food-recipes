@@ -14,7 +14,11 @@ import { LoadingService } from './services/loading.service';
 import { AuthService } from './services/auth.service';
 import { DataService } from './services/data.service';
 import { SessionService } from './services/session.service';
-import { NavigationPath, HomeNavigationPath } from './models/navigation-path.enum';
+import {
+  NavigationPath,
+  HomeNavigationPath,
+  SettingsNavigationPath,
+} from './models/navigation-path.enum';
 
 @Component({
   selector: 'app-root',
@@ -151,6 +155,16 @@ export class AppComponent {
           await this.loadingService.withLoader(async () => {
             await this.dataService.joinGroup(groupId);
           });
+          // Navigate to group management page
+          this.navigationService.setRoot(
+            [
+              NavigationPath.Base,
+              NavigationPath.Home,
+              HomeNavigationPath.Settings,
+              SettingsNavigationPath.GroupManagement,
+            ],
+            { animationDirection: 'forward' },
+          );
         }
       });
   }

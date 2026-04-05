@@ -72,6 +72,7 @@ export class RecipeListPage {
 
   readonly recipes = signal<Recipe[] | undefined>(undefined);
   readonly othersRecipes = signal<Recipe[] | undefined>(undefined);
+  readonly groupRecipes = signal<Recipe[] | undefined>(undefined);
 
   readonly searchQuery = signal<string>('');
 
@@ -82,13 +83,15 @@ export class RecipeListPage {
       .filter((f) => f.enabled)
       .map((f) => f.type);
 
-    return recipes?.filter((x) => {
-      const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
-      const matchFilter =
-        activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
-      const notProduct = x.type !== RecipeType.Product;
-      return matchQuery && matchFilter && notProduct;
-    });
+    return recipes
+      ?.filter((x) => {
+        const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
+        const matchFilter =
+          activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
+        const notProduct = x.type !== RecipeType.Product;
+        return matchQuery && matchFilter && notProduct;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
   });
 
   readonly displayOthersRecipes = computed(() => {
@@ -98,13 +101,32 @@ export class RecipeListPage {
       .filter((f) => f.enabled)
       .map((f) => f.type);
 
-    return recipes?.filter((x) => {
-      const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
-      const matchFilter =
-        activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
-      const notProduct = x.type !== RecipeType.Product;
-      return matchQuery && matchFilter && notProduct;
-    });
+    return recipes
+      ?.filter((x) => {
+        const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
+        const matchFilter =
+          activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
+        const notProduct = x.type !== RecipeType.Product;
+        return matchQuery && matchFilter && notProduct;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
+
+  readonly displayGroupRecipes = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    const recipes = this.groupRecipes();
+    const activeFilters = this.recipeTypeFilters()
+      .filter((f) => f.enabled)
+      .map((f) => f.type);
+
+    return recipes
+      ?.filter((x) => {
+        const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
+        const matchFilter =
+          activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
+        return matchQuery && matchFilter;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
   });
 
   // Filters
@@ -122,14 +144,18 @@ export class RecipeListPage {
     await this.loadingService.withLoader(async () => {
       const recipes = (await this.dataService.getRecipeList()) || [];
       const othersRecipes = (await this.dataService.getSavedRecipeList()) || [];
+      const groupRecipes = (await this.dataService.getGroupRecipeList()) || [];
       this.recipes.set(recipes);
       this.othersRecipes.set(othersRecipes);
+      this.groupRecipes.set(groupRecipes);
       this.initFilters();
     });
   }
 
   private initFilters() {
-    const allRecipes = (this.recipes() || []).concat(this.othersRecipes() || []);
+    const allRecipes = (this.recipes() || [])
+      .concat(this.othersRecipes() || [])
+      .concat(this.groupRecipes() || []);
     // Init types
     const newTypeFilters: RecipeTypeFilter[] = [];
     Object.values(RecipeType).forEach((x) => {

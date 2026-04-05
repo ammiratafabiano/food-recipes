@@ -74,7 +74,7 @@ export class GroupManagementPage {
   }
 
   onBackClicked() {
-    this.navigationService.goToPreviousPage();
+    this.navigationService.pop();
   }
 
   private async getGroup() {

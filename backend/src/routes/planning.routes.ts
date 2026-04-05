@@ -284,10 +284,10 @@ planningRouter.put('/:id', async (req: any, res) => {
     if (groupId && updated) {
       emitPlanningChange(groupId, 'planning:updated', {
         id: req.params.id,
-        day,
-        meal,
+        day: day ?? null,
+        meal: meal ?? null,
         servings: servings || 1,
-        assignedTo: assignedTo || null,
+        assignedTo: assignedTo ?? null,
         excludeFromShopping: excludeFromShopping ?? false,
         week: updated.week,
         user_id: me.id,
@@ -682,14 +682,14 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
 
     // Round quantities and filter out basic staples
     const round1 = (v: number) => Math.round(v * 10) / 10;
-    const basicStaples = new Set([
+
+    // Ingredients to skip when added as "qb" (quantity = 0)
+    const skipIfQB = new Set([
       'salt',
       'sale',
       'pepper',
       'pepe',
       'pepe nero',
-      'water',
-      'acqua',
       'olive oil',
       "olio d'oliva",
       "olio extravergine d'oliva",
@@ -699,7 +699,13 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
       'olio di semi',
       'olio di semi di girasole',
       'olio di semi vari',
+      'sugar',
+      'zucchero',
     ]);
+
+    // Ingredients to always skip regardless of quantity
+    const alwaysSkip = new Set(['water', 'acqua']);
+
     const result = Object.values(map)
       .map((item) => ({
         ...item,
@@ -707,15 +713,9 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
       }))
       .filter((item) => {
         const nameLower = item.name.toLowerCase().trim();
-        if (!basicStaples.has(nameLower)) return true;
-        // Keep staple only if large quantity (> 50g or > 3 pieces)
-        const qty = item.quantity.value;
-        if (item.quantity.unit === 'KILO' && qty > 0) return true;
-        if ((item.quantity.unit === 'GRAM' || item.quantity.unit === 'MILLILITER') && qty > 50) {
-          item.name = (lang === 'it' ? 'Controllare ' : 'Check ') + item.name;
-          return true;
-        }
-        return false;
+        if (alwaysSkip.has(nameLower)) return false;
+        if (skipIfQB.has(nameLower) && !item.quantity.value) return false;
+        return true;
       });
 
     res.json(result);

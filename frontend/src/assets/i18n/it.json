@@ -17,7 +17,8 @@
         "NO_DATA": "Non hai aggiunto ancora nessuna ricetta.",
         "NO_DATA_OTHERS": "Non hai salvato ancora nessuna ricetta.",
         "YOURS": "Le tue",
-        "OTHERS": "Degli altri"
+        "OTHERS": "Degli altri",
+        "GROUP": "Le ricette del gruppo"
     },
     "PLANNING_PAGE": {
         "TITLE": "Planning",
@@ -264,7 +265,9 @@
         "TITLE": "Planning settimanale",
         "DESCRIPTION": "Il planning settimanale ti permette di organizzare i pasti della settimana. Potrai aggiungere ricette ai diversi giorni, generare automaticamente la lista della spesa e ricevere suggerimenti basati sulle tue abitudini.",
         "ENABLE": "Attiva planning",
-        "DISABLE": "Disattiva planning"
+        "DISABLE": "Disattiva planning",
+        "GROUP_WARNING": "Fai parte di un gruppo. Disattivando il planning uscirai automaticamente dal gruppo.",
+        "DISABLE_GROUP_CONFIRM": "Disattivando il planning uscirai dal gruppo. Vuoi continuare?"
     },
     "SOCIAL_DETAIL": {
         "TITLE": "Modalità social",

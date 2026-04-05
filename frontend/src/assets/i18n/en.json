@@ -12,7 +12,8 @@
         "NO_DATA": "You have no recipe yet.",
         "NO_DATA_OTHERS": "You have no saved recipe yet.",
         "YOURS": "Yours",
-        "OTHERS": "Others"
+        "OTHERS": "Others",
+        "GROUP": "Group recipes"
     },
     "DISCOVER_PAGE": {
         "TITLE": "Discover",
@@ -264,7 +265,9 @@
         "TITLE": "Weekly planning",
         "DESCRIPTION": "Weekly planning allows you to organize your meals for the week. You can add recipes to different days, automatically generate a shopping list, and receive suggestions based on your habits.",
         "ENABLE": "Enable planning",
-        "DISABLE": "Disable planning"
+        "DISABLE": "Disable planning",
+        "GROUP_WARNING": "You are part of a group. Disabling planning will automatically remove you from the group.",
+        "DISABLE_GROUP_CONFIRM": "Disabling planning will remove you from the group. Do you want to continue?"
     },
     "SOCIAL_DETAIL": {
         "TITLE": "Social mode",

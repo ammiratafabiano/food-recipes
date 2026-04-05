@@ -1,17 +1,15 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertController } from '@ionic/angular';
 import { IonContent, IonSpinner } from '@ionic/angular/standalone';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { filter, firstValueFrom, forkJoin, take } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
+import { filter, forkJoin, take } from 'rxjs';
 import { NavigationPath } from 'src/app/models/navigation-path.enum';
-import { AlertService } from 'src/app/services/alert.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { DataService } from 'src/app/services/data.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { LoggingService } from 'src/app/services/logging.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { SessionService } from 'src/app/services/session.service';
+import { AlertService } from 'src/app/services/alert.service';
 
 declare const google: { accounts: unknown } | undefined;
 
@@ -27,13 +25,10 @@ export class LoginPage {
   private readonly authService = inject(AuthService);
   private readonly loadingService = inject(LoadingService);
   private readonly alertService = inject(AlertService);
-  private readonly alertCtrl = inject(AlertController);
-  private readonly translateService = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly sessionService = inject(SessionService);
   private readonly route = inject(ActivatedRoute);
   private readonly loggingService = inject(LoggingService);
-  private readonly dataService = inject(DataService);
   private readonly navigationService = inject(NavigationService);
 
   /** Show fallback Google button only when One Tap fails */
@@ -145,12 +140,8 @@ export class LoginPage {
   }
 
   private async handleLoginNavigation() {
-    // Check if there's a pending group invite
-    const pendingGroupId = this.sessionService.pendingGroupId();
-    if (pendingGroupId) {
-      this.sessionService.setPendingGroupId(undefined);
-      await this.confirmAndJoinGroup(pendingGroupId);
-    }
+    // Don't handle pending group invite here — let the home page deal with it
+    // so the popup appears after the home screen is visible.
 
     const loginRedirect = this.sessionService.loginRedirect();
     if (loginRedirect) {
@@ -172,43 +163,6 @@ export class LoginPage {
     } catch {
       return url;
     }
-  }
-
-  private async confirmAndJoinGroup(group_id: string) {
-    // Wait for translations to be loaded before building the alert
-    const translations = await firstValueFrom(
-      this.translateService.get([
-        'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM',
-        'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON',
-        'COMMON.GENERIC_ALERT.CANCEL_BUTTON',
-      ]),
-    );
-
-    const alert = await this.alertCtrl.create({
-      message: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM'],
-      buttons: [
-        {
-          text: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON'],
-          role: 'confirm',
-        },
-        {
-          text: translations['COMMON.GENERIC_ALERT.CANCEL_BUTTON'],
-          role: 'cancel',
-        },
-      ],
-    });
-    await alert.present();
-    const { role } = await alert.onDidDismiss();
-    if (role === 'confirm') {
-      await this.joinGroup(group_id);
-    }
-  }
-
-  private async joinGroup(group_id: string) {
-    await this.loadingService.withLoader(async () => {
-      await this.dataService.joinGroup(group_id);
-      this.alertService.presentConfirmPopup('GROUP_MANAGEMENT_PAGE.ADDED_GROUP_ALERT');
-    });
   }
 
   private async goToRecipePage(

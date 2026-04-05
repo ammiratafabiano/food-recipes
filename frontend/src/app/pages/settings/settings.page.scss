@@ -12,7 +12,7 @@ ion-card {
       display: flex;
       justify-content: space-around;
       text-align: center;
-      padding: 8px 0;
+      padding: 8px 16px;
       ion-label {
         flex: 1;
         min-width: 0;
@@ -25,6 +25,9 @@ ion-card {
         p {
           font-weight: 600;
           font-size: 1em;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       }
     }
