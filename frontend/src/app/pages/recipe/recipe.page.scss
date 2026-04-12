@@ -2,6 +2,31 @@
   max-width: 20% !important;
 }
 
+.quantity-input {
+  max-width: 20% !important;
+  --padding-start: 4px;
+  --padding-end: 4px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  font-size: 0.95em;
+}
+
+.quantity-unit-label {
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  padding-left: 2px;
+}
+
+.ingredients-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h3 {
+    margin: 0;
+  }
+}
+
 .macro-label {
   max-width: 20% !important;
   text-align: right;

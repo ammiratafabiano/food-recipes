@@ -1,7 +1,7 @@
 export enum NavigationPath {
   Base = '',
   Login = 'login',
-  Home = 'home',
+  Home = '', // kept for backward compat, but no longer used in route paths
   Recipe = 'recipe',
   User = 'user',
   NotFound = 'not-found',
@@ -41,9 +41,13 @@ export enum AddRecipeNavigationPath {
   ItemSelection = 'item-selection',
 }
 
-export enum SettingsNavigationPath {
+export enum PlanningNavigationPath {
   Base = '',
   GroupManagement = 'group-management',
+}
+
+export enum SettingsNavigationPath {
+  Base = '',
   DeleteUser = 'delete-user',
   PlanningDetail = 'planning-detail',
   SocialDetail = 'social-detail',

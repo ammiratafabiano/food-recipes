@@ -184,7 +184,6 @@ export class NutritionSummaryComponent implements OnInit {
     await this.modalCtrl.dismiss();
     this.navController.navigateForward([
       NavigationPath.Base,
-      NavigationPath.Home,
       HomeNavigationPath.Settings,
       SettingsNavigationPath.NutritionProfile,
     ]);

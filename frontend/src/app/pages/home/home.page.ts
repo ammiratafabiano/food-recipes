@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import {
   HomeNavigationPath,
   NavigationPath,
-  SettingsNavigationPath,
+  PlanningNavigationPath,
 } from 'src/app/models/navigation-path.enum';
 import { DataService } from 'src/app/services/data.service';
 import { LoadingService } from 'src/app/services/loading.service';
@@ -46,7 +46,7 @@ export class HomePage implements OnInit {
     // If the selected tab has a sub-page active, navigate back to its root
     const selectedTab = this.tabs.getSelected();
     if (selectedTab) {
-      const tabRoot = `/home/${selectedTab}`;
+      const tabRoot = `/${selectedTab}`;
       const currentUrl = this.router.url.split('?')[0];
       if (currentUrl !== tabRoot && currentUrl.startsWith(tabRoot + '/')) {
         this.navController.navigateBack([tabRoot], { animated: false });
@@ -63,16 +63,23 @@ export class HomePage implements OnInit {
     if (!pendingGroupId) return;
     this.sessionService.setPendingGroupId(undefined);
 
-    const translations = await firstValueFrom(
-      this.translateService.get([
-        'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM',
-        'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON',
-        'COMMON.GENERIC_ALERT.CANCEL_BUTTON',
-      ]),
-    );
+    // Check if user already belongs to a group
+    const existingGroup = await this.dataService.retrieveGroup(true);
+
+    const translationKeys = [
+      'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM',
+      'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM_LEAVE_CURRENT',
+      'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON',
+      'COMMON.GENERIC_ALERT.CANCEL_BUTTON',
+    ];
+    const translations = await firstValueFrom(this.translateService.get(translationKeys));
+
+    const messageKey = existingGroup
+      ? 'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM_LEAVE_CURRENT'
+      : 'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM';
 
     const alert = await this.alertCtrl.create({
-      message: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM'],
+      message: translations[messageKey],
       buttons: [
         { text: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON'], role: 'confirm' },
         { text: translations['COMMON.GENERIC_ALERT.CANCEL_BUTTON'], role: 'cancel' },
@@ -86,12 +93,7 @@ export class HomePage implements OnInit {
       });
       // Navigate to group management page
       this.navigationService.setRoot(
-        [
-          NavigationPath.Base,
-          NavigationPath.Home,
-          HomeNavigationPath.Settings,
-          SettingsNavigationPath.GroupManagement,
-        ],
+        [NavigationPath.Base, HomeNavigationPath.Planning, PlanningNavigationPath.GroupManagement],
         { animationDirection: 'forward' },
       );
     }

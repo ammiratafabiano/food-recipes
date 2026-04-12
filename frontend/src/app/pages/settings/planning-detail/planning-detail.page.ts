@@ -35,7 +35,12 @@ import { NavigationService } from 'src/app/services/navigation.service';
     <ion-content class="ion-padding">
       <p>{{ 'PLANNING_DETAIL.DESCRIPTION' | translate }}</p>
       @if (dataService.planningEnabled() && group()) {
-        <ion-item color="warning" lines="none" class="ion-margin-top" style="--border-radius: 8px;">
+        <ion-item
+          color="warning"
+          lines="none"
+          class="ion-margin-top"
+          style="--border-radius: 8px; --padding-start: 12px;"
+        >
           <ion-icon name="alert-circle-outline" slot="start"></ion-icon>
           <ion-label class="ion-text-wrap">
             {{ 'PLANNING_DETAIL.GROUP_WARNING' | translate }}

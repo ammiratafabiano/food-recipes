@@ -23,8 +23,8 @@ import dayjs from 'dayjs';
 import {
   HomeNavigationPath,
   NavigationPath,
+  PlanningNavigationPath,
   RecipeListNavigationPath,
-  SettingsNavigationPath,
 } from 'src/app/models/navigation-path.enum';
 import { RecipeTagFilter } from 'src/app/models/recipe-tag-filter.model';
 import { RecipeTypeFilter } from 'src/app/models/recipe-type-filter.model';
@@ -219,13 +219,10 @@ export class RecipeListPage {
     const group = await this.dataService.retrieveGroup();
     const res = await this.dataService.addToPlanning(recipe, week, undefined, undefined, group);
     if (res) {
-      this.navigationService.setRoot(
-        [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],
-        {
-          params: { week },
-          queryParams: { week },
-        },
-      );
+      this.navigationService.setRoot([NavigationPath.Base, HomeNavigationPath.Planning], {
+        params: { week },
+        queryParams: { week },
+      });
     } else {
       this.alertService.presentAlertPopup(
         'COMMON.GENERIC_ALERT.ERROR_HEADER',
@@ -233,9 +230,8 @@ export class RecipeListPage {
         () => {
           this.navigationService.setRoot([
             NavigationPath.Base,
-            NavigationPath.Home,
-            HomeNavigationPath.Settings,
-            SettingsNavigationPath.GroupManagement,
+            HomeNavigationPath.Planning,
+            PlanningNavigationPath.GroupManagement,
           ]);
         },
         'COMMON.PLANNINGS.GO_TO_GROUP_MANAGEMENT_BUTTON',

@@ -30,7 +30,6 @@ import { Ingredient } from 'src/app/models/ingredient.model';
 import { Item } from 'src/app/models/item.model';
 import {
   AddRecipeNavigationPath,
-  HomeNavigationPath,
   NavigationPath,
   RecipeListNavigationPath,
 } from 'src/app/models/navigation-path.enum';

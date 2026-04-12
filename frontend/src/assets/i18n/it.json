@@ -63,7 +63,8 @@
         "LEAVE_GROUP_BUTTON": "Lascia gruppo",
         "SEPARATOR": "Oppure",
         "ADDED_GROUP_ALERT": "Ora fai parte di un gruppo!",
-        "JOIN_GROUP_CONFIRM": "Sei stato invitato a unirti a un gruppo. Vuoi partecipare?"
+        "JOIN_GROUP_CONFIRM": "Sei stato invitato a unirti a un gruppo. Accettando, il planning verrà attivato automaticamente e potrai pianificare i pasti insieme al gruppo. Vuoi partecipare?",
+        "JOIN_GROUP_CONFIRM_LEAVE_CURRENT": "Sei stato invitato a unirti a un nuovo gruppo. Accettando, uscirai automaticamente dal gruppo attuale e il planning verrà condiviso con il nuovo gruppo. Vuoi continuare?"
     },
     "RECIPE_PAGE": {
         "TITLE": "Ricetta",

@@ -8,11 +8,6 @@ export const SETTINGS_ROUTES: Routes = [
     component: SettingsPage,
   },
   {
-    path: SettingsNavigationPath.GroupManagement,
-    loadComponent: () =>
-      import('../group-management/group-management.page').then((m) => m.GroupManagementPage),
-  },
-  {
     path: SettingsNavigationPath.DeleteUser,
     loadComponent: () => import('../delete-user/delete-user.page').then((m) => m.DeleteUserPage),
   },

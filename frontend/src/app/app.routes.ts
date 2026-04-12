@@ -4,18 +4,8 @@ import { NavigationPath } from './models/navigation-path.enum';
 
 export const routes: Routes = [
   {
-    path: NavigationPath.Base,
-    redirectTo: NavigationPath.Home,
-    pathMatch: 'full',
-  },
-  {
     path: NavigationPath.Login,
     loadChildren: () => import('./pages/login/login.routes').then((m) => m.LOGIN_ROUTES),
-  },
-  {
-    path: NavigationPath.Home,
-    loadChildren: () => import('./pages/home/home.routes').then((m) => m.HOME_ROUTES),
-    canActivate: [authGuard],
   },
   {
     path: NavigationPath.NotFound,
@@ -33,6 +23,11 @@ export const routes: Routes = [
   {
     path: NavigationPath.User,
     loadChildren: () => import('./pages/user/user.routes').then((m) => m.USER_ROUTES),
+  },
+  {
+    path: NavigationPath.Base,
+    loadChildren: () => import('./pages/home/home.routes').then((m) => m.HOME_ROUTES),
+    canActivate: [authGuard],
   },
   {
     path: '**',

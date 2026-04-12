@@ -17,7 +17,7 @@ import { SessionService } from './services/session.service';
 import {
   NavigationPath,
   HomeNavigationPath,
-  SettingsNavigationPath,
+  PlanningNavigationPath,
 } from './models/navigation-path.enum';
 
 @Component({
@@ -76,7 +76,7 @@ export class AppComponent {
             dismissCallback: () => {
               if (isLogged) {
                 this.navigationService.setRoot(
-                  [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.RecipeList],
+                  [NavigationPath.Base, HomeNavigationPath.RecipeList],
                   { animationDirection: 'back' },
                 );
               } else {
@@ -89,10 +89,9 @@ export class AppComponent {
             queryParams: { id: userId },
             dismissCallback: () => {
               if (isLogged) {
-                this.navigationService.setRoot(
-                  [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Discover],
-                  { animationDirection: 'back' },
-                );
+                this.navigationService.setRoot([NavigationPath.Base, HomeNavigationPath.Discover], {
+                  animationDirection: 'back',
+                });
               } else {
                 this.navigationService.setRoot(NavigationPath.Login);
               }
@@ -127,17 +126,24 @@ export class AppComponent {
           return;
         }
 
+        // Check if user already belongs to a group
+        const existingGroup = await this.dataService.retrieveGroup(true);
+
         // Wait for translations to be loaded before building the alert
-        const translations = await firstValueFrom(
-          this.translate.get([
-            'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM',
-            'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON',
-            'COMMON.GENERIC_ALERT.CANCEL_BUTTON',
-          ]),
-        );
+        const translationKeys = [
+          'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM',
+          'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM_LEAVE_CURRENT',
+          'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON',
+          'COMMON.GENERIC_ALERT.CANCEL_BUTTON',
+        ];
+        const translations = await firstValueFrom(this.translate.get(translationKeys));
+
+        const messageKey = existingGroup
+          ? 'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM_LEAVE_CURRENT'
+          : 'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM';
 
         const alert = await this.alertCtrl.create({
-          message: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM'],
+          message: translations[messageKey],
           buttons: [
             {
               text: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON'],
@@ -159,9 +165,8 @@ export class AppComponent {
           this.navigationService.setRoot(
             [
               NavigationPath.Base,
-              NavigationPath.Home,
-              HomeNavigationPath.Settings,
-              SettingsNavigationPath.GroupManagement,
+              HomeNavigationPath.Planning,
+              PlanningNavigationPath.GroupManagement,
             ],
             { animationDirection: 'forward' },
           );

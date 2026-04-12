@@ -39,7 +39,7 @@ import { Group } from 'src/app/models/group.model';
 import {
   HomeNavigationPath,
   NavigationPath,
-  SettingsNavigationPath,
+  PlanningNavigationPath,
 } from 'src/app/models/navigation-path.enum';
 import { createPlanning } from 'src/app/utils/model-factories';
 import { LoadingService } from 'src/app/services/loading.service';
@@ -707,12 +707,7 @@ export class PlanningPage implements OnDestroy {
   }
 
   async onGoToGroupManagementClicked() {
-    this.navigationService.setRoot([
-      NavigationPath.Base,
-      NavigationPath.Home,
-      HomeNavigationPath.Settings,
-      SettingsNavigationPath.GroupManagement,
-    ]);
+    this.navigationService.push(PlanningNavigationPath.GroupManagement);
   }
 
   async onNutritionSummaryClicked() {

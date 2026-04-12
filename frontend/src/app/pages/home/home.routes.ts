@@ -18,7 +18,7 @@ export const HOME_ROUTES: Routes = [
       },
       {
         path: HomeNavigationPath.Planning,
-        loadComponent: () => import('../planning/planning.page').then((m) => m.PlanningPage),
+        loadChildren: () => import('../planning/planning.routes').then((m) => m.PLANNING_ROUTES),
       },
       {
         path: HomeNavigationPath.ShoppingList,

@@ -147,11 +147,11 @@ export class LoginPage {
     if (loginRedirect) {
       // Strip ?group= from redirect URL to avoid re-triggering
       const cleanUrl = this.stripGroupParam(loginRedirect);
-      this.router.navigateByUrl(cleanUrl || '/home', { replaceUrl: true }).then(() => {
+      this.router.navigateByUrl(cleanUrl || '/', { replaceUrl: true }).then(() => {
         this.sessionService.setLoginRedirect(undefined);
       });
     } else {
-      this.router.navigateByUrl('/home', { replaceUrl: true });
+      this.router.navigateByUrl('/', { replaceUrl: true });
     }
   }
 

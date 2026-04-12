@@ -101,16 +101,41 @@
     </ion-button>
   </ion-item>
   } @if ((recipe()?.ingredients?.length || 0) > 0) {
-  <h3 class="ion-padding-horizontal">{{ 'COMMON.INGREDIENTS' | translate }}</h3>
+  <div class="ingredients-header ion-padding-horizontal">
+    <h3>{{ 'COMMON.INGREDIENTS' | translate }}</h3>
+    @if (isUserLogged()) {
+    <ion-button
+      fill="clear"
+      size="small"
+      [color]="editMode() ? 'primary' : 'medium'"
+      (click)="onToggleEditMode()"
+    >
+      <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+    </ion-button>
+    }
+  </div>
   <ion-list lines="inset" inset="true">
     @for (ingredient of recipe()?.ingredients; track trackByIngredient($index, ingredient)) {
     <ion-item>
-      @if (ingredient.quantity.value) {
-      <ion-label class="quantity-label">
-        {{ ingredient.quantity.value * multiplier() | number:'1.0-1' }}{{ ingredient.quantity.unit ?
-        ('COMMON.WEIGHT_UNITS.' + ingredient.quantity.unit | translate) : '' }}
-      </ion-label>
+      @if (ingredient.quantity.value) { @if (editMode()) {
+      <ion-input
+        class="quantity-input"
+        type="number"
+        inputmode="decimal"
+        [value]="getIngredientDisplayValue($index, ingredient) | number:'1.0-1'"
+        (ionBlur)="onIngredientOverride($index, $any($event.target).value)"
+      ></ion-input>
+      <ion-label class="quantity-unit-label"
+        >{{ ingredient.quantity.unit ? ('COMMON.WEIGHT_UNITS.' + ingredient.quantity.unit |
+        translate) : '' }}</ion-label
+      >
       } @else {
+      <ion-label class="quantity-label">
+        {{ getIngredientDisplayValue($index, ingredient) | number:'1.0-1' }}{{
+        ingredient.quantity.unit ? ('COMMON.WEIGHT_UNITS.' + ingredient.quantity.unit | translate) :
+        '' }}
+      </ion-label>
+      } } @else {
       <ion-label class="quantity-label"> {{ 'COMMON.MISSING_QUANTITY' | translate }} </ion-label>
       }
       <ion-label>
@@ -120,7 +145,7 @@
       </ion-label>
       @if (ingredient.kcal) {
       <ion-label class="macro-label">
-        {{ (ingredient.kcal * (ingredient.quantity.value || 0) * multiplier() / 100) |
+        {{ (ingredient.kcal * (getIngredientDisplayValue($index, ingredient) || 0) / 100) |
         number:'1.0-0' }} kcal
       </ion-label>
       }

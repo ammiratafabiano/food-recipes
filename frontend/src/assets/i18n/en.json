@@ -63,7 +63,8 @@
         "LEAVE_GROUP_BUTTON": "Leave group",
         "SEPARATOR": "Or",
         "ADDED_GROUP_ALERT": "You are now part of a group!",
-        "JOIN_GROUP_CONFIRM": "You have been invited to join a group. Would you like to join?"
+        "JOIN_GROUP_CONFIRM": "You have been invited to join a group. By accepting, planning will be enabled automatically and you will be able to plan meals together with the group. Would you like to join?",
+        "JOIN_GROUP_CONFIRM_LEAVE_CURRENT": "You have been invited to join a new group. By accepting, you will automatically leave your current group and planning will be shared with the new group. Would you like to continue?"
     },
     "RECIPE_PAGE": {
         "TITLE": "Recipe",

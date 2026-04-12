@@ -33,9 +33,10 @@ import dayjs from 'dayjs';
 import {
   HomeNavigationPath,
   NavigationPath,
+  PlanningNavigationPath,
   RecipeListNavigationPath,
-  SettingsNavigationPath,
 } from 'src/app/models/navigation-path.enum';
+import { Ingredient } from 'src/app/models/ingredient.model';
 import { Recipe } from 'src/app/models/recipe.model';
 import { AlertService } from 'src/app/services/alert.service';
 import { AuthService } from 'src/app/services/auth.service';
@@ -71,6 +72,7 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
     IonCardTitle,
     IonCardContent,
     IonChip,
+    IonInput,
     IonNote,
   ],
 })
@@ -91,6 +93,15 @@ export class RecipePage implements OnInit {
   readonly multiplier = signal<number>(1);
   readonly currentMultiplier = signal<number>(1);
 
+  /** When true, ingredient quantities become editable inputs */
+  readonly editMode = signal<boolean>(false);
+
+  /**
+   * Stores overridden ingredient values (index → new quantity).
+   * Only populated when the user edits in editMode.
+   */
+  readonly ingredientOverrides = signal<Record<number, number>>({});
+
   readonly isUserLogged = computed(() => !!this.authService.currentUser());
   readonly isMine = computed(() => this.authService.getCurrentUser()?.id == this.recipe()?.userId);
 
@@ -101,11 +112,7 @@ export class RecipePage implements OnInit {
     if (recipeId) {
       this.getRecipe(recipeId);
     } else {
-      this.navigationService.setRoot([
-        NavigationPath.Base,
-        NavigationPath.Home,
-        HomeNavigationPath.RecipeList,
-      ]);
+      this.navigationService.setRoot([NavigationPath.Base, HomeNavigationPath.RecipeList]);
     }
   }
 
@@ -196,11 +203,7 @@ export class RecipePage implements OnInit {
   }
 
   async onSelfClicked() {
-    this.navigationService.setRoot([
-      NavigationPath.Base,
-      NavigationPath.Home,
-      HomeNavigationPath.Settings,
-    ]);
+    this.navigationService.setRoot([NavigationPath.Base, HomeNavigationPath.Settings]);
   }
 
   async onIncreaseServings() {
@@ -210,6 +213,8 @@ export class RecipePage implements OnInit {
     const newCurrentMultiplier = this.currentMultiplier() + splitServings;
     this.currentMultiplier.set(newCurrentMultiplier);
     this.multiplier.set(newCurrentMultiplier / currentRecipe.servings);
+    // Reset overrides when changing servings via +/-
+    this.ingredientOverrides.set({});
   }
 
   async onDecreaseServings() {
@@ -220,11 +225,72 @@ export class RecipePage implements OnInit {
     const newCurrentMultiplier = Math.max(minServings, this.currentMultiplier() - splitServings);
     this.currentMultiplier.set(newCurrentMultiplier);
     this.multiplier.set(newCurrentMultiplier / currentRecipe.servings);
+    // Reset overrides when changing servings via +/-
+    this.ingredientOverrides.set({});
+  }
+
+  onToggleEditMode() {
+    const wasInEditMode = this.editMode();
+    this.editMode.set(!wasInEditMode);
+    if (wasInEditMode) {
+      // Exiting edit mode: reset overrides
+      this.ingredientOverrides.set({});
+    }
+  }
+
+  /**
+   * Called when user changes an ingredient value in edit mode.
+   * Recalculates the multiplier based on the ratio of new value to original.
+   */
+  onIngredientOverride(index: number, rawValue: string | number) {
+    const newValue = typeof rawValue === 'string' ? parseFloat(rawValue) : rawValue;
+    if (isNaN(newValue) || newValue <= 0) return;
+
+    const currentRecipe = this.recipe();
+    if (!currentRecipe) return;
+
+    const ingredient = currentRecipe.ingredients[index];
+    if (!ingredient || !ingredient.quantity.value) return;
+
+    const originalValue = ingredient.quantity.value;
+    const newMultiplier = newValue / originalValue;
+
+    // Update the overrides map
+    const overrides = { ...this.ingredientOverrides() };
+    overrides[index] = newValue;
+    this.ingredientOverrides.set(overrides);
+
+    // Update multiplier and currentMultiplier proportionally
+    this.multiplier.set(newMultiplier);
+    this.currentMultiplier.set(Math.round(newMultiplier * currentRecipe.servings * 10) / 10);
+  }
+
+  /**
+   * Returns the display value for an ingredient, considering overrides.
+   */
+  getIngredientDisplayValue(index: number, ingredient: Ingredient): number | undefined {
+    const overrides = this.ingredientOverrides();
+    if (overrides[index] !== undefined) {
+      return overrides[index];
+    }
+    if (!ingredient.quantity.value) return undefined;
+    return ingredient.quantity.value * this.multiplier();
   }
 
   async onAddToPlanningClicked() {
     const currentRecipe = this.recipe();
     if (!currentRecipe) return;
+
+    // When overrides are active, snap to the closest lower valid servings
+    let servings = this.currentMultiplier();
+    if (Object.keys(this.ingredientOverrides()).length > 0) {
+      const splitServings = currentRecipe.splitServings || 1;
+      const minServings = currentRecipe.minServings || 1;
+      servings = Math.max(
+        minServings,
+        Math.floor((servings - minServings) / splitServings) * splitServings + minServings,
+      );
+    }
 
     const week = dayjs().add(1, 'week').startOf('week').format('YYYY-MM-DD');
     const res = await this.dataService.addToPlanning(
@@ -233,16 +299,13 @@ export class RecipePage implements OnInit {
       undefined,
       undefined,
       undefined,
-      this.currentMultiplier(),
+      servings,
     );
     if (res) {
-      this.navigationService.setRoot(
-        [NavigationPath.Base, NavigationPath.Home, HomeNavigationPath.Planning],
-        {
-          params: { week },
-          queryParams: { week },
-        },
-      );
+      this.navigationService.setRoot([NavigationPath.Base, HomeNavigationPath.Planning], {
+        params: { week },
+        queryParams: { week },
+      });
     } else {
       this.alertService.presentAlertPopup(
         'COMMON.GENERIC_ALERT.ERROR_HEADER',
@@ -250,9 +313,8 @@ export class RecipePage implements OnInit {
         () => {
           this.navigationService.setRoot([
             NavigationPath.Base,
-            NavigationPath.Home,
-            HomeNavigationPath.Settings,
-            SettingsNavigationPath.GroupManagement,
+            HomeNavigationPath.Planning,
+            PlanningNavigationPath.GroupManagement,
           ]);
         },
         'COMMON.PLANNINGS.GO_TO_GROUP_MANAGEMENT_BUTTON',
