@@ -96,7 +96,8 @@
         "BRAND_PLACEHOLDER": "Marca (opzionale)",
         "WIP": "In lavorazione",
         "NOTES": "Note",
-        "NOTES_PLACEHOLDER": "Link, appunti, commenti..."
+        "NOTES_PLACEHOLDER": "Link, appunti, commenti...",
+        "UNSAVED_CHANGES_MESSAGE": "Hai delle modifiche non salvate. Vuoi davvero uscire?"
     },
     "ITEM_SELECTION_PAGE": {
         "DEFAULT_TITLE": "Seleziona elemento",

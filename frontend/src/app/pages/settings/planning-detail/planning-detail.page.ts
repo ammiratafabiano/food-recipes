@@ -39,7 +39,7 @@ import { NavigationService } from 'src/app/services/navigation.service';
           color="warning"
           lines="none"
           class="ion-margin-top"
-          style="--border-radius: 8px; --padding-start: 12px;"
+          style="--border-radius: 8px; --padding-start: 0;"
         >
           <ion-icon name="alert-circle-outline" slot="start"></ion-icon>
           <ion-label class="ion-text-wrap">

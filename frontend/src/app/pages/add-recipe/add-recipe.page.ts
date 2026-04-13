@@ -40,6 +40,7 @@ import { TimeUnit, WeightUnit } from 'src/app/models/unit.enum';
 import { DataService } from 'src/app/services/data.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { AlertService } from 'src/app/services/alert.service';
 import { SessionService } from 'src/app/services/session.service';
 import { createIngredient, createRecipe, createStep } from 'src/app/utils/model-factories';
 import { trackById, trackByIndex } from 'src/app/utils/track-by';
@@ -82,6 +83,7 @@ export class AddRecipePage implements OnInit {
   private readonly translateService = inject(TranslateService);
   private readonly sessionService = inject(SessionService);
   private readonly actionSheetCtrl = inject(ActionSheetController);
+  private readonly alertService = inject(AlertService);
 
   readonly typeList: RecipeType[] = Object.values(RecipeType);
   readonly difficultyList: Difficulty[] = Object.values(Difficulty);
@@ -93,6 +95,7 @@ export class AddRecipePage implements OnInit {
 
   readonly isEdit = signal<boolean>(false);
   stepsOfImagesToDelete: Step[] = [];
+  private initialRecipeSnapshot = '';
 
   readonly trackByIngredient = trackById;
   readonly trackByStep = trackByIndex;
@@ -106,6 +109,7 @@ export class AddRecipePage implements OnInit {
       this.isEdit.set(true);
       this.selectedRecipe.set(recipeToEdit);
     }
+    this.initialRecipeSnapshot = this.getRecipeSnapshot();
     this.getData();
   }
 
@@ -130,6 +134,11 @@ export class AddRecipePage implements OnInit {
   }
 
   async onBackClicked() {
+    if (this.hasUnsavedChanges()) {
+      return this.alertService.presentConfirmPopup('ADD_RECIPE_PAGE.UNSAVED_CHANGES_MESSAGE', () =>
+        this.navigationService.goToPreviousPage(),
+      );
+    }
     return this.navigationService.goToPreviousPage();
   }
 
@@ -314,6 +323,34 @@ export class AddRecipePage implements OnInit {
   }
 
   async onCancelClicked() {
+    if (this.hasUnsavedChanges()) {
+      return this.alertService.presentConfirmPopup('ADD_RECIPE_PAGE.UNSAVED_CHANGES_MESSAGE', () =>
+        this.navigationService.goToPreviousPage(),
+      );
+    }
     return this.navigationService.goToPreviousPage();
+  }
+
+  private getRecipeSnapshot(): string {
+    const recipe = this.selectedRecipe();
+    return JSON.stringify({
+      name: recipe.name,
+      description: recipe.description,
+      type: recipe.type,
+      cuisine: recipe.cuisine,
+      time: recipe.time,
+      difficulty: recipe.difficulty,
+      servings: recipe.servings,
+      splitServings: recipe.splitServings,
+      minServings: recipe.minServings,
+      wip: recipe.wip,
+      notes: recipe.notes,
+      ingredients: recipe.ingredients,
+      steps: recipe.steps.map((s) => ({ text: s.text, imageUrl: s.imageUrl })),
+    });
+  }
+
+  private hasUnsavedChanges(): boolean {
+    return this.getRecipeSnapshot() !== this.initialRecipeSnapshot;
   }
 }

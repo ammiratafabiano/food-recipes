@@ -96,7 +96,8 @@
         "BRAND_PLACEHOLDER": "Brand (optional)",
         "WIP": "Work in progress",
         "NOTES": "Notes",
-        "NOTES_PLACEHOLDER": "Links, notes, comments..."
+        "NOTES_PLACEHOLDER": "Links, notes, comments...",
+        "UNSAVED_CHANGES_MESSAGE": "You have unsaved changes. Do you really want to leave?"
     },
     "ITEM_SELECTION_PAGE": {
         "DEFAULT_TITLE": "Select item",

@@ -27,6 +27,7 @@ import {
   close,
   cog,
   create,
+  createOutline,
   earthOutline,
   homeOutline,
   keyOutline,
@@ -70,6 +71,7 @@ addIcons({
   close,
   cog,
   create,
+  createOutline,
   earthOutline,
   homeOutline,
   keyOutline,
@@ -102,7 +104,7 @@ export function createTranslateLoader(http: HttpClient) {
 bootstrapApplication(AppComponent, {
   providers: [
     provideZonelessChangeDetection(),
-    provideIonicAngular(),
+    provideIonicAngular({ swipeBackEnabled: false }),
     ModalController,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
