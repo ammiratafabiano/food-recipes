@@ -17,7 +17,7 @@ import { SessionService } from './services/session.service';
 import {
   NavigationPath,
   HomeNavigationPath,
-  PlanningNavigationPath,
+  SettingsNavigationPath,
 } from './models/navigation-path.enum';
 
 @Component({
@@ -126,8 +126,27 @@ export class AppComponent {
           return;
         }
 
-        // Check if user already belongs to a group
+        // Validate the group exists
+        const targetGroup = await this.dataService.getGroup(groupId);
+        if (!targetGroup) {
+          const msg = await firstValueFrom(
+            this.translate.get('GROUP_MANAGEMENT_PAGE.INVALID_GROUP_LINK'),
+          );
+          const alert = await this.alertCtrl.create({ message: msg, buttons: ['OK'] });
+          await alert.present();
+          return;
+        }
+
+        // Check if user already belongs to this group
         const existingGroup = await this.dataService.retrieveGroup(true);
+        if (existingGroup?.id === groupId) {
+          const msg = await firstValueFrom(
+            this.translate.get('GROUP_MANAGEMENT_PAGE.ALREADY_IN_GROUP'),
+          );
+          const alert = await this.alertCtrl.create({ message: msg, buttons: ['OK'] });
+          await alert.present();
+          return;
+        }
 
         // Wait for translations to be loaded before building the alert
         const translationKeys = [
@@ -146,12 +165,12 @@ export class AppComponent {
           message: translations[messageKey],
           buttons: [
             {
-              text: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON'],
-              role: 'confirm',
-            },
-            {
               text: translations['COMMON.GENERIC_ALERT.CANCEL_BUTTON'],
               role: 'cancel',
+            },
+            {
+              text: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON'],
+              role: 'confirm',
             },
           ],
         });
@@ -161,12 +180,12 @@ export class AppComponent {
           await this.loadingService.withLoader(async () => {
             await this.dataService.joinGroup(groupId);
           });
-          // Navigate to group management page
+          // Navigate to planning detail page (where group is managed)
           this.navigationService.setRoot(
             [
               NavigationPath.Base,
-              HomeNavigationPath.Planning,
-              PlanningNavigationPath.GroupManagement,
+              HomeNavigationPath.Settings,
+              SettingsNavigationPath.PlanningDetail,
             ],
             { animationDirection: 'forward' },
           );

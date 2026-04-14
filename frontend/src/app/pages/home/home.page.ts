@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import {
   HomeNavigationPath,
   NavigationPath,
-  PlanningNavigationPath,
+  SettingsNavigationPath,
 } from 'src/app/models/navigation-path.enum';
 import { DataService } from 'src/app/services/data.service';
 import { LoadingService } from 'src/app/services/loading.service';
@@ -34,12 +34,20 @@ export class HomePage implements OnInit {
 
   @ViewChild(IonTabs) tabs!: IonTabs;
 
+  private initialTabLoaded = false;
+
   ngOnInit() {
     this.dataService.loadUserSettings();
     this.handlePendingGroupInvite();
   }
 
   onTabsDidChange() {
+    // Skip the first tab change event (initial load / refresh) to preserve the current URL
+    if (!this.initialTabLoaded) {
+      this.initialTabLoaded = true;
+      return;
+    }
+
     // Reset navigation stack when switching tabs to avoid stale back-navigation
     this.navigationService.clearStack();
 
@@ -63,8 +71,27 @@ export class HomePage implements OnInit {
     if (!pendingGroupId) return;
     this.sessionService.setPendingGroupId(undefined);
 
-    // Check if user already belongs to a group
+    // Validate the group exists
+    const targetGroup = await this.dataService.getGroup(pendingGroupId);
+    if (!targetGroup) {
+      const msg = await firstValueFrom(
+        this.translateService.get('GROUP_MANAGEMENT_PAGE.INVALID_GROUP_LINK'),
+      );
+      const alert = await this.alertCtrl.create({ message: msg, buttons: ['OK'] });
+      await alert.present();
+      return;
+    }
+
+    // Check if user already belongs to this group
     const existingGroup = await this.dataService.retrieveGroup(true);
+    if (existingGroup?.id === pendingGroupId) {
+      const msg = await firstValueFrom(
+        this.translateService.get('GROUP_MANAGEMENT_PAGE.ALREADY_IN_GROUP'),
+      );
+      const alert = await this.alertCtrl.create({ message: msg, buttons: ['OK'] });
+      await alert.present();
+      return;
+    }
 
     const translationKeys = [
       'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_CONFIRM',
@@ -81,8 +108,8 @@ export class HomePage implements OnInit {
     const alert = await this.alertCtrl.create({
       message: translations[messageKey],
       buttons: [
-        { text: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON'], role: 'confirm' },
         { text: translations['COMMON.GENERIC_ALERT.CANCEL_BUTTON'], role: 'cancel' },
+        { text: translations['GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON'], role: 'confirm' },
       ],
     });
     await alert.present();
@@ -91,9 +118,9 @@ export class HomePage implements OnInit {
       await this.loadingService.withLoader(async () => {
         await this.dataService.joinGroup(pendingGroupId);
       });
-      // Navigate to group management page
+      // Navigate to planning detail page (where group is managed)
       this.navigationService.setRoot(
-        [NavigationPath.Base, HomeNavigationPath.Planning, PlanningNavigationPath.GroupManagement],
+        [NavigationPath.Base, HomeNavigationPath.Settings, SettingsNavigationPath.PlanningDetail],
         { animationDirection: 'forward' },
       );
     }

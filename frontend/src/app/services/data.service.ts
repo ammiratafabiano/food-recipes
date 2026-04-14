@@ -417,6 +417,18 @@ export class DataService {
     }
   }
 
+  async getGroup(groupId: string): Promise<Group | undefined> {
+    try {
+      return await firstValueFrom(
+        this.http.get<Group>(`${this.api}/groups/${encodeURIComponent(groupId)}`, {
+          context: new HttpContext().set(SKIP_LOADING, true),
+        }),
+      );
+    } catch {
+      return undefined;
+    }
+  }
+
   async createGroup(): Promise<Group | undefined> {
     try {
       return await firstValueFrom(this.http.post<Group>(`${this.api}/groups`, {}));

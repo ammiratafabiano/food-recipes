@@ -37,3 +37,8 @@
 * {
   -webkit-tap-highlight-color: transparent !important;
 }
+
+/* ── Ensure alert popups render above loading spinners ── */
+ion-alert {
+  z-index: 30000 !important;
+}

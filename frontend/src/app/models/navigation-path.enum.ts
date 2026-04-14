@@ -41,11 +41,6 @@ export enum AddRecipeNavigationPath {
   ItemSelection = 'item-selection',
 }
 
-export enum PlanningNavigationPath {
-  Base = '',
-  GroupManagement = 'group-management',
-}
-
 export enum SettingsNavigationPath {
   Base = '',
   DeleteUser = 'delete-user',

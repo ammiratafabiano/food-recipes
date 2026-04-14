@@ -64,7 +64,9 @@
         "SEPARATOR": "Or",
         "ADDED_GROUP_ALERT": "You are now part of a group!",
         "JOIN_GROUP_CONFIRM": "You have been invited to join a group. By accepting, planning will be enabled automatically and you will be able to plan meals together with the group. Would you like to join?",
-        "JOIN_GROUP_CONFIRM_LEAVE_CURRENT": "You have been invited to join a new group. By accepting, you will automatically leave your current group and planning will be shared with the new group. Would you like to continue?"
+        "JOIN_GROUP_CONFIRM_LEAVE_CURRENT": "You have been invited to join a new group. By accepting, you will automatically leave your current group and planning will be shared with the new group. Would you like to continue?",
+        "INVALID_GROUP_LINK": "The invite link is not valid or the group no longer exists.",
+        "ALREADY_IN_GROUP": "You are already a member of this group."
     },
     "RECIPE_PAGE": {
         "TITLE": "Recipe",

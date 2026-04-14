@@ -1,12 +1,8 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title> {{ 'PLANNING_PAGE.TITLE' | translate }} </ion-title>
-    @if (dataLoaded()) {
+    @if (dataLoaded() && group()) {
     <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="onGoToGroupManagementClicked()">
-        <ion-icon slot="icon-only" name="people-outline"></ion-icon>
-      </ion-button>
-      @if (group()) {
       <ion-button fill="clear" (click)="onSuggestionsClicked()">
         <ion-icon slot="icon-only" name="bulb-outline"></ion-icon>
       </ion-button>
@@ -16,7 +12,6 @@
       <ion-button fill="clear" (click)="onQuickAddClicked()">
         <ion-icon slot="icon-only" name="add"></ion-icon>
       </ion-button>
-      }
     </ion-buttons>
     }
   </ion-toolbar>
@@ -100,12 +95,6 @@
   </ion-list>
   } } @if (dataLoaded() && !group()) {
   <p class="ion-padding">{{ 'COMMON.PLANNINGS.NO_GROUP_ERROR' | translate }}</p>
-
-  <div class="ion-padding">
-    <ion-button (click)="onGoToGroupManagementClicked()">
-      {{ 'COMMON.PLANNINGS.GO_TO_GROUP_MANAGEMENT_BUTTON' | translate }}
-    </ion-button>
-  </div>
   }
 </ion-content>
 

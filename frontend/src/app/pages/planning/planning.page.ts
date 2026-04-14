@@ -36,11 +36,7 @@ import { WeekDay } from 'src/app/models/weekDay.enum';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { Meal } from 'src/app/models/meal.model';
 import { Group } from 'src/app/models/group.model';
-import {
-  HomeNavigationPath,
-  NavigationPath,
-  PlanningNavigationPath,
-} from 'src/app/models/navigation-path.enum';
+import { HomeNavigationPath, NavigationPath } from 'src/app/models/navigation-path.enum';
 import { createPlanning } from 'src/app/utils/model-factories';
 import { LoadingService } from 'src/app/services/loading.service';
 import { AuthService } from 'src/app/services/auth.service';
@@ -704,10 +700,6 @@ export class PlanningPage implements OnDestroy {
         );
       }
     }
-  }
-
-  async onGoToGroupManagementClicked() {
-    this.navigationService.push(PlanningNavigationPath.GroupManagement);
   }
 
   async onNutritionSummaryClicked() {

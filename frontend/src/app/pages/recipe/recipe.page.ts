@@ -33,7 +33,7 @@ import dayjs from 'dayjs';
 import {
   HomeNavigationPath,
   NavigationPath,
-  PlanningNavigationPath,
+  SettingsNavigationPath,
   RecipeListNavigationPath,
 } from 'src/app/models/navigation-path.enum';
 import { Ingredient } from 'src/app/models/ingredient.model';
@@ -313,8 +313,8 @@ export class RecipePage implements OnInit {
         () => {
           this.navigationService.setRoot([
             NavigationPath.Base,
-            HomeNavigationPath.Planning,
-            PlanningNavigationPath.GroupManagement,
+            HomeNavigationPath.Settings,
+            SettingsNavigationPath.PlanningDetail,
           ]);
         },
         'COMMON.PLANNINGS.GO_TO_GROUP_MANAGEMENT_BUTTON',

@@ -23,7 +23,7 @@ import dayjs from 'dayjs';
 import {
   HomeNavigationPath,
   NavigationPath,
-  PlanningNavigationPath,
+  SettingsNavigationPath,
   RecipeListNavigationPath,
 } from 'src/app/models/navigation-path.enum';
 import { RecipeTagFilter } from 'src/app/models/recipe-tag-filter.model';
@@ -230,8 +230,8 @@ export class RecipeListPage {
         () => {
           this.navigationService.setRoot([
             NavigationPath.Base,
-            HomeNavigationPath.Planning,
-            PlanningNavigationPath.GroupManagement,
+            HomeNavigationPath.Settings,
+            SettingsNavigationPath.PlanningDetail,
           ]);
         },
         'COMMON.PLANNINGS.GO_TO_GROUP_MANAGEMENT_BUTTON',

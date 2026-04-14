@@ -107,7 +107,7 @@ export class AddRecipePage implements OnInit {
     const recipeToEdit = this.navigationService.getParams<{ recipe: Recipe }>()?.recipe;
     if (recipeToEdit) {
       this.isEdit.set(true);
-      this.selectedRecipe.set(recipeToEdit);
+      this.selectedRecipe.set(structuredClone(recipeToEdit));
     }
     this.initialRecipeSnapshot = this.getRecipeSnapshot();
     this.getData();

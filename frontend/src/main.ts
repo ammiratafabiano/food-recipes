@@ -104,7 +104,7 @@ export function createTranslateLoader(http: HttpClient) {
 bootstrapApplication(AppComponent, {
   providers: [
     provideZonelessChangeDetection(),
-    provideIonicAngular({ swipeBackEnabled: false }),
+    provideIonicAngular(),
     ModalController,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
