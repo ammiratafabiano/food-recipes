@@ -332,8 +332,15 @@ planningRouter.put('/:week/reorder', async (req: any, res) => {
       return res.status(400).json({ error: 'ids must be an array' });
     }
     const db = await getDB();
-    for (let i = 0; i < ids.length; i++) {
-      await db.run('UPDATE planning SET sort_order = ? WHERE id = ?', i, ids[i]);
+    await db.run('BEGIN');
+    try {
+      for (let i = 0; i < ids.length; i++) {
+        await db.run('UPDATE planning SET sort_order = ? WHERE id = ?', i, ids[i]);
+      }
+      await db.run('COMMIT');
+    } catch (err) {
+      await db.run('ROLLBACK');
+      throw err;
     }
     res.json({ success: true });
 

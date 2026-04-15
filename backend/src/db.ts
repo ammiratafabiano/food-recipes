@@ -273,6 +273,23 @@ export async function getDB(): Promise<Database> {
   `);
 
   // NOTE: NULL quantity_unit is now allowed (e.g. for items like eggs counted as PIECE).
+
+  // ── Indexes for common query patterns ─────────────────────────────────────
+  await db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_recipes_user_id ON recipes(user_id);
+    CREATE INDEX IF NOT EXISTS idx_recipe_ingredients_recipe_id ON recipe_ingredients(recipe_id);
+    CREATE INDEX IF NOT EXISTS idx_recipe_steps_recipe_id ON recipe_steps(recipe_id);
+    CREATE INDEX IF NOT EXISTS idx_recipe_tags_recipe_id ON recipe_tags(recipe_id);
+    CREATE INDEX IF NOT EXISTS idx_saved_recipes_user_id ON saved_recipes(user_id);
+    CREATE INDEX IF NOT EXISTS idx_planning_week ON planning(week);
+    CREATE INDEX IF NOT EXISTS idx_planning_user_id ON planning(user_id);
+    CREATE INDEX IF NOT EXISTS idx_planning_week_user ON planning(week, user_id);
+    CREATE INDEX IF NOT EXISTS idx_followers_follower_id ON followers(follower_id);
+    CREATE INDEX IF NOT EXISTS idx_followers_followed_id ON followers(followed_id);
+    CREATE INDEX IF NOT EXISTS idx_group_members_user_id ON group_members(user_id);
+    CREATE INDEX IF NOT EXISTS idx_recipe_usage_user_id ON recipe_usage(user_id);
+  `);
+
   dbInstance = db;
   return db;
 }

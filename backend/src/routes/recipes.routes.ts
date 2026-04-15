@@ -111,40 +111,51 @@ async function saveRecipeDetails(
   tags: string[],
 ) {
   const db = await getDB();
-  await db.run('DELETE FROM recipe_ingredients WHERE recipe_id = ?', recipeId);
-  await db.run('DELETE FROM recipe_steps WHERE recipe_id = ?', recipeId);
-  await db.run('DELETE FROM recipe_tags WHERE recipe_id = ?', recipeId);
+  await db.run('BEGIN');
+  try {
+    await db.run('DELETE FROM recipe_ingredients WHERE recipe_id = ?', recipeId);
+    await db.run('DELETE FROM recipe_steps WHERE recipe_id = ?', recipeId);
+    await db.run('DELETE FROM recipe_tags WHERE recipe_id = ?', recipeId);
 
-  for (let i = 0; i < (ingredients || []).length; i++) {
-    const ing = ingredients[i];
-    await db.run(
-      `INSERT INTO recipe_ingredients (id, recipe_id, food_id, name, quantity_value, quantity_unit, sort_order, brand)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      uuidv4(),
-      recipeId,
-      ing.id || null,
-      ing.name,
-      ing.quantity?.value ?? null,
-      ing.quantity?.unit || null,
-      i,
-      ing.brand || '',
-    );
-  }
+    for (let i = 0; i < (ingredients || []).length; i++) {
+      const ing = ingredients[i];
+      await db.run(
+        `INSERT INTO recipe_ingredients (id, recipe_id, food_id, name, quantity_value, quantity_unit, sort_order, brand)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        uuidv4(),
+        recipeId,
+        ing.id || null,
+        ing.name,
+        ing.quantity?.value ?? null,
+        ing.quantity?.unit || null,
+        i,
+        ing.brand || '',
+      );
+    }
 
-  for (let i = 0; i < (steps || []).length; i++) {
-    const step = steps[i];
-    await db.run(
-      `INSERT INTO recipe_steps (id, recipe_id, text, image_url, sort_order) VALUES (?, ?, ?, ?, ?)`,
-      uuidv4(),
-      recipeId,
-      step.text,
-      step.imageUrl || '',
-      i,
-    );
-  }
+    for (let i = 0; i < (steps || []).length; i++) {
+      const step = steps[i];
+      await db.run(
+        `INSERT INTO recipe_steps (id, recipe_id, text, image_url, sort_order) VALUES (?, ?, ?, ?, ?)`,
+        uuidv4(),
+        recipeId,
+        step.text,
+        step.imageUrl || '',
+        i,
+      );
+    }
 
-  for (const tag of tags || []) {
-    await db.run('INSERT OR IGNORE INTO recipe_tags (recipe_id, tag) VALUES (?, ?)', recipeId, tag);
+    for (const tag of tags || []) {
+      await db.run(
+        'INSERT OR IGNORE INTO recipe_tags (recipe_id, tag) VALUES (?, ?)',
+        recipeId,
+        tag,
+      );
+    }
+    await db.run('COMMIT');
+  } catch (err) {
+    await db.run('ROLLBACK');
+    throw err;
   }
 }
 
@@ -461,7 +472,17 @@ recipesRouter.put('/:id', authenticateToken, async (req: any, res) => {
 
 recipesRouter.delete('/:id', authenticateToken, async (req: any, res) => {
   try {
+    const me = req.user as JwtPayload;
     const db = await getDB();
+    const recipe = await db.get('SELECT user_id FROM recipes WHERE id = ?', req.params.id);
+    if (!recipe) {
+      res.status(404).json({ error: 'Recipe not found' });
+      return;
+    }
+    if (recipe.user_id !== me.id) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
     await db.run('DELETE FROM recipes WHERE id = ?', req.params.id);
     res.json({ success: true });
   } catch (err: unknown) {
