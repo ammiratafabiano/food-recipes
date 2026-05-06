@@ -265,6 +265,10 @@
         "USED_TIMES": "Used {{count}} times",
         "DISMISS": "Dismiss"
     },
+    "PLANNING_ADD": {
+        "SINGLE_INGREDIENT": "Single ingredient",
+        "SEARCH_INGREDIENT": "Search and add an ingredient"
+    },
     "PLANNING_DETAIL": {
         "TITLE": "Weekly planning",
         "DESCRIPTION": "Weekly planning allows you to organize your meals for the week. You can add recipes to different days, automatically generate a shopping list, and receive suggestions based on your habits.",

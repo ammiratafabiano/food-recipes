@@ -39,6 +39,11 @@ export class NavigationService {
     return url;
   }
 
+  /** Returns true when there is at least one entry in the navigation stack. */
+  get hasStack(): boolean {
+    return this.stack.length > 0;
+  }
+
   constructor() {}
 
   /**

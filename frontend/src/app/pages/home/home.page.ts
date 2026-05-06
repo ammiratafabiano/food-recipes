@@ -117,6 +117,12 @@ export class HomePage implements OnInit {
     if (role === 'confirm') {
       await this.loadingService.withLoader(async () => {
         await this.dataService.joinGroup(pendingGroupId);
+        // Refresh user settings so planningEnabled signal updates immediately
+        await this.dataService.loadUserSettings();
+        // If planning wasn't enabled, enable it now (joining a group implies planning)
+        if (!this.dataService.planningEnabled()) {
+          await this.dataService.setPlanningEnabled(true);
+        }
       });
       // Navigate to planning detail page (where group is managed)
       this.navigationService.setRoot(

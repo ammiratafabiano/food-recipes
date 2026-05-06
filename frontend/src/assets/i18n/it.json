@@ -265,6 +265,10 @@
         "USED_TIMES": "Usata {{count}} volte",
         "DISMISS": "Nascondi"
     },
+    "PLANNING_ADD": {
+        "SINGLE_INGREDIENT": "Singolo ingrediente",
+        "SEARCH_INGREDIENT": "Cerca e aggiungi un ingrediente"
+    },
     "PLANNING_DETAIL": {
         "TITLE": "Planning settimanale",
         "DESCRIPTION": "Il planning settimanale ti permette di organizzare i pasti della settimana. Potrai aggiungere ricette ai diversi giorni, generare automaticamente la lista della spesa e ricevere suggerimenti basati sulle tue abitudini.",

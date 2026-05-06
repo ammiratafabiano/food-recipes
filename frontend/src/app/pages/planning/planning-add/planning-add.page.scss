@@ -1,0 +1,28 @@
+.section-header {
+  --background: transparent;
+  --inner-padding-top: 16px;
+  --inner-padding-bottom: 4px;
+
+  h2 {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: var(--ion-color-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85em;
+  }
+}
+
+.suggestions-list {
+  ion-item h3 {
+    font-weight: 500;
+  }
+
+  ion-item p {
+    font-size: 0.85em;
+  }
+}
+
+.ingredient-section {
+  margin-top: 8px;
+}

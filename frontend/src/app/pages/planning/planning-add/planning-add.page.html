@@ -1,0 +1,58 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="onBackClicked()">
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'COMMON.PLANNINGS.ADD_TO_PLANNING.BUTTON' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (loading()) {
+  <p class="ion-text-center ion-padding">{{ 'MEAL_SUGGESTIONS.LOADING' | translate }}</p>
+  } @else { @if (suggestions().length > 0) {
+  <ion-list class="suggestions-list">
+    <ion-item lines="none" class="section-header">
+      <ion-label>
+        <h2>{{ 'MEAL_SUGGESTIONS.TITLE' | translate }}</h2>
+      </ion-label>
+    </ion-item>
+    @for (suggestion of suggestions(); track suggestion.recipe_id) {
+    <ion-item-sliding>
+      <ion-item button (click)="onAddSuggestionClicked(suggestion)">
+        <ion-label>
+          <h3>{{ suggestion.recipe_name }}</h3>
+          <p>
+            {{ 'MEAL_SUGGESTIONS.USED_TIMES' | translate: { count: suggestion.frequency } }} @if
+            (suggestion.meals_used.length > 0) { · {{ getMealsLabel(suggestion.meals_used) }} }
+          </p>
+        </ion-label>
+        <ion-icon slot="end" name="add-circle-outline" color="primary"></ion-icon>
+      </ion-item>
+      <ion-item-options side="end" (ionSwipe)="onDismissClicked(suggestion)">
+        <ion-item-option color="danger" expandable (click)="onDismissClicked(suggestion)">
+          <ion-icon slot="start" name="eye-off-outline"></ion-icon>
+          {{ 'MEAL_SUGGESTIONS.DISMISS' | translate }}
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+    }
+  </ion-list>
+  }
+
+  <ion-list class="ingredient-section">
+    <ion-item lines="none" class="section-header">
+      <ion-label>
+        <h2>{{ 'PLANNING_ADD.SINGLE_INGREDIENT' | translate }}</h2>
+      </ion-label>
+    </ion-item>
+    <ion-item button (click)="onSelectIngredientClicked()" detail="true">
+      <ion-icon slot="start" name="search-outline" color="primary"></ion-icon>
+      <ion-label color="primary">{{ 'PLANNING_ADD.SEARCH_INGREDIENT' | translate }}</ion-label>
+    </ion-item>
+  </ion-list>
+
+  }
+</ion-content>

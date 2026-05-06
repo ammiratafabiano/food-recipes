@@ -24,7 +24,6 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import dayjs from 'dayjs';
-import { Item } from 'src/app/models/item.model';
 import {
   PlannedRecipe,
   Planning,
@@ -36,15 +35,12 @@ import { WeekDay } from 'src/app/models/weekDay.enum';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { Meal } from 'src/app/models/meal.model';
 import { Group } from 'src/app/models/group.model';
-import { HomeNavigationPath, NavigationPath } from 'src/app/models/navigation-path.enum';
+import { HomeNavigationPath } from 'src/app/models/navigation-path.enum';
 import { createPlanning } from 'src/app/utils/model-factories';
 import { LoadingService } from 'src/app/services/loading.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { NutritionSummaryComponent } from './nutrition-summary/nutrition-summary.modal';
-import {
-  MealSuggestionsComponent,
-  MealSuggestion,
-} from './meal-suggestions/meal-suggestions.modal';
+import { PlanningAddResult } from './planning-add/planning-add.page';
 
 @Component({
   selector: 'app-planning',
@@ -81,7 +77,7 @@ export class PlanningPage implements OnDestroy {
   private readonly navigationService = inject(NavigationService);
   private readonly actionSheetCtrl = inject(ActionSheetController);
   private readonly alertCtrl = inject(AlertController);
-  private readonly modalCtrl = inject(ModalController);
+  private readonly modalCtrl = inject(ModalController); // kept for nutrition summary modal
   private readonly translateService = inject(TranslateService);
   private readonly authService = inject(AuthService);
 
@@ -158,17 +154,43 @@ export class PlanningPage implements OnDestroy {
     }
   }
 
-  async onQuickAddClicked() {
-    await this.loadingService.withLoader(async () => {
-      const foodList = await this.dataService.getFoodList();
-      this.navigationService.push('../../' + NavigationPath.ItemSelection, {
-        params: {
-          title: this.translateService.instant('COMMON.PLANNINGS.ADD_TO_PLANNING.BUTTON'),
-          items: foodList?.map((x) => ({ value: x.id, text: x.name })) || [],
-        },
-        dismissCallback: async (item: Item & { custom?: boolean }) => {
-          if (!item) return;
+  async onAddClicked() {
+    const group = this.group();
+    const currentPlanning = this.planning();
+    if (!currentPlanning) return;
 
+    this.navigationService.push('add', {
+      params: {
+        week: currentPlanning.startDate,
+        group,
+      },
+      dismissCallback: async (result: PlanningAddResult) => {
+        if (!result) return;
+
+        if (result.type === 'suggestion' && result.suggestion) {
+          const recipe = await this.dataService.getRecipe(result.suggestion.recipe_id);
+          if (recipe) {
+            const planned = await this.dataService.addToPlanning(
+              recipe,
+              currentPlanning.startDate,
+              undefined,
+              undefined,
+              group,
+            );
+            if (planned) {
+              const newRecipes = [...currentPlanning.recipes];
+              const firstSepIdx = newRecipes.findIndex((r) => r.kind === 'separator');
+              if (firstSepIdx >= 0) {
+                newRecipes.splice(firstSepIdx + 1, 0, planned);
+              } else {
+                newRecipes.unshift(planned);
+              }
+              this.planning.set({ ...currentPlanning, recipes: newRecipes });
+              this.handleResponse(this.planning());
+            }
+          }
+        } else if (result.type === 'ingredient' && result.ingredient) {
+          const item = result.ingredient;
           let foodId = item.value;
           let foodName = item.text;
 
@@ -178,35 +200,30 @@ export class PlanningPage implements OnDestroy {
             foodName = newFood.name;
           }
 
-          const currentPlanning = this.planning();
-          if (currentPlanning) {
-            const result = await this.dataService.quickAddPlanning(
-              currentPlanning.startDate,
-              foodId,
-              foodName,
-              undefined,
-              !!item.custom,
-            );
-            // Add the new item directly to the local list instead of refetching
-            if (result?.item) {
-              const newPlanned: PlannedRecipe = {
-                ...result.item,
-                kind: 'recipe',
-              };
-              const newRecipes = [...currentPlanning.recipes];
-              // Insert after the first separator (unassigned day) or at top
-              const firstSepIdx = newRecipes.findIndex((r) => r.kind === 'separator');
-              if (firstSepIdx >= 0) {
-                newRecipes.splice(firstSepIdx + 1, 0, newPlanned);
-              } else {
-                newRecipes.unshift(newPlanned);
-              }
-              this.planning.set({ ...currentPlanning, recipes: newRecipes });
-              this.handleResponse(this.planning());
+          const addResult = await this.dataService.quickAddPlanning(
+            currentPlanning.startDate,
+            foodId,
+            foodName,
+            undefined,
+            !!item.custom,
+          );
+          if (addResult?.item) {
+            const newPlanned: PlannedRecipe = {
+              ...addResult.item,
+              kind: 'recipe',
+            };
+            const newRecipes = [...currentPlanning.recipes];
+            const firstSepIdx = newRecipes.findIndex((r) => r.kind === 'separator');
+            if (firstSepIdx >= 0) {
+              newRecipes.splice(firstSepIdx + 1, 0, newPlanned);
+            } else {
+              newRecipes.unshift(newPlanned);
             }
+            this.planning.set({ ...currentPlanning, recipes: newRecipes });
+            this.handleResponse(this.planning());
           }
-        },
-      });
+        }
+      },
     });
   }
 
@@ -715,45 +732,5 @@ export class PlanningPage implements OnDestroy {
       },
     });
     await modal.present();
-  }
-
-  async onSuggestionsClicked() {
-    const group = this.group();
-    const currentPlanning = this.planning();
-    if (!currentPlanning) return;
-
-    const modal = await this.modalCtrl.create({
-      component: MealSuggestionsComponent,
-      componentProps: {
-        week: currentPlanning.startDate,
-        group,
-      },
-    });
-    await modal.present();
-
-    const { data, role } = await modal.onDidDismiss<MealSuggestion>();
-    if (role === 'add' && data) {
-      const recipe = await this.dataService.getRecipe(data.recipe_id);
-      if (recipe) {
-        const planned = await this.dataService.addToPlanning(
-          recipe,
-          currentPlanning.startDate,
-          undefined,
-          undefined,
-          group,
-        );
-        if (planned) {
-          const newRecipes = [...currentPlanning.recipes];
-          const firstSepIdx = newRecipes.findIndex((r) => r.kind === 'separator');
-          if (firstSepIdx >= 0) {
-            newRecipes.splice(firstSepIdx + 1, 0, planned);
-          } else {
-            newRecipes.unshift(planned);
-          }
-          this.planning.set({ ...currentPlanning, recipes: newRecipes });
-          this.handleResponse(this.planning());
-        }
-      }
-    }
   }
 }

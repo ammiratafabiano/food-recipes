@@ -129,6 +129,21 @@ export class RecipePage implements OnInit {
   }
 
   async onBackClicked() {
+    // If navigated from a user page (userId in query params) and the nav stack
+    // is empty (e.g. after a page refresh), navigate back to the user page
+    // with the correct user id instead of falling back to root.
+    const userId = this.route.snapshot.queryParamMap.get('userId');
+    if (userId && !this.navigationService.hasStack) {
+      const currentUrl = this.navigationService.currentUrl;
+      // Go up one segment (e.g. /discover/user/recipe → /discover/user)
+      const parentSegments = currentUrl.split('/').filter(Boolean);
+      parentSegments.pop();
+      this.navigationService.setRoot(parentSegments, {
+        queryParams: { id: userId },
+        animationDirection: 'back',
+      });
+      return;
+    }
     this.navigationService.goToPreviousPage({
       needToRefresh: this.refreshOnDismiss,
     });
