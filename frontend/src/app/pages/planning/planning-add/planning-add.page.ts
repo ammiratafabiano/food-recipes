@@ -65,7 +65,8 @@ export class PlanningAddPage implements OnInit {
   private readonly loadingService = inject(LoadingService);
   private readonly translateService = inject(TranslateService);
 
-  readonly suggestions = signal<MealSuggestion[]>([]);
+  readonly allSuggestions = signal<MealSuggestion[]>([]);
+  readonly suggestions = computed(() => this.allSuggestions().slice(0, 5));
   readonly loading = signal<boolean>(true);
 
   private week!: string;
@@ -88,7 +89,7 @@ export class PlanningAddPage implements OnInit {
   private async loadSuggestions() {
     const groupId = this.group?.id;
     const data = await this.dataService.getPlanningSuggestions(this.week, groupId);
-    this.suggestions.set(data);
+    this.allSuggestions.set(data);
     this.loading.set(false);
   }
 
@@ -98,7 +99,7 @@ export class PlanningAddPage implements OnInit {
   }
 
   async onDismissClicked(suggestion: MealSuggestion) {
-    this.suggestions.update((list) => list.filter((s) => s.recipe_id !== suggestion.recipe_id));
+    this.allSuggestions.update((list) => list.filter((s) => s.recipe_id !== suggestion.recipe_id));
     await this.dataService.dismissSuggestion(this.week, suggestion.recipe_id);
   }
 
@@ -118,7 +119,9 @@ export class PlanningAddPage implements OnInit {
         dismissCallback: (item: Item & { custom?: boolean }) => {
           if (!item) return;
           const result: PlanningAddResult = { type: 'ingredient', ingredient: item };
-          this.navigationService.pop(result);
+          setTimeout(() => {
+            this.navigationService.pop(result);
+          }, 300);
         },
       });
     });

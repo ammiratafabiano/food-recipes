@@ -306,7 +306,8 @@ export class PlanningPage implements OnDestroy {
 
   /** Refetch only the planning list (not the group) without showing the loader */
   private async refetchPlanning(startDate: string) {
-    const group = this.group();
+    const group = await this.dataService.retrieveGroup(true);
+    this.group.set(group);
     const response = await this.dataService.getPlanning(startDate, group, true);
     this.handleResponse(response);
   }

@@ -565,14 +565,13 @@ planningRouter.get('/:week/suggestions', async (req: any, res) => {
        GROUP BY ru.recipe_id
        HAVING SUM(ru.count) > 0
        ORDER BY SUM(ru.count) DESC
-       LIMIT 30`,
+       LIMIT 100`,
       ...userIds,
       ...userIds,
     );
 
     const suggestions = rows
       .filter((r: { recipe_id: string }) => !currentRecipeIds.has(r.recipe_id))
-      .slice(0, 15)
       .map(
         (r: {
           recipe_id: string;

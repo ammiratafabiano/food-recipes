@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
   IonAvatar,
   IonBadge,
@@ -51,7 +51,7 @@ import { NavigationService } from 'src/app/services/navigation.service';
     IonRefresherContent,
   ],
 })
-export class SettingsPage implements OnInit {
+export class SettingsPage {
   private readonly authService = inject(AuthService);
   private readonly navigationService = inject(NavigationService);
   private readonly loadingService = inject(LoadingService);
@@ -61,9 +61,9 @@ export class SettingsPage implements OnInit {
 
   constructor() {}
 
-  ngOnInit() {
+  async ionViewDidEnter() {
     this.userData.set(this.authService.getCurrentUser());
-    this.getUserStats();
+    await this.getUserStats();
   }
 
   private async getUserStats() {

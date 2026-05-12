@@ -143,7 +143,6 @@ export class UserPage implements OnInit {
     return this.navigationService.push(RecipeListNavigationPath.Recipe, {
       queryParams: {
         id: recipe.id,
-        userId: user.id,
       },
       dismissCallback: (params?: unknown) => {
         const typedParams = params as { needToRefresh?: boolean } | undefined;

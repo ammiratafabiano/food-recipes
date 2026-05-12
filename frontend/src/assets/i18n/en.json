@@ -266,8 +266,8 @@
         "DISMISS": "Dismiss"
     },
     "PLANNING_ADD": {
-        "SINGLE_INGREDIENT": "Single ingredient",
-        "SEARCH_INGREDIENT": "Search and add an ingredient"
+        "SINGLE_INGREDIENT": "Single ingredient or Custom Meal",
+        "SEARCH_INGREDIENT": "Search for an ingredient or type a custom meal"
     },
     "PLANNING_DETAIL": {
         "TITLE": "Weekly planning",

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 import {
@@ -132,7 +132,7 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
     IonInput,
   ],
 })
-export class PlanningDetailPage implements OnInit {
+export class PlanningDetailPage {
   readonly dataService = inject(DataService);
   private readonly navigationService = inject(NavigationService);
   private readonly loadingService = inject(LoadingService);
@@ -152,7 +152,7 @@ export class PlanningDetailPage implements OnInit {
     return this.userNameMap()[userId] || userId;
   }
 
-  async ngOnInit() {
+  async ionViewDidEnter() {
     await this.loadGroup();
   }
 

@@ -266,8 +266,8 @@
         "DISMISS": "Nascondi"
     },
     "PLANNING_ADD": {
-        "SINGLE_INGREDIENT": "Singolo ingrediente",
-        "SEARCH_INGREDIENT": "Cerca e aggiungi un ingrediente"
+        "SINGLE_INGREDIENT": "Singolo ingrediente o Pasto Custom",
+        "SEARCH_INGREDIENT": "Cerca un ingrediente o scrivi un pasto custom"
     },
     "PLANNING_DETAIL": {
         "TITLE": "Planning settimanale",

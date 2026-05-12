@@ -1,15 +1,16 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title> {{ 'PLANNING_PAGE.TITLE' | translate }} </ion-title>
-    @if (dataLoaded() && group()) {
-    <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="onNutritionSummaryClicked()">
-        <ion-icon slot="icon-only" name="bar-chart-outline"></ion-icon>
+    @if (dataLoaded() && group() && planning(); as p) {
+    <div slot="end" style="display: flex; align-items: center; padding-right: 8px">
+      <ion-button fill="clear" (click)="onPlanningBackClicked()">
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
       </ion-button>
-      <ion-button fill="clear" (click)="onAddClicked()">
-        <ion-icon slot="icon-only" name="add"></ion-icon>
+      <ion-label style="font-size: 14px">{{ p.startDate | date }}</ion-label>
+      <ion-button fill="clear" (click)="onPlanningForwardClicked()">
+        <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
       </ion-button>
-    </ion-buttons>
+    </div>
     }
   </ion-toolbar>
 </ion-header>
@@ -95,16 +96,15 @@
   }
 </ion-content>
 
-@if (dataLoaded() && group() && planning(); as p) {
+@if (dataLoaded() && group()) {
 <ion-footer>
   <ion-toolbar>
-    <div class="bar-container">
-      <ion-button fill="clear" (click)="onPlanningBackClicked()">
-        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+    <div style="display: flex; align-items: center; justify-content: space-evenly; width: 100%">
+      <ion-button fill="clear" (click)="onNutritionSummaryClicked()">
+        <ion-icon slot="icon-only" name="bar-chart-outline"></ion-icon>
       </ion-button>
-      <ion-label>{{ p.startDate | date }}</ion-label>
-      <ion-button fill="clear" (click)="onPlanningForwardClicked()">
-        <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+      <ion-button fill="clear" (click)="onAddClicked()">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
       </ion-button>
     </div>
   </ion-toolbar>
