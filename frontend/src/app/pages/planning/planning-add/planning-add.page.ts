@@ -128,7 +128,7 @@ export class PlanningAddPage implements OnInit {
           const result: PlanningAddResult = { type: 'ingredient', ingredient: item };
           setTimeout(() => {
             this.navigationService.pop(result);
-          }, 300);
+          }, 600);
         },
       });
     });

@@ -16,9 +16,12 @@
   <ion-list id="modal-list" [inset]="true">
     @for (item of filteredItems(); track trackByItem($index, item)) {
     <ion-item (click)="onItemClicked(item)"> {{ item.text }} </ion-item>
-    } @empty {
-    <ion-item color="primary" (click)="onCustomItemClicked()">
-      {{ 'ITEM_SELECTION_PAGE.CUSTOM_ITEM' | translate: ({ item: customElement() }) }}
+    } @if (customElement()) {
+    <ion-item color="primary" (click)="onCustomItemClicked()" button>
+      <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+      <ion-label>
+        {{ 'ITEM_SELECTION_PAGE.CUSTOM_ITEM' | translate: ({ item: customElement() }) }}
+      </ion-label>
     </ion-item>
     }
   </ion-list>

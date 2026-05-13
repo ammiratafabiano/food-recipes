@@ -8,6 +8,7 @@ import {
   IonHeader,
   IonIcon,
   IonItem,
+  IonLabel,
   IonList,
   IonSearchbar,
   IonTitle,
@@ -36,6 +37,7 @@ import { trackByValue } from 'src/app/utils/track-by';
     IonSearchbar,
     IonList,
     IonItem,
+    IonLabel,
   ],
 })
 export class ItemSelectionPage implements OnInit {
