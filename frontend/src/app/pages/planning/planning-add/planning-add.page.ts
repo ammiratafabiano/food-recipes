@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import {
   IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
   IonIcon,
@@ -54,6 +55,7 @@ export interface PlanningAddResult {
     IonToolbar,
     IonTitle,
     IonContent,
+    IonButtons,
     IonButton,
     IonIcon,
     IonItem,
