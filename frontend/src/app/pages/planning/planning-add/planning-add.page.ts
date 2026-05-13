@@ -1,7 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import {
   IonButton,
-  IonButtons,
   IonContent,
   IonHeader,
   IonIcon,
@@ -48,7 +54,6 @@ export interface PlanningAddResult {
     IonToolbar,
     IonTitle,
     IonContent,
-    IonButtons,
     IonButton,
     IonIcon,
     IonItem,
