@@ -9,27 +9,6 @@
     </ion-buttons>
     }
   </ion-toolbar>
-  @if (dataLoaded() && group() && planning(); as p) {
-  <ion-toolbar>
-    <div
-      style="
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        padding: 0 8px;
-      "
-    >
-      <ion-button fill="clear" (click)="onPlanningBackClicked()">
-        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
-      </ion-button>
-      <ion-label style="font-size: 16px; font-weight: bold">{{ p.startDate | date }}</ion-label>
-      <ion-button fill="clear" (click)="onPlanningForwardClicked()">
-        <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
-      </ion-button>
-    </div>
-  </ion-toolbar>
-  }
 </ion-header>
 
 <ion-content [fullscreen]="true">
@@ -39,7 +18,17 @@
     </ion-toolbar>
   </ion-header>
 
-  @if (dataLoaded() && group()) {
+  @if (dataLoaded() && group() && planning(); as p) {
+  <div class="week-changer-container">
+    <ion-button fill="clear" (click)="onPlanningBackClicked()">
+      <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+    </ion-button>
+    <ion-label class="week-title">{{ p.startDate | date }}</ion-label>
+    <ion-button fill="clear" (click)="onPlanningForwardClicked()">
+      <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+    </ion-button>
+  </div>
+  } @if (dataLoaded() && group()) {
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -111,7 +100,7 @@
   } } @if (dataLoaded() && !group()) {
   <p class="ion-padding">{{ 'COMMON.PLANNINGS.NO_GROUP_ERROR' | translate }}</p>
   } @if (dataLoaded() && group()) {
-  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+  <ion-fab slot="fixed" vertical="bottom" horizontal="center">
     <ion-fab-button (click)="onAddClicked()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>

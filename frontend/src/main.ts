@@ -51,6 +51,13 @@ import {
   pricetagOutline,
   bulbOutline,
   constructOutline,
+  documentTextOutline,
+  eyeOffOutline,
+  searchOutline,
+  alertCircleOutline,
+  informationCircleOutline,
+  cart,
+  cartOutline,
 } from 'ionicons/icons';
 
 import { AppComponent } from './app/app.component';
@@ -95,6 +102,13 @@ addIcons({
   pricetagOutline,
   bulbOutline,
   constructOutline,
+  documentTextOutline,
+  eyeOffOutline,
+  searchOutline,
+  alertCircleOutline,
+  informationCircleOutline,
+  cart,
+  cartOutline,
 });
 
 export function createTranslateLoader(http: HttpClient) {

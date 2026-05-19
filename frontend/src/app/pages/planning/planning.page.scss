@@ -74,3 +74,25 @@
   --background: rgba(var(--ion-color-primary-rgb), 0.06);
   opacity: 0.7;
 }
+
+.week-changer-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: rgba(var(--ion-color-medium-rgb), 0.05);
+  border-radius: 12px;
+  margin: 16px 16px 8px 16px;
+  border: 1px solid rgba(var(--ion-color-medium-rgb), 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.week-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--ion-color-step-850, #222);
+}
+
+ion-fab {
+  margin-bottom: 16px;
+}
