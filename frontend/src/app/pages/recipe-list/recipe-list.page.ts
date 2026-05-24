@@ -85,7 +85,7 @@ export class RecipeListPage {
 
     return recipes
       ?.filter((x) => {
-        const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
+        const matchQuery = query.length < 3 || x.name.toLowerCase().indexOf(query) > -1;
         const matchFilter =
           activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
         const notProduct = x.type !== RecipeType.Product;
@@ -103,7 +103,7 @@ export class RecipeListPage {
 
     return recipes
       ?.filter((x) => {
-        const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
+        const matchQuery = query.length < 3 || x.name.toLowerCase().indexOf(query) > -1;
         const matchFilter =
           activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
         const notProduct = x.type !== RecipeType.Product;
@@ -121,7 +121,7 @@ export class RecipeListPage {
 
     return recipes
       ?.filter((x) => {
-        const matchQuery = x.name.toLowerCase().indexOf(query) > -1;
+        const matchQuery = query.length < 3 || x.name.toLowerCase().indexOf(query) > -1;
         const matchFilter =
           activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
         return matchQuery && matchFilter;
@@ -185,6 +185,11 @@ export class RecipeListPage {
 
   onSearchChange(event: SearchbarCustomEvent) {
     this.searchQuery.set(event.detail?.value || '');
+  }
+
+  onSearchInput(event: Event) {
+    const value = (event as CustomEvent).detail?.value ?? '';
+    this.searchQuery.set(value);
   }
 
   async onRecipeClicked(recipe: Recipe) {

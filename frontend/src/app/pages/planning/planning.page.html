@@ -1,13 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title> {{ 'PLANNING_PAGE.TITLE' | translate }} </ion-title>
-    @if (dataLoaded() && group()) {
-    <ion-buttons slot="end">
-      <ion-button (click)="onNutritionSummaryClicked()">
-        <ion-icon slot="icon-only" name="bar-chart-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    }
   </ion-toolbar>
 </ion-header>
 
@@ -20,13 +13,20 @@
 
   @if (dataLoaded() && group() && planning(); as p) {
   <div class="week-changer-container">
-    <ion-button fill="clear" (click)="onPlanningBackClicked()">
-      <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
-    </ion-button>
+    <div class="week-nav-left">
+      <ion-button fill="clear" (click)="onPlanningBackClicked()">
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </div>
     <ion-label class="week-title">{{ p.startDate | date }}</ion-label>
-    <ion-button fill="clear" (click)="onPlanningForwardClicked()">
-      <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
-    </ion-button>
+    <div class="week-nav-right">
+      <ion-button fill="clear" (click)="onPlanningForwardClicked()">
+        <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" class="nutrition-btn" (click)="onNutritionSummaryClicked()">
+        <ion-icon slot="icon-only" name="bar-chart-outline"></ion-icon>
+      </ion-button>
+    </div>
   </div>
   } @if (dataLoaded() && group()) {
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">

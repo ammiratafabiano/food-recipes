@@ -4,7 +4,7 @@
       <ion-button (click)="onBackClicked()">
         <ion-icon
           slot="icon-only"
-          [name]="isUserLogged() ? 'chevron-back-outline' : 'home-outline'"
+          [name]="isUserLogged() && hasStack() ? 'chevron-back-outline' : 'home-outline'"
         ></ion-icon>
       </ion-button>
     </ion-buttons>

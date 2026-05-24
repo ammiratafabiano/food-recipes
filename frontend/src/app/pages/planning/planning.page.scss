@@ -79,12 +79,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 12px;
+  padding: 4px 0;
   background: rgba(var(--ion-color-medium-rgb), 0.05);
-  border-radius: 12px;
-  margin: 16px 16px 8px 16px;
-  border: 1px solid rgba(var(--ion-color-medium-rgb), 0.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid rgba(var(--ion-color-medium-rgb), 0.1);
+  margin: 0 0 8px 0;
+
+  .week-nav-left,
+  .week-nav-right {
+    display: flex;
+    align-items: center;
+  }
+
+  .nutrition-btn {
+    border-left: 1px solid rgba(var(--ion-color-medium-rgb), 0.25);
+    margin-left: 2px;
+  }
 }
 
 .week-title {
@@ -95,4 +104,12 @@
 
 ion-fab {
   margin-bottom: 16px;
+}
+
+ion-item-sliding {
+  ion-item-options {
+    border-radius: 0;
+    padding-inline-end: 0;
+    margin-inline-end: 0;
+  }
 }

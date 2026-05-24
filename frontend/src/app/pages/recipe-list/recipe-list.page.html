@@ -79,7 +79,10 @@
 <ion-footer>
   <ion-toolbar>
     <div class="bar-container">
-      <ion-searchbar (ionChange)="onSearchChange($event)"></ion-searchbar>
+      <ion-searchbar
+        (ionInput)="onSearchInput($event)"
+        (ionClear)="onSearchInput($event)"
+      ></ion-searchbar>
       <ion-button id="click-trigger" fill="clear" class="filter-button">
         <ion-icon slot="icon-only" name="options"></ion-icon>
       </ion-button>

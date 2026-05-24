@@ -26,7 +26,11 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
-import { RecipeListNavigationPath } from 'src/app/models/navigation-path.enum';
+import {
+  HomeNavigationPath,
+  NavigationPath,
+  RecipeListNavigationPath,
+} from 'src/app/models/navigation-path.enum';
 import { Recipe } from 'src/app/models/recipe.model';
 import { RecipeType } from 'src/app/models/recipe-type.enum';
 import { UserData } from 'src/app/models/user-data.model';
@@ -75,6 +79,7 @@ export class UserPage implements OnInit {
 
   readonly user = signal<UserData | undefined>(undefined);
   readonly isUserLogged = computed(() => !!this.authService.currentUser());
+  readonly hasStack = computed(() => this.navigationService.hasStack);
 
   readonly trackByRecipe = trackById;
 
@@ -101,6 +106,18 @@ export class UserPage implements OnInit {
   }
 
   async onBackClicked() {
+    if (!this.navigationService.hasStack) {
+      // Arrived via deep link or shared URL — go to home
+      const isLogged = !!this.authService.currentUser();
+      if (isLogged) {
+        this.navigationService.setRoot([NavigationPath.Base, HomeNavigationPath.Discover], {
+          animationDirection: 'back',
+        });
+      } else {
+        this.navigationService.setRoot(NavigationPath.Login);
+      }
+      return;
+    }
     this.navigationService.goToPreviousPage();
   }
 

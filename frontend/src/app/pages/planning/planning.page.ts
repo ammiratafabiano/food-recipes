@@ -4,7 +4,6 @@ import { ActionSheetController, AlertController, ModalController } from '@ionic/
 import { ItemReorderEventDetail } from '@ionic/core';
 import {
   IonButton,
-  IonButtons,
   IonContent,
   IonFab,
   IonFabButton,
@@ -56,7 +55,6 @@ import { PlanningAddResult } from './planning-add/planning-add.page';
     IonToolbar,
     IonTitle,
     IonContent,
-    IonButtons,
     IonFab,
     IonFabButton,
     IonLabel,

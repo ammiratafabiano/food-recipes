@@ -104,6 +104,7 @@ export class RecipePage implements OnInit {
 
   readonly isUserLogged = computed(() => !!this.authService.currentUser());
   readonly isMine = computed(() => this.authService.getCurrentUser()?.id == this.recipe()?.userId);
+  readonly hasStack = computed(() => this.navigationService.hasStack);
 
   refreshOnDismiss = false;
 
@@ -130,19 +131,16 @@ export class RecipePage implements OnInit {
 
   async onBackClicked() {
     if (!this.navigationService.hasStack) {
-      const currentUrl = this.navigationService.currentUrl;
-      const parentSegments = currentUrl.split('/').filter(Boolean);
-      parentSegments.pop();
-      if (parentSegments.length > 0 && parentSegments[parentSegments.length - 1] === 'user') {
-        const userId = this.route.snapshot.queryParamMap.get('userId') || this.recipe()?.userId;
-        if (userId) {
-          this.navigationService.setRoot(parentSegments, {
-            queryParams: { id: userId },
-            animationDirection: 'back',
-          });
-          return;
-        }
+      // Arrived via deep link or shared URL — go to home
+      const isLogged = !!this.authService.currentUser();
+      if (isLogged) {
+        this.navigationService.setRoot([NavigationPath.Base, HomeNavigationPath.RecipeList], {
+          animationDirection: 'back',
+        });
+      } else {
+        this.navigationService.setRoot(NavigationPath.Login);
       }
+      return;
     }
     this.navigationService.goToPreviousPage({
       needToRefresh: this.refreshOnDismiss,
