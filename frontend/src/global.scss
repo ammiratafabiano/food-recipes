@@ -42,3 +42,12 @@
 ion-alert {
   z-index: 30000 !important;
 }
+
+/* ── Make sliding actions flush with the right screen edge ── */
+ion-item-sliding {
+  ion-item-options {
+    border-radius: 0;
+    padding-inline-end: 0;
+    margin-inline-end: 0;
+  }
+}

@@ -16,7 +16,7 @@
   @if (displayRecipes()!.length === 0) {
   <ion-label class="ion-padding"> {{ 'RECIPE_LIST_PAGE.NO_DATA' | translate }} </ion-label>
   } @else {
-  <ion-list lines="inset" inset="true">
+  <ion-list lines="inset">
     @for (recipe of displayRecipes(); track trackByRecipe($index, recipe)) {
     <ion-item-sliding>
       <ion-item button (click)="onRecipeClicked(recipe)">
@@ -39,7 +39,7 @@
   @if (displayOthersRecipes()!.length === 0) {
   <ion-label class="ion-padding"> {{ 'RECIPE_LIST_PAGE.NO_DATA_OTHERS' | translate }} </ion-label>
   } @else {
-  <ion-list lines="inset" inset="true">
+  <ion-list lines="inset">
     @for (recipe of displayOthersRecipes(); track trackByRecipe($index, recipe)) {
     <ion-item-sliding>
       <ion-item button (click)="onRecipeClicked(recipe)">
@@ -59,7 +59,7 @@
   </ion-list>
   } } @if (displayGroupRecipes() !== undefined && displayGroupRecipes()!.length > 0) {
   <h2 class="ion-padding">{{ 'RECIPE_LIST_PAGE.GROUP' | translate }}</h2>
-  <ion-list lines="inset" inset="true">
+  <ion-list lines="inset">
     @for (recipe of displayGroupRecipes(); track trackByRecipe($index, recipe)) {
     <ion-item-sliding>
       <ion-item button (click)="onRecipeClicked(recipe)">
