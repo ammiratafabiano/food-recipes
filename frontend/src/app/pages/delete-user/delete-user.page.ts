@@ -19,7 +19,6 @@ import { NavigationService } from 'src/app/services/navigation.service';
 @Component({
   selector: 'app-delete-user',
   templateUrl: './delete-user.page.html',
-  styleUrls: ['./delete-user.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [

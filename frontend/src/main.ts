@@ -58,6 +58,7 @@ import {
   informationCircleOutline,
   cart,
   cartOutline,
+  camera,
 } from 'ionicons/icons';
 
 import { AppComponent } from './app/app.component';
@@ -109,6 +110,7 @@ addIcons({
   informationCircleOutline,
   cart,
   cartOutline,
+  camera,
 });
 
 export function createTranslateLoader(http: HttpClient) {

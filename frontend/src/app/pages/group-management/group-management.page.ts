@@ -26,7 +26,6 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
 @Component({
   selector: 'app-group-management',
   templateUrl: './group-management.page.html',
-  styleUrls: ['./group-management.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [

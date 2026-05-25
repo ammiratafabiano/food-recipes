@@ -1,83 +1,37 @@
-.step-item {
-  border-radius: 10px;
-  margin: 8px 16px;
-  width: unset;
-  > ion-item {
-    --padding-start: 0;
-    --inner-padding-end: 0;
-    --inner-padding-start: 0;
-    --min-height: unset;
-    --background: transparent;
-  }
-  .step-inner-list {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    ion-item {
-      --padding-start: 12px;
-    }
-  }
-  .file-input-item {
-    --min-height: 40px;
-    --padding-start: 12px;
-  }
-  .step-image {
-    width: 100%;
-    max-width: 280px;
-    border-radius: 8px;
-  }
-}
-
+/* Time Row Styling */
 .time-row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  ion-input,
+  align-items: center;
+  margin-top: 4px;
+
+  ion-input {
+    flex: 1.2;
+    --background: var(--ion-color-step-50, #f9f9f9);
+    --padding-start: 10px;
+    --padding-end: 10px;
+    border-radius: 8px;
+    height: 38px;
+  }
+
   ion-select {
     flex: 1;
+    --background: var(--ion-color-step-50, #f9f9f9);
+    border-radius: 8px;
+    height: 38px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }
 
-.ingredient-item {
-  --inner-padding-end: 0;
-  .ingredient-content {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 8px 0;
-  }
-  .ingredient-main-row {
-    display: flex;
-    align-items: center;
-    width: 100%;
-  }
-  .ingredient-brand-row {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding-top: 4px;
-    ion-icon {
-      font-size: 14px;
-      flex-shrink: 0;
-    }
-    ion-input {
-      font-size: 0.85em;
-      --color: var(--ion-color-medium);
-    }
-  }
-  .clickable {
-    pointer-events: all;
-  }
-  .space-before {
-    margin-left: 8vw;
-  }
-  ion-input {
-    text-align: right;
-  }
-}
-
+/* Align Footer Buttons */
 ion-footer {
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  background: var(--ion-background-color, #fff);
+
   ion-toolbar {
     --background: transparent;
+    padding: 8px 16px;
   }
 }

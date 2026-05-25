@@ -114,65 +114,73 @@
     </ion-item>
   </ion-list>
 
-  <p class="ion-padding">{{ 'COMMON.INGREDIENTS' | translate }}</p>
-  <ion-list lines="inset" inset="true">
-    <ion-item>
-      <ion-input
-        labelPlacement="stacked"
-        label="{{ 'ADD_RECIPE_PAGE.SERVINGS' | translate }}"
-        [(ngModel)]="recipe.servings"
-        type="number"
-        min="1"
-        [placeholder]="'ADD_RECIPE_PAGE.SERVINGS' | translate"
-      ></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-input
-        labelPlacement="stacked"
-        label="Min Servings"
-        [(ngModel)]="recipe.minServings"
-        type="number"
-        placeholder="Min Servings"
-      ></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-input
-        labelPlacement="stacked"
-        label="Split Servings"
-        [(ngModel)]="recipe.splitServings"
-        type="number"
-        placeholder="Split Servings"
-      ></ion-input>
+  <p class="ion-padding section-title">{{ 'COMMON.INGREDIENTS' | translate }}</p>
+  <ion-list lines="none" inset="true" class="servings-list-container">
+    <ion-item class="servings-grid-item">
+      <div class="servings-grid">
+        <div class="servings-col">
+          <ion-input
+            labelPlacement="stacked"
+            label="{{ 'ADD_RECIPE_PAGE.SERVINGS' | translate }}"
+            [(ngModel)]="recipe.servings"
+            type="number"
+            min="1"
+            [placeholder]="'ADD_RECIPE_PAGE.SERVINGS' | translate"
+          ></ion-input>
+        </div>
+        <div class="servings-col">
+          <ion-input
+            labelPlacement="stacked"
+            label="Min Servings"
+            [(ngModel)]="recipe.minServings"
+            type="number"
+            placeholder="Min"
+          ></ion-input>
+        </div>
+        <div class="servings-col">
+          <ion-input
+            labelPlacement="stacked"
+            label="Split Servings"
+            [(ngModel)]="recipe.splitServings"
+            type="number"
+            placeholder="Split"
+          ></ion-input>
+        </div>
+      </div>
     </ion-item>
   </ion-list>
-  <ion-list lines="inset" inset="true">
+
+  <ion-list lines="inset" inset="true" class="ingredients-list">
     @for (selected of recipe.ingredients; track trackByIngredient($index, selected)) {
     <ion-item-sliding>
       <ion-item class="ingredient-item">
         <div class="ingredient-content">
           <div class="ingredient-main-row">
-            <ion-label class="clickable">
+            <ion-label class="ingredient-name-label">
               {{ selected.name || 'ADD_RECIPE_PAGE.INGREDIENTS_PLACEHOLDER' | translate }}
             </ion-label>
-            <ion-input
-              [(ngModel)]="selected.quantity.value"
-              type="number"
-              [placeholder]="'ADD_RECIPE_PAGE.INGREDIENTS_QUANTITY_PLACEHOLDER' | translate"
-            ></ion-input>
-            <ion-label class="clickable space-before" (click)="onIngredientUnitClicked(selected)">
-              @if (selected.quantity.unit) {
-              <span> {{ 'COMMON.WEIGHT_UNITS.' + selected.quantity.unit | translate }} </span>
-              } @else {
-              <span> {{ 'ADD_RECIPE_PAGE.UNIT_PLACEHOLDER' | translate }} </span>
-              }
-            </ion-label>
+            <div class="quantity-control-group">
+              <ion-input
+                class="ingredient-qty-input"
+                [(ngModel)]="selected.quantity.value"
+                type="number"
+                [placeholder]="'0'"
+              ></ion-input>
+              <div class="unit-pill-selector" (click)="onIngredientUnitClicked(selected)">
+                <span>
+                  @if (selected.quantity.unit) { {{ 'COMMON.WEIGHT_UNITS.' + selected.quantity.unit
+                  | translate }} } @else { {{ 'ADD_RECIPE_PAGE.UNIT_PLACEHOLDER' | translate }} }
+                </span>
+                <ion-icon name="options" class="pill-arrow-icon"></ion-icon>
+              </div>
+            </div>
           </div>
           <div class="ingredient-brand-row">
-            <ion-icon name="pricetag-outline" color="medium"></ion-icon>
+            <ion-icon name="pricetag-outline"></ion-icon>
             <ion-input
               [(ngModel)]="selected.brand"
               [placeholder]="'ADD_RECIPE_PAGE.BRAND_PLACEHOLDER' | translate"
-              size="small"
+              class="brand-input"
             ></ion-input>
           </div>
         </div>
@@ -188,52 +196,85 @@
       </ion-item-options>
     </ion-item-sliding>
     }
-    <ion-button fill="clear" (click)="onAddIngredientClicked()">
-      <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+    <ion-button fill="clear" (click)="onAddIngredientClicked()" class="add-btn-aligned">
+      <ion-icon slot="start" name="add-circle"></ion-icon>
+      Aggiungi Ingrediente
     </ion-button>
   </ion-list>
 
-  <p class="ion-padding">{{ 'COMMON.STEPS' | translate }}</p>
-  @for (selected of selectedRecipe().steps; track trackByStep($index)) {
-  <ion-item-sliding class="step-item">
-    <ion-item>
-      <ion-list lines="inset" class="step-inner-list">
-        <ion-item>
+  <p class="ion-padding section-title">{{ 'COMMON.STEPS' | translate }}</p>
+  <div class="steps-container">
+    @for (selected of selectedRecipe().steps; track trackByStep($index)) {
+    <ion-item-sliding class="step-item-sliding">
+      <ion-item lines="none" class="step-card-item">
+        <div class="step-card-content">
+          <div class="step-card-header">
+            <span class="step-badge">{{ $index + 1 }}</span>
+            <span class="step-label-text"
+              >{{ 'COMMON.STEP_INDEX' | translate : ({ i: $index + 1 }) }}</span
+            >
+          </div>
+
           <ion-textarea
-            [label]="'COMMON.STEP_INDEX' | translate : ({ i: $index + 1 })"
-            labelPlacement="stacked"
+            class="step-text-input"
             [(ngModel)]="selected.text"
             [autoGrow]="true"
             [placeholder]="'ADD_RECIPE_PAGE.DESCRIPTION_PLACEHOLDER' | translate"
+            rows="3"
           ></ion-textarea>
-        </ion-item>
-        @if (selected.imageUrl) {
-        <ion-item>
-          <ion-button fill="clear" size="small" (click)="onRemoveStepImage($index)">
-            <ion-icon slot="icon-only" name="close"></ion-icon>
-          </ion-button>
-          <img [src]="selected.imageUrl" class="step-image" />
-        </ion-item>
-        }
-        <ion-item class="file-input-item">
-          <input type="file" (change)="onStepImageChange($event, selected)" accept="image/*" />
-        </ion-item>
-      </ion-list>
-    </ion-item>
-    <ion-item-options
-      side="end"
-      class="step-container-no-padding"
-      (ionSwipe)="onRemoveStepClicked($index)"
-    >
-      <ion-item-option color="danger" expandable (click)="onRemoveStepClicked($index)"
-        >Rimuovi</ion-item-option
+
+          <div class="step-image-uploader">
+            @if (selected.imageUrl) {
+            <div class="step-preview-container">
+              <img [src]="selected.imageUrl" class="step-preview-img" />
+              <ion-button
+                class="step-remove-img-btn"
+                fill="solid"
+                size="small"
+                color="danger"
+                (click)="onRemoveStepImage($index)"
+              >
+                <ion-icon slot="icon-only" name="close"></ion-icon>
+              </ion-button>
+            </div>
+            } @else {
+            <ion-button
+              fill="clear"
+              size="small"
+              class="step-upload-btn"
+              (click)="fileInput.click()"
+            >
+              <ion-icon slot="start" name="camera"></ion-icon>
+              Aggiungi Foto
+            </ion-button>
+            }
+            <input
+              #fileInput
+              type="file"
+              style="display: none"
+              (change)="onStepImageChange($event, selected)"
+              accept="image/*"
+            />
+          </div>
+        </div>
+      </ion-item>
+      <ion-item-options
+        side="end"
+        class="step-container-no-padding"
+        (ionSwipe)="onRemoveStepClicked($index)"
       >
-    </ion-item-options>
-  </ion-item-sliding>
-  }
-  <ion-list lines="inset" inset="true">
-    <ion-button fill="clear" (click)="onAddStepClicked()">
-      <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+        <ion-item-option color="danger" expandable (click)="onRemoveStepClicked($index)"
+          >Rimuovi</ion-item-option
+        >
+      </ion-item-options>
+    </ion-item-sliding>
+    }
+  </div>
+
+  <ion-list lines="none" inset="true" class="add-step-container">
+    <ion-button fill="clear" (click)="onAddStepClicked()" class="add-btn-aligned">
+      <ion-icon slot="start" name="add-circle"></ion-icon>
+      Aggiungi Passaggio
     </ion-button>
   </ion-list>
 </ion-content>

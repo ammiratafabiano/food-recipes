@@ -19,7 +19,6 @@ import { trackById } from 'src/app/utils/track-by';
 @Component({
   selector: 'app-discover',
   templateUrl: './discover.page.html',
-  styleUrls: ['./discover.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [

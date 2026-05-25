@@ -1,20 +1,34 @@
 .quantity-label {
-  max-width: 20% !important;
+  font-weight: 700;
+  color: var(--ion-color-dark);
+  margin-right: 8px;
 }
 
 .quantity-input {
-  max-width: 20% !important;
-  --padding-start: 4px;
-  --padding-end: 4px;
-  --padding-top: 0;
-  --padding-bottom: 0;
-  font-size: 0.95em;
+  --background: var(--ion-color-step-100, #f4f5f8);
+  --padding-start: 6px;
+  --padding-end: 6px;
+  --padding-top: 2px;
+  --padding-bottom: 2px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 65px !important;
+  height: 32px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--ion-color-dark);
+  margin-right: 8px;
+  border: 1px solid var(--ion-color-step-200, #e0e0e0);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .quantity-unit-label {
   max-width: none !important;
   flex: 0 0 auto !important;
   padding-left: 2px;
+  font-weight: 600;
+  color: var(--ion-color-medium);
+  margin-right: 12px;
 }
 
 .ingredients-header {
@@ -24,13 +38,16 @@
 
   h3 {
     margin: 0;
+    font-weight: 700;
+    letter-spacing: 0.2px;
   }
 }
 
 .macro-label {
-  max-width: 20% !important;
+  max-width: 25% !important;
   text-align: right;
   font-size: 0.8em;
+  font-weight: 600;
   color: var(--ion-color-medium);
 }
 

@@ -51,3 +51,297 @@ ion-item-sliding {
     margin-inline-end: 0;
   }
 }
+
+/* ── Reusable Custom UI Styles (to comply with component style budgets) ── */
+
+.section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ion-color-dark);
+  letter-spacing: 0.3px;
+  margin-top: 16px;
+  margin-bottom: 4px;
+}
+
+.add-btn-aligned {
+  --color: var(--ion-color-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin: 4px 8px;
+}
+
+/* Servings horizontal layout styling */
+.servings-list-container {
+  margin-top: 4px;
+  margin-bottom: 12px;
+  background: transparent !important;
+}
+
+.servings-grid-item {
+  --background: transparent !important;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+.servings-grid {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  padding: 0 8px;
+
+  .servings-col {
+    flex: 1;
+    background: var(--ion-card-background, #fff);
+    border-radius: 12px;
+    padding: 2px 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--ion-color-step-100, #e0e0e0);
+
+    ion-input {
+      --padding-top: 4px;
+      --padding-bottom: 4px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+  }
+}
+
+/* Steps Custom UI Styling */
+.steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 16px;
+  margin-bottom: 12px;
+}
+
+.step-item-sliding {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--ion-color-step-100, #e0e0e0);
+  background: var(--ion-card-background, #fff);
+}
+
+.step-card-item {
+  --background: transparent;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  width: 100%;
+}
+
+.step-card-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 16px;
+  gap: 10px;
+}
+
+.step-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--ion-color-primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.step-label-text {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ion-color-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.step-text-input {
+  --background: var(--ion-color-step-50, #f9f9f9);
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  border: 1px solid var(--ion-color-step-100, #e0e0e0);
+}
+
+.step-image-uploader {
+  display: flex;
+  margin-top: 4px;
+  align-self: flex-start;
+}
+
+.step-upload-btn {
+  --color: var(--ion-color-medium);
+  --border-radius: 18px;
+  background: var(--ion-color-step-100, #f4f5f8);
+  font-size: 0.8rem;
+  font-weight: 600;
+  height: 36px;
+  margin: 0;
+  padding: 0 12px;
+  border-radius: 18px;
+
+  &:active {
+    background: var(--ion-color-step-200, #e0e0e0);
+  }
+}
+
+.step-preview-container {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  max-width: 280px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--ion-color-step-150, #dcdcdc);
+
+  .step-preview-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .step-remove-img-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    --background: rgba(var(--ion-color-danger-rgb), 0.85);
+    --background-activated: var(--ion-color-danger);
+    --border-radius: 50%;
+    margin: 0;
+    width: 28px;
+    height: 28px;
+    --padding-start: 0;
+    --padding-end: 0;
+
+    ion-icon {
+      font-size: 16px;
+      color: #fff;
+    }
+  }
+}
+
+.add-step-container {
+  margin-top: 8px;
+  margin-bottom: 24px;
+  background: transparent !important;
+}
+
+/* Ingredients Section Styling */
+.ingredients-list {
+  background: var(--ion-card-background, #fff);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--ion-color-step-100, #e0e0e0);
+  margin-bottom: 16px;
+}
+
+.ingredient-item {
+  --inner-padding-end: 8px;
+  --padding-start: 16px;
+  --background: transparent;
+
+  .ingredient-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+  }
+
+  .ingredient-main-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .ingredient-name-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+
+  .quantity-control-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .ingredient-qty-input {
+    --background: var(--ion-color-step-100, #f4f5f8);
+    --padding-start: 8px;
+    --padding-end: 8px;
+    border-radius: 8px;
+    width: 65px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    height: 34px;
+    color: var(--ion-color-dark);
+  }
+
+  .unit-pill-selector {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--ion-color-step-100, #f4f5f8);
+    padding: 0 10px;
+    height: 34px;
+    border-radius: 17px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ion-color-medium);
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:active {
+      background: var(--ion-color-step-200, #e0e0e0);
+    }
+
+    .pill-arrow-icon {
+      font-size: 11px;
+      color: var(--ion-color-medium);
+    }
+  }
+
+  .ingredient-brand-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 6px;
+    color: var(--ion-color-medium);
+
+    ion-icon {
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .brand-input {
+      font-size: 0.8rem;
+      --color: var(--ion-color-medium);
+      --padding-top: 2px;
+      --padding-bottom: 2px;
+      height: 24px;
+    }
+  }
+}

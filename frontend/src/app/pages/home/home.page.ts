@@ -17,7 +17,6 @@ import { SessionService } from 'src/app/services/session.service';
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
-  styleUrls: ['home.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [TranslateModule, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel],

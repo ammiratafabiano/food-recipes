@@ -22,7 +22,6 @@ import { trackByValue } from 'src/app/utils/track-by';
 @Component({
   selector: 'app-item-selection',
   templateUrl: './item-selection.page.html',
-  styleUrls: ['./item-selection.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
