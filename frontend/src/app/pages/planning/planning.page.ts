@@ -1,5 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import { ActionSheetController, AlertController, ModalController } from '@ionic/angular';
 import { ItemReorderEventDetail } from '@ionic/core';
 import {
@@ -49,7 +55,6 @@ import { PlanningAddResult } from './planning-add/planning-add.page';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    DatePipe,
     TranslateModule,
     IonHeader,
     IonToolbar,
@@ -84,6 +89,43 @@ export class PlanningPage implements OnDestroy {
   readonly group = signal<Group | undefined>(undefined);
   readonly planning = signal<Planning | undefined>(undefined);
   readonly dataLoaded = signal<boolean>(false);
+
+  readonly weekLabel = computed(() => {
+    const startDate = this.planning()?.startDate;
+    if (!startDate) return { badge: '', range: '' };
+    const start = dayjs(startDate);
+    const end = start.add(6, 'day');
+    const thisWeekStart = dayjs().startOf('week').format('YYYY-MM-DD');
+    const nextWeekStart = dayjs().add(1, 'week').startOf('week').format('YYYY-MM-DD');
+
+    let badge = '';
+    if (startDate === thisWeekStart) {
+      badge = 'Questa settimana';
+    } else if (startDate === nextWeekStart) {
+      badge = 'Prossima settimana';
+    }
+
+    const range = `${start.format('D MMM')} – ${end.format('D MMM')}`;
+    return { badge, range };
+  });
+
+  readonly todayDayIndex = computed(() => {
+    const dayMap: Record<number, string> = {
+      0: 'SUNDAY',
+      1: 'MONDAY',
+      2: 'TUESDAY',
+      3: 'WEDNESDAY',
+      4: 'THURSDAY',
+      5: 'FRIDAY',
+      6: 'SATURDAY',
+    };
+    return dayMap[dayjs().day()];
+  });
+
+  readonly isCurrentWeekActive = computed(() => {
+    const startDate = this.planning()?.startDate;
+    return startDate === dayjs().startOf('week').format('YYYY-MM-DD');
+  });
 
   private realtimeSub: import('rxjs').Subscription | null = null;
   private membershipSub: import('rxjs').Subscription | null = null;
@@ -194,10 +236,63 @@ export class PlanningPage implements OnDestroy {
           let foodId = item.value;
           let foodName = item.text;
 
+          let suggestedIngredients:
+            | { name: string; quantity?: number; unit?: string }[]
+            | undefined = undefined;
+
           if (item.custom) {
             const newFood = await this.dataService.addCustomFood(item.text);
             foodId = newFood.id;
             foodName = newFood.name;
+
+            try {
+              const suggestion = await this.dataService.suggestIngredients(item.text);
+              if (suggestion?.ingredients && suggestion.ingredients.length > 0) {
+                const alert = await this.alertCtrl.create({
+                  header: 'Ingredienti trovati!',
+                  subHeader: `Trovati ${suggestion.ingredients.length} ingredienti per "${item.text}". Seleziona quelli da includere nella lista della spesa:`,
+                  inputs: suggestion.ingredients.map((ing) => ({
+                    type: 'checkbox' as const,
+                    label: ing.quantity
+                      ? `${ing.name} (${ing.quantity} ${ing.unit || ''})`
+                      : ing.name,
+                    value: ing.name,
+                    checked: true,
+                  })),
+                  buttons: [
+                    {
+                      text: 'Solo piatto',
+                      role: 'cancel',
+                    },
+                    {
+                      text: 'Aggiungi con ingredienti',
+                      role: 'confirm',
+                    },
+                  ],
+                });
+
+                await alert.present();
+                const { role, data } = await alert.onDidDismiss();
+
+                if (
+                  role === 'confirm' &&
+                  data?.values &&
+                  Array.isArray(data.values) &&
+                  data.values.length > 0
+                ) {
+                  const selectedNames: string[] = data.values;
+                  suggestedIngredients = suggestion.ingredients
+                    .filter((ing) => selectedNames.includes(ing.name))
+                    .map((ing) => ({
+                      name: ing.name,
+                      quantity: ing.quantity ?? undefined,
+                      unit: ing.unit ?? undefined,
+                    }));
+                }
+              }
+            } catch {
+              // Gracefully continue without suggested ingredients if network fails
+            }
           }
 
           const addResult = await this.dataService.quickAddPlanning(
@@ -206,6 +301,7 @@ export class PlanningPage implements OnDestroy {
             foodName,
             undefined,
             !!item.custom,
+            suggestedIngredients,
           );
           if (addResult?.item) {
             const newPlanned: PlannedRecipe = {

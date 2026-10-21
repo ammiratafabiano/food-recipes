@@ -60,46 +60,52 @@
       {{ recipe()?.notes }}
     </ion-note>
   </div>
-  } @if (recipe()?.type) {
-  <ion-item lines="full">
-    <ion-icon name="nutrition" slot="start"></ion-icon>
-    <ion-label>{{ 'COMMON.RECIPE_TYPE' | translate }}</ion-label>
-    <ion-note slot="end">{{ 'COMMON.RECIPE_TYPES.' + recipe()?.type | translate }}</ion-note>
-  </ion-item>
-  } @if (recipe()?.cuisine) {
-  <ion-item lines="full">
-    <ion-icon name="earth-outline" slot="start"></ion-icon>
-    <ion-label>{{ 'COMMON.CUISINE' | translate }}</ion-label>
-    <ion-note slot="end">{{ 'COMMON.CUISINE_TYPES.' + recipe()?.cuisine | translate }}</ion-note>
-  </ion-item>
-  } @if (recipe()?.time?.value) {
-  <ion-item lines="full">
-    <ion-icon name="timer" slot="start"></ion-icon>
-    <ion-label>{{ 'COMMON.TIME' | translate }}</ion-label>
-    <ion-note slot="end">
-      {{ recipe()?.time?.value }} {{ 'COMMON.TIME_UNITS.' + recipe()?.time?.unit | translate }}
-    </ion-note>
-  </ion-item>
-  } @if (recipe()?.difficulty) {
-  <ion-item lines="full">
-    <ion-icon name="podium" slot="start"></ion-icon>
-    <ion-label>{{ 'COMMON.DIFFICULTY' | translate }}</ion-label>
-    <ion-note slot="end"
-      >{{ 'COMMON.DIFFICULTY_LEVEL.' + recipe()?.difficulty | translate }}</ion-note
-    >
-  </ion-item>
-  } @if (recipe()) {
-  <ion-item>
-    <ion-icon name="people-outline" slot="start"></ion-icon>
-    <ion-label>{{ 'RECIPE_PAGE.SERVINGS' | translate }}</ion-label>
-    <ion-button fill="clear" size="small" (click)="onDecreaseServings()">
-      <ion-icon name="remove-circle-outline"></ion-icon>
-    </ion-button>
-    <ion-label class="ion-text-center">{{ currentMultiplier() }}</ion-label>
-    <ion-button fill="clear" size="small" (click)="onIncreaseServings()">
-      <ion-icon name="add-circle-outline"></ion-icon>
-    </ion-button>
-  </ion-item>
+  }
+
+  <!-- Modern Hero Metadata Chips -->
+  <div class="recipe-meta-chips ion-padding-horizontal">
+    @if (recipe()?.type) {
+    <ion-chip color="primary" class="meta-chip">
+      <ion-icon name="restaurant-outline"></ion-icon>
+      <ion-label>{{ 'COMMON.RECIPE_TYPES.' + recipe()?.type | translate }}</ion-label>
+    </ion-chip>
+    } @if (recipe()?.cuisine) {
+    <ion-chip color="secondary" class="meta-chip">
+      <ion-icon name="earth-outline"></ion-icon>
+      <ion-label>{{ 'COMMON.CUISINE_TYPES.' + recipe()?.cuisine | translate }}</ion-label>
+    </ion-chip>
+    } @if (recipe()?.time?.value) {
+    <ion-chip color="tertiary" class="meta-chip">
+      <ion-icon name="time-outline"></ion-icon>
+      <ion-label
+        >{{ recipe()?.time?.value }} {{ 'COMMON.TIME_UNITS.' + recipe()?.time?.unit | translate
+        }}</ion-label
+      >
+    </ion-chip>
+    } @if (recipe()?.difficulty) {
+    <ion-chip class="meta-chip difficulty-chip">
+      <ion-icon name="podium-outline"></ion-icon>
+      <ion-label>{{ 'COMMON.DIFFICULTY_LEVEL.' + recipe()?.difficulty | translate }}</ion-label>
+    </ion-chip>
+    }
+  </div>
+
+  @if (recipe()) {
+  <div class="servings-card ion-margin-horizontal">
+    <div class="servings-info">
+      <ion-icon name="people-outline"></ion-icon>
+      <span>{{ 'RECIPE_PAGE.SERVINGS' | translate }}</span>
+    </div>
+    <div class="servings-controls">
+      <ion-button fill="clear" size="small" (click)="onDecreaseServings()">
+        <ion-icon name="remove-circle-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <span class="servings-count">{{ currentMultiplier() }}</span>
+      <ion-button fill="clear" size="small" (click)="onIncreaseServings()">
+        <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
   } @if ((recipe()?.ingredients?.length || 0) > 0) {
   <div class="ingredients-header ion-padding-horizontal">
     <h3>{{ 'COMMON.INGREDIENTS' | translate }}</h3>
@@ -114,10 +120,18 @@
     </ion-button>
     }
   </div>
-  <ion-list lines="inset" inset="true">
+  <ion-list lines="inset" inset="true" class="ingredients-interactive-list">
     @for (ingredient of recipe()?.ingredients; track trackByIngredient($index, ingredient)) {
-    <ion-item>
-      @if (ingredient.quantity.value) { @if (editMode()) {
+    <ion-item class="ingredient-item" [class.checked-ingredient]="checkedIngredients()[$index]">
+      @if (!editMode()) {
+      <ion-checkbox
+        slot="start"
+        [checked]="!!checkedIngredients()[$index]"
+        (ionChange)="toggleIngredientCheck($index)"
+        aria-label="Spunta ingrediente"
+        class="ingredient-checkbox"
+      ></ion-checkbox>
+      } @if (ingredient.quantity.value) { @if (editMode()) {
       <ion-input
         class="quantity-input"
         type="number"
@@ -138,7 +152,7 @@
       } } @else {
       <ion-label class="quantity-label"> {{ 'COMMON.MISSING_QUANTITY' | translate }} </ion-label>
       }
-      <ion-label>
+      <ion-label class="ingredient-name-label">
         {{ ingredient.name }}@if (ingredient.brand) {<span class="brand-label">
           ({{ ingredient.brand }})</span
         >}
@@ -153,18 +167,23 @@
     }
   </ion-list>
   } @if ((recipe()?.steps?.length || 0) > 0) {
-  <h3 class="ion-padding-horizontal">{{ 'COMMON.STEPS' | translate }}</h3>
-  @for (step of recipe()?.steps; track trackByStep($index)) {
-  <ion-card>
-    @if (step.imageUrl) {
-    <img [src]="step.imageUrl" />
+  <h3 class="ion-padding-horizontal steps-section-title">{{ 'COMMON.STEPS' | translate }}</h3>
+  <div class="steps-timeline ion-padding-horizontal">
+    @for (step of recipe()?.steps; track trackByStep($index)) {
+    <div class="step-card-timeline">
+      <div class="step-badge-col">
+        <span class="step-badge">{{ $index + 1 }}</span>
+      </div>
+      <div class="step-card-content">
+        @if (step.imageUrl) {
+        <img [src]="step.imageUrl" class="step-image" />
+        }
+        <p class="step-text">{{ step.text }}</p>
+      </div>
+    </div>
     }
-    <ion-card-header>
-      <ion-card-title>{{ $index + 1 }}</ion-card-title>
-    </ion-card-header>
-    <ion-card-content> {{ step.text }} </ion-card-content>
-  </ion-card>
-  } } @if (recipe() && isMine() && isUserLogged()) {
+  </div>
+  } @if (recipe() && isMine() && isUserLogged()) {
   <ion-item class="ion-padding-top" lines="none" (click)="onDeleteClicked()">
     <ion-label color="danger">{{ 'RECIPE_PAGE.DELETE_BUTTON' | translate }} </ion-label>
   </ion-item>

@@ -1,19 +1,27 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import { getDB } from '../db';
 import crypto from 'crypto';
 const uuidv4 = () => crypto.randomUUID();
-import { signToken, signRefreshToken, authenticateToken, JwtPayload } from '../auth.middleware';
+import {
+  signToken,
+  signRefreshToken,
+  authenticateToken,
+  AuthenticatedRequest,
+  JwtPayload,
+} from '../auth.middleware';
 import { keyStore } from '../key-store';
 import dotenv from 'dotenv';
+import { authRateLimiter } from '../middleware/rate-limiter';
 
 dotenv.config();
 
 export const authRouter = express.Router();
+authRouter.use(authRateLimiter);
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-authRouter.post('/google', async (req: any, res) => {
+authRouter.post('/google', async (req: Request, res: Response) => {
   const { idToken } = req.body;
   if (!idToken) {
     res.status(400).json({ error: 'idToken is required' });
@@ -79,7 +87,7 @@ authRouter.post('/google', async (req: any, res) => {
   }
 });
 
-authRouter.post('/refresh', async (req: any, res) => {
+authRouter.post('/refresh', async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
   if (!refreshToken) {
     res.status(401).json({ error: 'Missing refresh token' });
@@ -100,9 +108,9 @@ authRouter.post('/refresh', async (req: any, res) => {
   }
 });
 
-authRouter.get('/me', authenticateToken, async (req: any, res) => {
+authRouter.get('/me', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const { id } = req.user as JwtPayload;
+    const { id } = (req as AuthenticatedRequest).user;
     const db = await getDB();
     const user = await db.get('SELECT id, name, email, avatar_url FROM users WHERE id = ?', id);
     if (!user) {
@@ -116,9 +124,9 @@ authRouter.get('/me', authenticateToken, async (req: any, res) => {
   }
 });
 
-authRouter.delete('/me', authenticateToken, async (req: any, res) => {
+authRouter.delete('/me', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const { id } = req.user as JwtPayload;
+    const { id } = (req as AuthenticatedRequest).user;
     const db = await getDB();
     await db.run('DELETE FROM users WHERE id = ?', id);
     res.json({ success: true });

@@ -18,7 +18,12 @@
         <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
       </ion-button>
     </div>
-    <ion-label class="week-title">{{ p.startDate | date }}</ion-label>
+    <div class="week-title-wrapper">
+      @if (weekLabel().badge) {
+      <span class="week-badge">{{ weekLabel().badge }}</span>
+      }
+      <span class="week-range">{{ weekLabel().range }}</span>
+    </div>
     <div class="week-nav-right">
       <ion-button fill="clear" (click)="onPlanningForwardClicked()">
         <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
@@ -44,9 +49,14 @@
           (click)="planned.kind === 'recipe' && onPlannedRecipeClicked(planned)"
         >
           @if (planned.kind === 'separator') {
-          <ion-label class="delimiter"
-            >{{ 'COMMON.WEEK_DAYS.' + planned.day | translate }}</ion-label
-          >
+          <div class="separator-wrapper">
+            <ion-label class="delimiter"
+              >{{ 'COMMON.WEEK_DAYS.' + planned.day | translate }}</ion-label
+            >
+            @if (isCurrentWeekActive() && planned.day === todayDayIndex()) {
+            <span class="today-indicator">Oggi</span>
+            }
+          </div>
           } @if (planned.kind === 'recipe') {
           <ion-label class="ion-text-wrap">
             {{ planned?.recipe?.name || planned?.recipe_name }} @if (planned?.meal) {

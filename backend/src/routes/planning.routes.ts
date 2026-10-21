@@ -1,35 +1,34 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { getDB } from '../db';
 import crypto from 'crypto';
 const uuidv4 = () => crypto.randomUUID();
-import { authenticateToken, JwtPayload } from '../auth.middleware';
+import { authenticateToken, AuthenticatedRequest, JwtPayload } from '../auth.middleware';
 import { emitPlanningChange, emitShoppingListInvalidate } from '../socket';
+import { GroupService } from '../services/group.service';
+import { ResolvedIngredient } from '../services/ingredient-resolver.service';
 
 export const planningRouter = express.Router();
 planningRouter.use(authenticateToken);
 
-/** Find the group a user belongs to (if any) */
-async function findUserGroupId(userId: string): Promise<string | null> {
-  const db = await getDB();
-  const row = await db.get('SELECT group_id FROM group_members WHERE user_id = ? LIMIT 1', userId);
-  return row ? row.group_id : null;
-}
-
-planningRouter.get('/:week', async (req: any, res) => {
+planningRouter.get('/:week', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const groupId = req.query.groupId as string | undefined;
     const db = await getDB();
 
     let userIds = [me.id];
     if (groupId) {
-      const members = await db.all('SELECT user_id FROM group_members WHERE group_id = ?', groupId);
-      userIds = members.map((m: { user_id: string }) => m.user_id);
+      userIds = await GroupService.getGroupMemberUserIds(groupId);
+      if (userIds.length === 0) userIds = [me.id];
     }
 
     const placeholders = userIds.map(() => '?').join(',');
     const rows = await db.all(
-      `SELECT p.*, r.name as recipe_name_lookup, r.min_servings, r.split_servings FROM planning p LEFT JOIN recipes r ON r.id = p.recipe_id WHERE p.week = ? AND p.user_id IN (${placeholders}) ORDER BY p.sort_order`,
+      `SELECT p.*, r.name as recipe_name_lookup, r.min_servings, r.split_servings 
+       FROM planning p 
+       LEFT JOIN recipes r ON r.id = p.recipe_id 
+       WHERE p.week = ? AND p.user_id IN (${placeholders}) 
+       ORDER BY p.sort_order`,
       req.params.week,
       ...userIds,
     );
@@ -75,10 +74,16 @@ planningRouter.get('/:week', async (req: any, res) => {
   }
 });
 
-planningRouter.post('/:week/quick-add', async (req: any, res) => {
+planningRouter.post('/:week/quick-add', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
-    const { foodId, foodName, day, isCustom } = req.body;
+    const me = (req as AuthenticatedRequest).user;
+    const { foodId, foodName, day, isCustom, ingredients } = req.body as {
+      foodId: string;
+      foodName: string;
+      day?: string;
+      isCustom?: boolean;
+      ingredients?: ResolvedIngredient[];
+    };
     const db = await getDB();
 
     if (!foodId || !foodName) {
@@ -93,7 +98,6 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
     );
 
     if (!recipe) {
-      // Find food element to assign default portion
       const food = await db.get(
         'SELECT default_unit, portion_value FROM foods WHERE id = ?',
         foodId,
@@ -104,20 +108,35 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
 
       const rId = uuidv4();
       await db.run(
-        'INSERT INTO recipes (id, name, type, servings, time_value, time_unit, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO recipes (id, user_id, name, type, servings, time_value, time_unit) VALUES (?, ?, ?, ?, ?, ?, ?)',
         rId,
+        me.id,
         foodName,
         'PRODUCT',
         1,
         0,
         'MINUTES',
-        me.id,
       );
-      // Custom items have no ingredients so the shopping list shows them as "Cose per X";
-      // non-custom items get a proper ingredient row so quantities are aggregated normally.
-      if (!isCustom) {
+
+      // If user provided specific ingredients (e.g. from internet suggestion)
+      if (ingredients && Array.isArray(ingredients) && ingredients.length > 0) {
+        for (let i = 0; i < ingredients.length; i++) {
+          const ing = ingredients[i];
+          await db.run(
+            'INSERT INTO recipe_ingredients (id, recipe_id, name, quantity_value, quantity_unit, sort_order) VALUES (?, ?, ?, ?, ?, ?)',
+            uuidv4(),
+            rId,
+            ing.name,
+            ing.quantity_value ?? ing.quantity ?? null,
+            ing.quantity_unit ?? ing.unit ?? null,
+            i,
+          );
+        }
+      } else if (!isCustom) {
+        // Non-custom simple item gets a standard ingredient row
         await db.run(
-          'INSERT INTO recipe_ingredients (recipe_id, food_id, name, quantity_value, quantity_unit) VALUES (?, ?, ?, ?, ?)',
+          'INSERT INTO recipe_ingredients (id, recipe_id, food_id, name, quantity_value, quantity_unit) VALUES (?, ?, ?, ?, ?)',
+          uuidv4(),
           rId,
           foodId,
           foodName,
@@ -126,19 +145,33 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
         );
       }
       recipe = { id: rId, name: foodName };
+    } else if (ingredients && Array.isArray(ingredients) && ingredients.length > 0) {
+      // If recipe existed but user now provided ingredients
+      for (let i = 0; i < ingredients.length; i++) {
+        const ing = ingredients[i];
+        await db.run(
+          'INSERT INTO recipe_ingredients (id, recipe_id, name, quantity_value, quantity_unit, sort_order) VALUES (?, ?, ?, ?, ?, ?)',
+          uuidv4(),
+          recipe.id,
+          ing.name,
+          ing.quantity_value ?? ing.quantity ?? null,
+          ing.quantity_unit ?? ing.unit ?? null,
+          i,
+        );
+      }
     }
 
     const pId = uuidv4();
 
-    // Compute group-aware servings: use group size if user belongs to a group
+    // Compute group-aware servings
     let servings = 1;
-    const groupId = await findUserGroupId(me.id);
+    const groupId = await GroupService.findUserGroupId(me.id);
     if (groupId) {
-      const members = await db.all('SELECT user_id FROM group_members WHERE group_id = ?', groupId);
+      const members = await GroupService.getGroupMemberUserIds(groupId);
       servings = members.length || 1;
     }
 
-    // Compute next sort_order for this week (global across all users)
+    // Compute next sort_order for this week
     const maxOrder = await db.get(
       'SELECT COALESCE(MAX(sort_order), 0) as max_order FROM planning WHERE week = ?',
       req.params.week,
@@ -191,7 +224,7 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
 
     if (groupId) {
       emitPlanningChange(groupId, 'planning:added', Object.assign({}, item, { user_id: me.id }));
-      emitShoppingListInvalidate(groupId, req.params.week);
+      emitShoppingListInvalidate(groupId, req.params.week as string);
     }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -199,14 +232,13 @@ planningRouter.post('/:week/quick-add', async (req: any, res) => {
   }
 });
 
-planningRouter.post('/', async (req: any, res) => {
+planningRouter.post('/', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const { recipe_id, recipe_name, week, day, meal, servings, assignedTo } = req.body;
     const db = await getDB();
     const id = uuidv4();
 
-    // Compute next sort_order for this week (global across all users)
     const maxOrder = await db.get(
       'SELECT COALESCE(MAX(sort_order), 0) as max_order FROM planning WHERE week = ?',
       week,
@@ -227,7 +259,6 @@ planningRouter.post('/', async (req: any, res) => {
       sortOrder,
     );
 
-    // Track usage for suggestions
     await db.run(
       'INSERT INTO recipe_usage (user_id, recipe_id, count) VALUES (?, ?, 1) ON CONFLICT(user_id, recipe_id) DO UPDATE SET count = count + 1',
       me.id,
@@ -249,8 +280,7 @@ planningRouter.post('/', async (req: any, res) => {
     };
     res.json(result);
 
-    // Real-time: notify group members
-    const groupId = await findUserGroupId(me.id);
+    const groupId = await GroupService.findUserGroupId(me.id);
     if (groupId) {
       emitPlanningChange(groupId, 'planning:added', result);
       emitShoppingListInvalidate(groupId, week);
@@ -261,11 +291,24 @@ planningRouter.post('/', async (req: any, res) => {
   }
 });
 
-planningRouter.put('/:id', async (req: any, res) => {
+planningRouter.put('/:id', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const { day, meal, servings, assignedTo, excludeFromShopping, sortOrder } = req.body;
     const db = await getDB();
+
+    const existing = await db.get('SELECT * FROM planning WHERE id = ?', req.params.id);
+    if (!existing) {
+      return res.status(404).json({ error: 'Planning item not found' });
+    }
+
+    if (existing.user_id !== me.id) {
+      const allowed = await GroupService.areUsersInSameGroup(me.id, existing.user_id);
+      if (!allowed) {
+        return res.status(403).json({ error: 'Permission denied' });
+      }
+    }
+
     await db.run(
       'UPDATE planning SET day = ?, meal = ?, servings = ?, assigned_to = ?, exclude_from_shopping = ?, sort_order = COALESCE(?, sort_order) WHERE id = ?',
       day || null,
@@ -279,8 +322,7 @@ planningRouter.put('/:id', async (req: any, res) => {
     const updated = await db.get('SELECT * FROM planning WHERE id = ?', req.params.id);
     res.json({ success: true });
 
-    // Real-time: notify group members
-    const groupId = await findUserGroupId(me.id);
+    const groupId = await GroupService.findUserGroupId(me.id);
     if (groupId && updated) {
       emitPlanningChange(groupId, 'planning:updated', {
         id: req.params.id,
@@ -300,16 +342,27 @@ planningRouter.put('/:id', async (req: any, res) => {
   }
 });
 
-planningRouter.delete('/:id', async (req: any, res) => {
+planningRouter.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
     const item = await db.get('SELECT * FROM planning WHERE id = ?', req.params.id);
+    if (!item) {
+      return res.status(404).json({ error: 'Planning item not found' });
+    }
+
+    // Ownership / group check (Report 6.2)
+    if (item.user_id !== me.id) {
+      const allowed = await GroupService.areUsersInSameGroup(me.id, item.user_id);
+      if (!allowed) {
+        return res.status(403).json({ error: 'Permission denied' });
+      }
+    }
+
     await db.run('DELETE FROM planning WHERE id = ?', req.params.id);
     res.json({ success: true });
 
-    // Real-time: notify group members
-    const groupId = await findUserGroupId(me.id);
+    const groupId = await GroupService.findUserGroupId(me.id);
     if (groupId && item) {
       emitPlanningChange(groupId, 'planning:deleted', {
         id: req.params.id,
@@ -324,9 +377,9 @@ planningRouter.delete('/:id', async (req: any, res) => {
   }
 });
 
-planningRouter.put('/:week/reorder', async (req: any, res) => {
+planningRouter.put('/:week/reorder', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const { ids } = req.body as { ids: string[] };
     if (!Array.isArray(ids)) {
       return res.status(400).json({ error: 'ids must be an array' });
@@ -344,7 +397,7 @@ planningRouter.put('/:week/reorder', async (req: any, res) => {
     }
     res.json({ success: true });
 
-    const groupId = await findUserGroupId(me.id);
+    const groupId = await GroupService.findUserGroupId(me.id);
     if (groupId) {
       emitPlanningChange(groupId, 'planning:updated', { week: req.params.week, user_id: me.id });
     }
@@ -354,24 +407,21 @@ planningRouter.put('/:week/reorder', async (req: any, res) => {
   }
 });
 
-planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
+planningRouter.get('/:week/nutrition-summary', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const groupId = req.query.groupId as string | undefined;
-    const assignedTo = req.query.assignedTo as string | undefined; // userId or 'all'
+    const assignedTo = req.query.assignedTo as string | undefined;
     const db = await getDB();
 
     let userIds = [me.id];
     if (groupId) {
-      const members = await db.all('SELECT user_id FROM group_members WHERE group_id = ?', groupId);
-      userIds = members.map((m: { user_id: string }) => m.user_id);
+      userIds = await GroupService.getGroupMemberUserIds(groupId);
+      if (userIds.length === 0) userIds = [me.id];
     }
 
     const placeholders = userIds.map(() => '?').join(',');
 
-    // Build the WHERE clause for assigned_to filtering
-    // If assignedTo is not provided or 'all', show items assigned to everyone (NULL) or to any member
-    // If assignedTo is a specific userId, show items assigned to NULL (everyone) or to that specific user
     let assignedFilter = '';
     const params: any[] = [req.params.week, ...userIds];
 
@@ -403,7 +453,6 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
       ...params,
     );
 
-    // Also find planned recipes with NO ingredients at all (custom/WIP)
     const noIngredientRows = await db.all(
       `SELECT DISTINCT r.name as recipe_name
        FROM planning p
@@ -413,7 +462,6 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
       ...params,
     );
 
-    // Helper to convert quantity to grams for nutritional calculation
     const toGrams = (value: number, unit: string): number => {
       switch (unit) {
         case 'GRAM':
@@ -421,11 +469,10 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
         case 'KILO':
           return value * 1000;
         case 'LITER':
-          return value * 1000; // approximate 1ml = 1g
         case 'MILLILITER':
-          return value; // approximate 1ml = 1g
+          return value;
         case 'PIECE':
-          return value * 100; // approximate 1 piece = 100g
+          return value * 100;
         default:
           return value;
       }
@@ -442,7 +489,6 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
     const weekTotal: DayNutrition = { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 };
     const missingNutritionRecipes = new Set<string>();
 
-    // Track recipes with no ingredients
     for (const r of noIngredientRows) {
       if (r.recipe_name) missingNutritionRecipes.add(r.recipe_name);
     }
@@ -452,7 +498,6 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
       const recipeServings = r.recipe_servings || 1;
       const multiplier = plannedServings / recipeServings;
 
-      // If food has no nutritional info, track recipe and skip
       if (r.kcal == null && r.protein == null && r.fat == null && r.carbs == null) {
         if (r.recipe_name) missingNutritionRecipes.add(r.recipe_name);
         continue;
@@ -461,7 +506,7 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
       const quantityValue = (r.quantity_value || 0) * multiplier;
       const unit = r.quantity_unit || r.default_unit || 'GRAM';
       const grams = toGrams(quantityValue, unit);
-      const factor = grams / 100; // nutritional values are per 100g
+      const factor = grams / 100;
 
       const kcal = (r.kcal || 0) * factor;
       const protein = (r.protein || 0) * factor;
@@ -486,7 +531,6 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
       weekTotal.fiber += fiber;
     }
 
-    // Round values and remove empty/unassigned days
     const round = (v: number) => Math.round(v * 10) / 10;
     for (const key of Object.keys(days)) {
       days[key].kcal = round(days[key].kcal);
@@ -494,7 +538,6 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
       days[key].fat = round(days[key].fat);
       days[key].carbs = round(days[key].carbs);
       days[key].fiber = round(days[key].fiber);
-      // Remove UNASSIGNED and all-zero entries from per-day breakdown
       if (
         key === 'UNASSIGNED' ||
         (!days[key].kcal &&
@@ -525,21 +568,20 @@ planningRouter.get('/:week/nutrition-summary', async (req: any, res) => {
   }
 });
 
-planningRouter.get('/:week/suggestions', async (req: any, res) => {
+planningRouter.get('/:week/suggestions', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const groupId = req.query.groupId as string | undefined;
     const db = await getDB();
 
     let userIds = [me.id];
     if (groupId) {
-      const members = await db.all('SELECT user_id FROM group_members WHERE group_id = ?', groupId);
-      userIds = members.map((m: { user_id: string }) => m.user_id);
+      userIds = await GroupService.getGroupMemberUserIds(groupId);
+      if (userIds.length === 0) userIds = [me.id];
     }
 
     const placeholders = userIds.map(() => '?').join(',');
 
-    // Get recipes already planned for the current week
     const currentWeekRecipes = await db.all(
       `SELECT DISTINCT recipe_id FROM planning WHERE week = ? AND user_id IN (${placeholders})`,
       req.params.week,
@@ -549,7 +591,6 @@ planningRouter.get('/:week/suggestions', async (req: any, res) => {
       currentWeekRecipes.map((r: { recipe_id: string }) => r.recipe_id),
     );
 
-    // Query recipe_usage: sum counts across all group members, order by total usage
     const rows = await db.all(
       `SELECT
         ru.recipe_id,
@@ -597,11 +638,10 @@ planningRouter.get('/:week/suggestions', async (req: any, res) => {
   }
 });
 
-planningRouter.post('/:week/suggestions/:recipeId/dismiss', async (req: any, res) => {
+planningRouter.post('/:week/suggestions/:recipeId/dismiss', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
-    // Reset the usage count so the recipe can reappear once used again
     await db.run(
       'INSERT INTO recipe_usage (user_id, recipe_id, count) VALUES (?, ?, 0) ON CONFLICT(user_id, recipe_id) DO UPDATE SET count = 0',
       me.id,
@@ -614,17 +654,17 @@ planningRouter.post('/:week/suggestions/:recipeId/dismiss', async (req: any, res
   }
 });
 
-planningRouter.get('/:week/shopping-list', async (req: any, res) => {
+planningRouter.get('/:week/shopping-list', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
     const groupId = req.query.groupId as string | undefined;
     const db = await getDB();
 
     let userIds = [me.id];
     if (groupId) {
-      const members = await db.all('SELECT user_id FROM group_members WHERE group_id = ?', groupId);
-      userIds = members.map((m: { user_id: string }) => m.user_id);
+      userIds = await GroupService.getGroupMemberUserIds(groupId);
+      if (userIds.length === 0) userIds = [me.id];
     }
 
     const placeholders = userIds.map(() => '?').join(',');
@@ -639,7 +679,6 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
       ...userIds,
     );
 
-    // Find planned recipes with NO ingredients (WIP) → add "Cose per [recipe]" entries
     const wipRows = await db.all(
       `SELECT DISTINCT r.name as recipe_name, p.recipe_id
        FROM planning p
@@ -657,7 +696,7 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
     > = {};
     for (const r of rows) {
       const translatedName = lang === 'it' ? r.food_name_it || r.name : r.food_name_en || r.name;
-      const key = translatedName || r.food_id || uuidv4();
+      const key = (translatedName || r.food_id || uuidv4()).toLowerCase().trim();
 
       const plannedServings = r.planned_servings || 1;
       const recipeServings = r.recipe_servings || 1;
@@ -675,7 +714,6 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
       }
     }
 
-    // Add "Cose per [recipe]" entries for WIP recipes without ingredients
     const wipLabel = lang === 'it' ? 'Cose per' : 'Stuff for';
     for (const w of wipRows) {
       const key = `wip:${w.recipe_id}`;
@@ -686,10 +724,8 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
       };
     }
 
-    // Round quantities and filter out basic staples
     const round1 = (v: number) => Math.round(v * 10) / 10;
 
-    // Ingredients to skip when added as "qb" (quantity = 0)
     const skipIfQB = new Set([
       'salt',
       'sale',
@@ -709,7 +745,6 @@ planningRouter.get('/:week/shopping-list', async (req: any, res) => {
       'zucchero',
     ]);
 
-    // Ingredients to always skip regardless of quantity
     const alwaysSkip = new Set(['water', 'acqua']);
 
     const result = Object.values(map)

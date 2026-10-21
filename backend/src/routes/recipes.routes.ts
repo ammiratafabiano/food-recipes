@@ -1,8 +1,15 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { getDB } from '../db';
 import crypto from 'crypto';
 const uuidv4 = () => crypto.randomUUID();
-import { authenticateToken, optionalAuthenticateToken, JwtPayload } from '../auth.middleware';
+import {
+  authenticateToken,
+  optionalAuthenticateToken,
+  AuthenticatedRequest,
+  JwtPayload,
+} from '../auth.middleware';
+import { z } from 'zod';
+import { IngredientResolverService } from '../services/ingredient-resolver.service';
 
 export const recipesRouter = express.Router();
 
@@ -12,91 +19,129 @@ function toMinOne(value: unknown, fallback: number) {
   return Math.max(1, Math.trunc(parsed));
 }
 
-async function buildRecipe(
-  recipeRow: {
-    id: string;
-    user_id: string;
-    name: string;
-    description?: string;
-    cuisine?: string;
-    type?: string;
-    time_value?: number;
-    time_unit?: string;
-    difficulty?: string;
-    servings?: number;
-    min_servings?: number;
-    split_servings?: number;
-    wip?: number;
-    notes?: string;
-  },
-  userId?: string,
-  lang: string = 'en',
-) {
+export interface RecipeRow {
+  id: string;
+  user_id: string;
+  name: string;
+  description?: string;
+  cuisine?: string;
+  type?: string;
+  time_value?: number;
+  time_unit?: string;
+  difficulty?: string;
+  servings?: number;
+  min_servings?: number;
+  split_servings?: number;
+  wip?: number;
+  notes?: string;
+}
+
+/**
+ * High-performance batch builder: fetches all ingredients, steps, tags, users,
+ * and bookmark statuses for a batch of recipes in 5 total queries, eliminating N+1 performance issues.
+ */
+async function buildRecipesBatch(recipeRows: RecipeRow[], userId?: string, lang: string = 'en') {
+  if (recipeRows.length === 0) return [];
   const db = await getDB();
-  const ingredients = await db.all(
+  const recipeIds = recipeRows.map((r) => r.id);
+  const placeholders = recipeIds.map(() => '?').join(',');
+
+  // 1. Batch load ingredients
+  const allIngredients = await db.all(
     `SELECT ri.*, f.name as food_name_en, f.name_it as food_name_it 
      FROM recipe_ingredients ri 
      LEFT JOIN foods f ON ri.food_id = f.id 
-     WHERE ri.recipe_id = ? 
-     ORDER BY ri.sort_order`,
-    recipeRow.id,
+     WHERE ri.recipe_id IN (${placeholders}) 
+     ORDER BY ri.recipe_id, ri.sort_order`,
+    ...recipeIds,
   );
-  const steps = await db.all(
-    'SELECT * FROM recipe_steps WHERE recipe_id = ? ORDER BY sort_order',
-    recipeRow.id,
-  );
-  const tagRows = await db.all('SELECT tag FROM recipe_tags WHERE recipe_id = ?', recipeRow.id);
-  const user = await db.get('SELECT name FROM users WHERE id = ?', recipeRow.user_id);
-
-  let isAdded = false;
-  if (userId) {
-    const saved = await db.get(
-      'SELECT 1 FROM saved_recipes WHERE user_id = ? AND recipe_id = ?',
-      userId,
-      recipeRow.id,
-    );
-    isAdded = !!saved;
+  const ingredientsByRecipe: Record<string, any[]> = {};
+  for (const ing of allIngredients) {
+    if (!ingredientsByRecipe[ing.recipe_id]) ingredientsByRecipe[ing.recipe_id] = [];
+    ingredientsByRecipe[ing.recipe_id].push({
+      id: ing.food_id || ing.id,
+      name: lang === 'it' ? ing.food_name_it || ing.name : ing.food_name_en || ing.name,
+      quantity: { value: ing.quantity_value, unit: ing.quantity_unit },
+      brand: ing.brand || '',
+    });
   }
 
-  return {
+  // 2. Batch load steps
+  const allSteps = await db.all(
+    `SELECT * FROM recipe_steps WHERE recipe_id IN (${placeholders}) ORDER BY recipe_id, sort_order`,
+    ...recipeIds,
+  );
+  const stepsByRecipe: Record<string, any[]> = {};
+  for (const st of allSteps) {
+    if (!stepsByRecipe[st.recipe_id]) stepsByRecipe[st.recipe_id] = [];
+    stepsByRecipe[st.recipe_id].push({
+      text: st.text,
+      imageUrl: st.image_url || '',
+    });
+  }
+
+  // 3. Batch load tags
+  const allTags = await db.all(
+    `SELECT recipe_id, tag FROM recipe_tags WHERE recipe_id IN (${placeholders})`,
+    ...recipeIds,
+  );
+  const tagsByRecipe: Record<string, string[]> = {};
+  for (const t of allTags) {
+    if (!tagsByRecipe[t.recipe_id]) tagsByRecipe[t.recipe_id] = [];
+    tagsByRecipe[t.recipe_id].push(t.tag);
+  }
+
+  // 4. Batch load owners
+  const userIds = Array.from(new Set(recipeRows.map((r) => r.user_id)));
+  const userPlaceholders = userIds.map(() => '?').join(',');
+  const users = await db.all(
+    `SELECT id, name FROM users WHERE id IN (${userPlaceholders})`,
+    ...userIds,
+  );
+  const userMap: Record<string, string> = {};
+  for (const u of users) {
+    userMap[u.id] = u.name;
+  }
+
+  // 5. Batch load saved recipes
+  const savedRecipeIds = new Set<string>();
+  if (userId) {
+    const saved = await db.all(
+      `SELECT recipe_id FROM saved_recipes WHERE user_id = ? AND recipe_id IN (${placeholders})`,
+      userId,
+      ...recipeIds,
+    );
+    for (const s of saved) {
+      savedRecipeIds.add(s.recipe_id);
+    }
+  }
+
+  // Assemble the recipes
+  return recipeRows.map((recipeRow) => ({
     id: recipeRow.id,
     userId: recipeRow.user_id,
-    userName: user?.name || '',
+    userName: userMap[recipeRow.user_id] || '',
     name: recipeRow.name,
     description: recipeRow.description || '',
     cuisine: recipeRow.cuisine || '',
     type: recipeRow.type || 'OTHER',
     time: { value: recipeRow.time_value, unit: recipeRow.time_unit || 'MINUTE' },
     difficulty: recipeRow.difficulty || 'EASY',
-    ingredients: ingredients.map(
-      (i: {
-        id: string;
-        food_id?: string;
-        name: string;
-        food_name_en?: string;
-        food_name_it?: string;
-        quantity_value?: number;
-        quantity_unit?: string;
-        brand?: string;
-      }) => ({
-        id: i.food_id || i.id,
-        name: lang === 'it' ? i.food_name_it || i.name : i.food_name_en || i.name,
-        quantity: { value: i.quantity_value, unit: i.quantity_unit },
-        brand: i.brand || '',
-      }),
-    ),
-    steps: steps.map((s: { text: string; image_url?: string }) => ({
-      text: s.text,
-      imageUrl: s.image_url || '',
-    })),
-    tags: tagRows.map((t: { tag: string }) => t.tag),
+    ingredients: ingredientsByRecipe[recipeRow.id] || [],
+    steps: stepsByRecipe[recipeRow.id] || [],
+    tags: tagsByRecipe[recipeRow.id] || [],
     servings: recipeRow.servings || 4,
     minServings: recipeRow.min_servings || 1,
     splitServings: recipeRow.split_servings || 1,
     wip: !!recipeRow.wip,
     notes: recipeRow.notes || '',
-    isAdded,
-  };
+    isAdded: savedRecipeIds.has(recipeRow.id),
+  }));
+}
+
+async function buildRecipe(recipeRow: RecipeRow, userId?: string, lang: string = 'en') {
+  const [recipe] = await buildRecipesBatch([recipeRow], userId, lang);
+  return recipe;
 }
 
 async function saveRecipeDetails(
@@ -104,7 +149,7 @@ async function saveRecipeDetails(
   ingredients: {
     id?: string;
     name: string;
-    quantity?: { value?: number; unit?: string };
+    quantity?: { value?: number | null; unit?: string | null };
     brand?: string;
   }[],
   steps: { text: string; imageUrl?: string }[],
@@ -159,9 +204,63 @@ async function saveRecipeDetails(
   }
 }
 
-recipesRouter.get('/', optionalAuthenticateToken, async (req: any, res) => {
+// Zod schemas for validation
+const recipeIngredientSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1),
+  quantity: z
+    .object({
+      value: z.number().optional().nullable(),
+      unit: z.string().optional().nullable(),
+    })
+    .optional(),
+  brand: z.string().optional(),
+});
+
+const recipeStepSchema = z.object({
+  text: z.string(),
+  imageUrl: z.string().optional(),
+});
+
+const recipePayloadSchema = z.object({
+  name: z.string().min(1, 'Il nome della ricetta è obbligatorio'),
+  description: z.string().optional().default(''),
+  cuisine: z.string().optional().default(''),
+  type: z.string().optional().default('OTHER'),
+  difficulty: z.string().optional().default('EASY'),
+  time: z
+    .object({
+      value: z.number().optional().nullable(),
+      unit: z.string().optional().default('MINUTE'),
+    })
+    .optional(),
+  ingredients: z.array(recipeIngredientSchema).optional().default([]),
+  steps: z.array(recipeStepSchema).optional().default([]),
+  tags: z.array(z.string()).optional().default([]),
+  servings: z.number().optional().default(4),
+  minServings: z.number().optional().default(1),
+  splitServings: z.number().optional().default(1),
+  wip: z.boolean().or(z.number()).optional().default(false),
+  notes: z.string().optional().default(''),
+});
+
+/**
+ * Suggest ingredients for a dish (Feature 2 - Internet / Curated resolution without AI)
+ */
+recipesRouter.get('/suggest-ingredients', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload | undefined;
+    const query = (req.query.query as string) || '';
+    const result = await IngredientResolverService.resolveIngredients(query);
+    res.json(result);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+recipesRouter.get('/', optionalAuthenticateToken, async (req: Request, res: Response) => {
+  try {
+    const me = (req as AuthenticatedRequest).user as JwtPayload | undefined;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
     const userId = req.query.userId as string | undefined;
     if (!userId && !me) {
@@ -174,27 +273,8 @@ recipesRouter.get('/', optionalAuthenticateToken, async (req: any, res) => {
     const query = isOwnRecipes
       ? 'SELECT * FROM recipes WHERE user_id = ? ORDER BY created_at DESC'
       : 'SELECT * FROM recipes WHERE user_id = ? AND (wip IS NULL OR wip = 0) ORDER BY created_at DESC';
-    const rows = await db.all(query, effectiveUserId);
-    const recipes = await Promise.all(
-      rows.map(
-        (r: {
-          id: string;
-          user_id: string;
-          name: string;
-          description?: string;
-          cuisine?: string;
-          type?: string;
-          time_value?: number;
-          time_unit?: string;
-          difficulty?: string;
-          servings?: number;
-          min_servings?: number;
-          split_servings?: number;
-          wip?: number;
-          notes?: string;
-        }) => buildRecipe(r, me?.id, lang),
-      ),
-    );
+    const rows: RecipeRow[] = await db.all(query, effectiveUserId);
+    const recipes = await buildRecipesBatch(rows, me?.id, lang);
     res.json(recipes);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -202,35 +282,16 @@ recipesRouter.get('/', optionalAuthenticateToken, async (req: any, res) => {
   }
 });
 
-recipesRouter.get('/saved', authenticateToken, async (req: any, res) => {
+recipesRouter.get('/saved', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
     const db = await getDB();
-    const rows = await db.all(
+    const rows: RecipeRow[] = await db.all(
       `SELECT r.* FROM recipes r JOIN saved_recipes sr ON sr.recipe_id = r.id WHERE sr.user_id = ? ORDER BY sr.created_at DESC`,
       me.id,
     );
-    const recipes = await Promise.all(
-      rows.map(
-        (r: {
-          id: string;
-          user_id: string;
-          name: string;
-          description?: string;
-          cuisine?: string;
-          type?: string;
-          time_value?: number;
-          time_unit?: string;
-          difficulty?: string;
-          servings?: number;
-          min_servings?: number;
-          split_servings?: number;
-          wip?: number;
-          notes?: string;
-        }) => buildRecipe(r, me.id, lang),
-      ),
-    );
+    const recipes = await buildRecipesBatch(rows, me.id, lang);
     res.json(recipes);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -238,13 +299,12 @@ recipesRouter.get('/saved', authenticateToken, async (req: any, res) => {
   }
 });
 
-recipesRouter.get('/group', authenticateToken, async (req: any, res) => {
+recipesRouter.get('/group', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
     const db = await getDB();
 
-    // Find the user's group
     const membership = await db.get(
       'SELECT group_id FROM group_members WHERE user_id = ? LIMIT 1',
       me.id,
@@ -254,7 +314,6 @@ recipesRouter.get('/group', authenticateToken, async (req: any, res) => {
       return;
     }
 
-    // Get all group members except the current user
     const members = await db.all(
       'SELECT user_id FROM group_members WHERE group_id = ? AND user_id != ?',
       membership.group_id,
@@ -267,31 +326,12 @@ recipesRouter.get('/group', authenticateToken, async (req: any, res) => {
 
     const memberIds = members.map((m: { user_id: string }) => m.user_id);
     const placeholders = memberIds.map(() => '?').join(',');
-    const rows = await db.all(
+    const rows: RecipeRow[] = await db.all(
       `SELECT * FROM recipes WHERE user_id IN (${placeholders}) AND (wip IS NULL OR wip = 0) AND type != 'PRODUCT' ORDER BY name COLLATE NOCASE`,
       ...memberIds,
     );
 
-    const recipes = await Promise.all(
-      rows.map(
-        (r: {
-          id: string;
-          user_id: string;
-          name: string;
-          description?: string;
-          cuisine?: string;
-          type?: string;
-          time_value?: number;
-          time_unit?: string;
-          difficulty?: string;
-          servings?: number;
-          min_servings?: number;
-          split_servings?: number;
-          wip?: number;
-          notes?: string;
-        }) => buildRecipe(r, me.id, lang),
-      ),
-    );
+    const recipes = await buildRecipesBatch(rows, me.id, lang);
     res.json(recipes);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -299,34 +339,15 @@ recipesRouter.get('/group', authenticateToken, async (req: any, res) => {
   }
 });
 
-recipesRouter.get('/discover', authenticateToken, async (req: any, res) => {
+recipesRouter.get('/discover', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
     const db = await getDB();
-    const rows = await db.all(
+    const rows: RecipeRow[] = await db.all(
       'SELECT * FROM recipes WHERE (wip IS NULL OR wip = 0) ORDER BY created_at DESC LIMIT 50',
     );
-    const recipes = await Promise.all(
-      rows.map(
-        (r: {
-          id: string;
-          user_id: string;
-          name: string;
-          description?: string;
-          cuisine?: string;
-          type?: string;
-          time_value?: number;
-          time_unit?: string;
-          difficulty?: string;
-          servings?: number;
-          min_servings?: number;
-          split_servings?: number;
-          wip?: number;
-          notes?: string;
-        }) => buildRecipe(r, me.id, lang),
-      ),
-    );
+    const recipes = await buildRecipesBatch(rows, me.id, lang);
     res.json(recipes);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -334,17 +355,19 @@ recipesRouter.get('/discover', authenticateToken, async (req: any, res) => {
   }
 });
 
-recipesRouter.get('/:id', optionalAuthenticateToken, async (req: any, res) => {
+recipesRouter.get('/:id', optionalAuthenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload | undefined;
+    const me = (req as AuthenticatedRequest).user as JwtPayload | undefined;
     const lang = req.acceptsLanguages('it', 'en') || 'en';
     const db = await getDB();
-    const row = await db.get('SELECT * FROM recipes WHERE id = ?', req.params.id);
+    const row: RecipeRow | undefined = await db.get(
+      'SELECT * FROM recipes WHERE id = ?',
+      req.params.id,
+    );
     if (!row) {
       res.status(404).json({ error: 'Recipe not found' });
       return;
     }
-    // WIP recipes are only visible to their owner
     if (row.wip && (!me || row.user_id !== me.id)) {
       res.status(404).json({ error: 'Recipe not found' });
       return;
@@ -357,9 +380,15 @@ recipesRouter.get('/:id', optionalAuthenticateToken, async (req: any, res) => {
   }
 });
 
-recipesRouter.post('/', authenticateToken, async (req: any, res) => {
+recipesRouter.post('/', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
+    const parsed = recipePayloadSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.issues.map((e) => e.message).join(', ') });
+      return;
+    }
+
     const {
       name,
       description,
@@ -375,7 +404,8 @@ recipesRouter.post('/', authenticateToken, async (req: any, res) => {
       splitServings,
       wip,
       notes,
-    } = req.body;
+    } = parsed.data;
+
     const normalizedServings = toMinOne(servings, 4);
     const normalizedMinServings = toMinOne(minServings, 1);
     const normalizedSplitServings = toMinOne(splitServings, 1);
@@ -414,9 +444,15 @@ recipesRouter.post('/', authenticateToken, async (req: any, res) => {
   }
 });
 
-recipesRouter.put('/:id', authenticateToken, async (req: any, res) => {
+recipesRouter.put('/:id', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
+    const parsed = recipePayloadSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.issues.map((e) => e.message).join(', ') });
+      return;
+    }
+
     const {
       name,
       description,
@@ -432,14 +468,16 @@ recipesRouter.put('/:id', authenticateToken, async (req: any, res) => {
       splitServings,
       wip,
       notes,
-    } = req.body;
+    } = parsed.data;
+
     const normalizedServings = toMinOne(servings, 4);
     const normalizedMinServings = toMinOne(minServings, 1);
     const normalizedSplitServings = toMinOne(splitServings, 1);
     const db = await getDB();
+    const recipeId = req.params.id as string;
     const existing = await db.get(
       'SELECT * FROM recipes WHERE id = ? AND user_id = ?',
-      req.params.id,
+      recipeId,
       me.id,
     );
     if (!existing) {
@@ -460,9 +498,9 @@ recipesRouter.put('/:id', authenticateToken, async (req: any, res) => {
       normalizedSplitServings,
       wip ? 1 : 0,
       notes || '',
-      req.params.id,
+      recipeId,
     );
-    await saveRecipeDetails(req.params.id, ingredients, steps, tags);
+    await saveRecipeDetails(recipeId, ingredients, steps, tags);
     res.json({ success: true });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -470,9 +508,9 @@ recipesRouter.put('/:id', authenticateToken, async (req: any, res) => {
   }
 });
 
-recipesRouter.delete('/:id', authenticateToken, async (req: any, res) => {
+recipesRouter.delete('/:id', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
     const recipe = await db.get('SELECT user_id FROM recipes WHERE id = ?', req.params.id);
     if (!recipe) {
@@ -491,9 +529,9 @@ recipesRouter.delete('/:id', authenticateToken, async (req: any, res) => {
   }
 });
 
-recipesRouter.post('/:id/save', authenticateToken, async (req: any, res) => {
+recipesRouter.post('/:id/save', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
     await db.run(
       'INSERT OR IGNORE INTO saved_recipes (user_id, recipe_id) VALUES (?, ?)',
@@ -507,9 +545,9 @@ recipesRouter.post('/:id/save', authenticateToken, async (req: any, res) => {
   }
 });
 
-recipesRouter.delete('/:id/save', authenticateToken, async (req: any, res) => {
+recipesRouter.delete('/:id/save', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
     await db.run(
       'DELETE FROM saved_recipes WHERE user_id = ? AND recipe_id = ?',

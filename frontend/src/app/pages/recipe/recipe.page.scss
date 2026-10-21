@@ -1,3 +1,56 @@
+.recipe-meta-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+
+  .meta-chip {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+}
+
+.servings-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--ion-color-step-100, #f4f5f8);
+  border-radius: 14px;
+  margin-bottom: 20px;
+  border: 1px solid var(--ion-color-step-150, #e8e8e8);
+
+  .servings-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ion-text-color);
+
+    ion-icon {
+      font-size: 1.2rem;
+      color: var(--ion-color-primary);
+    }
+  }
+
+  .servings-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .servings-count {
+      min-width: 24px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--ion-text-color);
+    }
+  }
+}
+
 .quantity-label {
   font-weight: 700;
   color: var(--ion-color-dark);
@@ -43,6 +96,22 @@
   }
 }
 
+.ingredient-checkbox {
+  --size: 20px;
+  --checkbox-background-checked: var(--ion-color-primary);
+  margin-inline-end: 12px;
+}
+
+.checked-ingredient {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+
+  .ingredient-name-label,
+  .quantity-label {
+    text-decoration: line-through;
+  }
+}
+
 .macro-label {
   max-width: 25% !important;
   text-align: right;
@@ -55,4 +124,66 @@
   font-size: 0.85em;
   color: var(--ion-color-medium);
   font-style: italic;
+}
+
+.steps-section-title {
+  margin-top: 24px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.steps-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.step-card-timeline {
+  display: flex;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--ion-card-background, var(--ion-color-step-50, #fff));
+  border-radius: 14px;
+  border: 1px solid var(--ion-color-step-150, #eaeaea);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+
+  .step-badge-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .step-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+    background: var(--ion-color-primary);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  .step-card-content {
+    flex: 1;
+
+    .step-image {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      object-fit: cover;
+      max-height: 220px;
+    }
+
+    .step-text {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--ion-text-color);
+    }
+  }
 }

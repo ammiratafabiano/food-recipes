@@ -280,15 +280,38 @@ export class DataService {
     foodName: string,
     day?: WeekDay,
     isCustom = false,
+    ingredients?: { name: string; quantity?: number; unit?: string }[],
   ) {
     const context = new HttpContext().set(SKIP_LOADING, true);
     return firstValueFrom(
       this.http.post<{ success: boolean; item: PlannedRecipe }>(
         `${this.api}/planning/${week}/quick-add`,
-        { foodId, foodName, day, isCustom },
+        { foodId, foodName, day, isCustom, ingredients },
         { context },
       ),
     );
+  }
+
+  async suggestIngredients(query: string): Promise<{
+    success: boolean;
+    dish: string;
+    source: 'curated' | 'scraped' | 'empty';
+    ingredients: { name: string; quantity: number | null; unit: string | null }[];
+  }> {
+    try {
+      const context = new HttpContext().set(SKIP_LOADING, true);
+      const params = { query };
+      return await firstValueFrom(
+        this.http.get<{
+          success: boolean;
+          dish: string;
+          source: 'curated' | 'scraped' | 'empty';
+          ingredients: { name: string; quantity: number | null; unit: string | null }[];
+        }>(`${this.api}/recipes/suggest-ingredients`, { params, context }),
+      );
+    } catch {
+      return { success: false, dish: query, source: 'empty', ingredients: [] };
+    }
   }
 
   async editPlanning(planned_recipe: PlannedRecipe) {

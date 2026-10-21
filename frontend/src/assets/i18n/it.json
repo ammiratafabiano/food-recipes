@@ -49,7 +49,10 @@
         "PLANNING_TOGGLE": "Planning settimanale",
         "SOCIAL_TOGGLE": "Modalità social",
         "STATUS_ON": "Attivo",
-        "STATUS_OFF": "Non attivo"
+        "STATUS_OFF": "Non attivo",
+        "FOLLOWERS": "Follower",
+        "FOLLOWED": "Seguiti",
+        "SAVED": "Salvate"
     },
     "GROUP_MANAGEMENT_PAGE": {
         "TITLE": "Gestione gruppo",

@@ -17,6 +17,7 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 import { Item } from 'src/app/models/item.model';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { smartMatchItem } from 'src/app/utils/smart-search';
 import { trackByValue } from 'src/app/utils/track-by';
 
 @Component({
@@ -48,13 +49,11 @@ export class ItemSelectionPage implements OnInit {
 
   readonly filteredItems = computed(() => {
     const items = this.items();
-    const query = this.searchQuery().toLowerCase().trim();
+    const query = this.searchQuery().trim();
     if (!query) {
       return [...items];
     }
-    return items.filter((item) => {
-      return item.text.toLowerCase().includes(query);
-    });
+    return items.filter((item) => smartMatchItem(item.text, query));
   });
 
   readonly customElement = computed(() => {

@@ -49,7 +49,10 @@
         "PLANNING_TOGGLE": "Weekly planning",
         "SOCIAL_TOGGLE": "Social mode",
         "STATUS_ON": "Active",
-        "STATUS_OFF": "Inactive"
+        "STATUS_OFF": "Inactive",
+        "FOLLOWERS": "Followers",
+        "FOLLOWED": "Following",
+        "SAVED": "Saved"
     },
     "GROUP_MANAGEMENT_PAGE": {
         "TITLE": "Group management",

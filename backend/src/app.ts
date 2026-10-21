@@ -4,7 +4,6 @@ dotenv.config();
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
-import bodyParser from 'body-parser';
 import { getDB, seedFoods } from './db';
 import { keyStore } from './key-store';
 import { authRouter } from './routes/auth.routes';
@@ -14,6 +13,7 @@ import { usersRouter } from './routes/users.routes';
 import { groupsRouter } from './routes/groups.routes';
 import { foodsRouter } from './routes/foods.routes';
 import { initSocketIO } from './socket';
+import { errorHandler } from './middleware/error-handler';
 
 export const app = express();
 export const server = http.createServer(app);
@@ -25,7 +25,7 @@ app.use(
     credentials: true,
   }),
 );
-app.use(bodyParser.json({ limit: '10mb' }));
+app.use(express.json({ limit: '10mb' }));
 
 app.use('/auth', authRouter);
 app.use('/recipes', recipesRouter);
@@ -35,6 +35,19 @@ app.use('/groups', groupsRouter);
 app.use('/foods', foodsRouter);
 
 app.get('/', (_, res) => res.send('Food Recipes API running'));
+app.get('/health', async (_, res) => {
+  try {
+    const db = await getDB();
+    await db.get('SELECT 1');
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'DB error';
+    res.status(503).json({ status: 'error', error: msg });
+  }
+});
+
+// Centralized error handling middleware
+app.use(errorHandler);
 
 // Initialize Socket.IO for real-time group sync
 initSocketIO(server);

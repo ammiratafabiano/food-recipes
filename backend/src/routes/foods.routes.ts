@@ -1,14 +1,14 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { getDB } from '../db';
 import crypto from 'crypto';
 const uuidv4 = () => crypto.randomUUID();
-import { authenticateToken, JwtPayload } from '../auth.middleware';
+import { authenticateToken, AuthenticatedRequest } from '../auth.middleware';
 
 export const foodsRouter = express.Router();
 foodsRouter.use(authenticateToken);
 
 // ── GET /foods ──────────────────────────────────────
-foodsRouter.get('/', async (req: any, res) => {
+foodsRouter.get('/', async (req: Request, res: Response) => {
   try {
     const lang = req.acceptsLanguages('it', 'en') || 'en';
     const db = await getDB();
@@ -45,9 +45,9 @@ foodsRouter.get('/', async (req: any, res) => {
 });
 
 // ── POST /foods ─────────────────────────────────────
-foodsRouter.post('/', async (req: any, res) => {
+foodsRouter.post('/', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const { name, defaultUnit, kcal, protein, fat, carbs, fiber, portionValue } = req.body;
     if (!name) {
       res.status(400).json({ error: 'name is required' });

@@ -19,12 +19,28 @@
   <ion-list lines="inset">
     @for (recipe of displayRecipes(); track trackByRecipe($index, recipe)) {
     <ion-item-sliding>
-      <ion-item button (click)="onRecipeClicked(recipe)">
+      <ion-item button (click)="onRecipeClicked(recipe)" class="recipe-list-item">
         <ion-label>
-          {{ recipe.name }} @if (recipe.wip) {
-          <ion-icon name="construct-outline" color="warning"></ion-icon>
+          <div class="recipe-title-row">
+            <span class="recipe-name">{{ recipe.name }}</span>
+            @if (recipe.wip) {
+            <ion-icon name="construct-outline" color="warning" class="wip-icon"></ion-icon>
+            }
+          </div>
+          @if (recipe.cuisine || recipe.difficulty) {
+          <p class="recipe-meta-text">
+            @if (recipe.cuisine) { <span>{{ recipe.cuisine }}</span> } @if (recipe.cuisine &&
+            recipe.difficulty) { <span> · </span> } @if (recipe.difficulty) {
+            <span>{{ 'DIFFICULTIES.' + recipe.difficulty | translate }}</span> }
+          </p>
           }
         </ion-label>
+        @if (recipe.time && recipe.time.value) {
+        <ion-note slot="end" class="recipe-time-note">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>{{ recipe.time.value }} {{ recipe.time.unit || 'm' }}</span>
+        </ion-note>
+        }
       </ion-item>
       <ion-item-options side="end" (ionSwipe)="onAddToPlanningClicked(recipe)">
         <ion-item-option expandable (click)="onAddToPlanningClicked(recipe)">
@@ -42,12 +58,28 @@
   <ion-list lines="inset">
     @for (recipe of displayOthersRecipes(); track trackByRecipe($index, recipe)) {
     <ion-item-sliding>
-      <ion-item button (click)="onRecipeClicked(recipe)">
+      <ion-item button (click)="onRecipeClicked(recipe)" class="recipe-list-item">
         <ion-label>
-          {{ recipe.name }} @if (recipe.wip) {
-          <ion-icon name="construct-outline" color="warning"></ion-icon>
+          <div class="recipe-title-row">
+            <span class="recipe-name">{{ recipe.name }}</span>
+            @if (recipe.wip) {
+            <ion-icon name="construct-outline" color="warning" class="wip-icon"></ion-icon>
+            }
+          </div>
+          @if (recipe.cuisine || recipe.difficulty) {
+          <p class="recipe-meta-text">
+            @if (recipe.cuisine) { <span>{{ recipe.cuisine }}</span> } @if (recipe.cuisine &&
+            recipe.difficulty) { <span> · </span> } @if (recipe.difficulty) {
+            <span>{{ 'DIFFICULTIES.' + recipe.difficulty | translate }}</span> }
+          </p>
           }
         </ion-label>
+        @if (recipe.time && recipe.time.value) {
+        <ion-note slot="end" class="recipe-time-note">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>{{ recipe.time.value }} {{ recipe.time.unit || 'm' }}</span>
+        </ion-note>
+        }
       </ion-item>
       <ion-item-options side="end" (ionSwipe)="onAddToPlanningClicked(recipe)">
         <ion-item-option expandable (click)="onAddToPlanningClicked(recipe)">
@@ -62,8 +94,25 @@
   <ion-list lines="inset">
     @for (recipe of displayGroupRecipes(); track trackByRecipe($index, recipe)) {
     <ion-item-sliding>
-      <ion-item button (click)="onRecipeClicked(recipe)">
-        <ion-label> {{ recipe.name }} </ion-label>
+      <ion-item button (click)="onRecipeClicked(recipe)" class="recipe-list-item">
+        <ion-label>
+          <div class="recipe-title-row">
+            <span class="recipe-name">{{ recipe.name }}</span>
+          </div>
+          @if (recipe.cuisine || recipe.difficulty) {
+          <p class="recipe-meta-text">
+            @if (recipe.cuisine) { <span>{{ recipe.cuisine }}</span> } @if (recipe.cuisine &&
+            recipe.difficulty) { <span> · </span> } @if (recipe.difficulty) {
+            <span>{{ 'DIFFICULTIES.' + recipe.difficulty | translate }}</span> }
+          </p>
+          }
+        </ion-label>
+        @if (recipe.time && recipe.time.value) {
+        <ion-note slot="end" class="recipe-time-note">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>{{ recipe.time.value }} {{ recipe.time.unit || 'm' }}</span>
+        </ion-note>
+        }
       </ion-item>
       <ion-item-options side="end" (ionSwipe)="onAddToPlanningClicked(recipe)">
         <ion-item-option expandable (click)="onAddToPlanningClicked(recipe)">

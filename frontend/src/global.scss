@@ -52,6 +52,15 @@ ion-item-sliding {
   }
 }
 
+/* ── Global Bottom Spacing & List Margins (prevents items touching bottom screen edge) ── */
+ion-content {
+  --padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+ion-list {
+  margin-bottom: 24px;
+}
+
 /* ── Reusable Custom UI Styles (to comply with component style budgets) ── */
 
 .section-title {

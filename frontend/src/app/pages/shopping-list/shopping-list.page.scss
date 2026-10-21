@@ -1,3 +1,22 @@
 .quantity-label {
-  max-width: 20% !important;
+  max-width: 25% !important;
+  text-align: right;
+  font-weight: 600;
+}
+
+.shopping-checkbox {
+  --size: 22px;
+  --checkbox-background-checked: var(--ion-color-primary);
+  margin-inline-end: 14px;
+}
+
+.item-checked {
+  opacity: 0.45;
+  transition: opacity 0.2s ease;
+
+  .shopping-item-name,
+  .quantity-label {
+    text-decoration: line-through;
+    color: var(--ion-color-medium);
+  }
 }

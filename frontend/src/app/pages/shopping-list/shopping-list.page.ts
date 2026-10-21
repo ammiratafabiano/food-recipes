@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@
 import {
   IonButton,
   IonButtons,
+  IonCheckbox,
   IonContent,
   IonHeader,
   IonIcon,
@@ -40,6 +41,7 @@ import { Subscription } from 'rxjs';
     IonLabel,
     IonList,
     IonItem,
+    IonCheckbox,
     IonRefresher,
     IonRefresherContent,
     IonButtons,
@@ -54,8 +56,16 @@ export class ShoppingListPage implements OnDestroy {
   private readonly alertService = inject(AlertService);
 
   readonly shoppingList = signal<Ingredient[] | undefined>(undefined);
+  readonly checkedItems = signal<Record<string, boolean>>({});
 
   readonly trackByIngredient = trackById;
+
+  toggleCheck(key: string) {
+    this.checkedItems.update((map) => ({
+      ...map,
+      [key]: !map[key],
+    }));
+  }
 
   private group: Group | undefined;
   private invalidateSub: Subscription | null = null;

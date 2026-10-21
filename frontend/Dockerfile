@@ -29,6 +29,7 @@ COPY --from=build /app/www /usr/share/nginx/html
 
 # Expose port 80
 EXPOSE 80
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD wget -q -O /dev/null http://localhost/ || exit 1
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]

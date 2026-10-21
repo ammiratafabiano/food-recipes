@@ -1,12 +1,17 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { getDB } from '../db';
-import { authenticateToken, optionalAuthenticateToken, JwtPayload } from '../auth.middleware';
+import {
+  authenticateToken,
+  optionalAuthenticateToken,
+  AuthenticatedRequest,
+  JwtPayload,
+} from '../auth.middleware';
 
 export const usersRouter = express.Router();
 
-usersRouter.get('/', authenticateToken, async (req: any, res) => {
+usersRouter.get('/', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
     const users = await db.all(
       'SELECT id, name, email, avatar_url FROM users WHERE id != ?',
@@ -19,9 +24,9 @@ usersRouter.get('/', authenticateToken, async (req: any, res) => {
   }
 });
 
-usersRouter.get('/me/profile', authenticateToken, async (req: any, res) => {
+usersRouter.get('/me/profile', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
     const user = await db.get(
       'SELECT id, name, weight, height, age, sex, activity_level, planning_enabled, social_enabled FROM users WHERE id = ?',
@@ -34,9 +39,9 @@ usersRouter.get('/me/profile', authenticateToken, async (req: any, res) => {
   }
 });
 
-usersRouter.put('/me/profile', authenticateToken, async (req: any, res) => {
+usersRouter.put('/me/profile', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
     const { weight, height, age, sex, activity_level, planning_enabled, social_enabled } = req.body;
     await db.run(
@@ -57,9 +62,9 @@ usersRouter.put('/me/profile', authenticateToken, async (req: any, res) => {
   }
 });
 
-usersRouter.get('/:id', optionalAuthenticateToken, async (req: any, res) => {
+usersRouter.get('/:id', optionalAuthenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload | undefined;
+    const me = (req as AuthenticatedRequest).user as JwtPayload | undefined;
     const db = await getDB();
     const user = await db.get(
       'SELECT id, name, email, avatar_url FROM users WHERE id = ?',
@@ -86,7 +91,7 @@ usersRouter.get('/:id', optionalAuthenticateToken, async (req: any, res) => {
   }
 });
 
-usersRouter.get('/:id/stats', authenticateToken, async (req: any, res) => {
+usersRouter.get('/:id/stats', authenticateToken, async (req: Request, res: Response) => {
   try {
     const db = await getDB();
     const userId = req.params.id;
@@ -110,9 +115,9 @@ usersRouter.get('/:id/stats', authenticateToken, async (req: any, res) => {
   }
 });
 
-usersRouter.post('/:id/follow', authenticateToken, async (req: any, res) => {
+usersRouter.post('/:id/follow', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
     await db.run(
       'INSERT OR IGNORE INTO followers (follower_id, followed_id) VALUES (?, ?)',
@@ -126,9 +131,9 @@ usersRouter.post('/:id/follow', authenticateToken, async (req: any, res) => {
   }
 });
 
-usersRouter.delete('/:id/follow', authenticateToken, async (req: any, res) => {
+usersRouter.delete('/:id/follow', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
     await db.run(
       'DELETE FROM followers WHERE follower_id = ? AND followed_id = ?',

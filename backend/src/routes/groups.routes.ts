@@ -1,16 +1,16 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { getDB } from '../db';
 import crypto from 'crypto';
 const uuidv4 = () => crypto.randomUUID();
-import { authenticateToken, JwtPayload } from '../auth.middleware';
+import { authenticateToken, AuthenticatedRequest, JwtPayload } from '../auth.middleware';
 import { emitGroupMembershipChanged } from '../socket';
 
 export const groupsRouter = express.Router();
 groupsRouter.use(authenticateToken);
 
-groupsRouter.get('/mine', async (req: any, res) => {
+groupsRouter.get('/mine', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
     const row = await db.get(
       `SELECT g.id FROM groups_table g JOIN group_members gm ON gm.group_id = g.id WHERE gm.user_id = ? LIMIT 1`,
@@ -28,7 +28,7 @@ groupsRouter.get('/mine', async (req: any, res) => {
   }
 });
 
-groupsRouter.get('/:id', async (req: any, res) => {
+groupsRouter.get('/:id', async (req: Request, res: Response) => {
   try {
     const db = await getDB();
     const row = await db.get(
@@ -47,9 +47,9 @@ groupsRouter.get('/:id', async (req: any, res) => {
   }
 });
 
-groupsRouter.post('/', async (req: any, res) => {
+groupsRouter.post('/', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
 
     // If user is already in a group, leave it first
@@ -102,9 +102,9 @@ groupsRouter.post('/', async (req: any, res) => {
   }
 });
 
-groupsRouter.post('/:id/join', async (req: any, res) => {
+groupsRouter.post('/:id/join', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
 
     // Verify the group exists and has at least one member
@@ -125,7 +125,6 @@ groupsRouter.post('/:id/join', async (req: any, res) => {
     if (existingGroup && existingGroup.group_id !== req.params.id) {
       const oldGroupId = existingGroup.group_id;
 
-      // Get remaining members of old group
       const oldMembers = await db.all(
         'SELECT user_id FROM group_members WHERE group_id = ? AND user_id != ?',
         oldGroupId,
@@ -133,7 +132,6 @@ groupsRouter.post('/:id/join', async (req: any, res) => {
       );
       const oldRemainingIds = oldMembers.map((m: { user_id: string }) => m.user_id);
 
-      // Remove follow relationships with old group members
       for (const otherId of oldRemainingIds) {
         await db.run(
           'DELETE FROM followers WHERE follower_id = ? AND followed_id = ?',
@@ -153,7 +151,6 @@ groupsRouter.post('/:id/join', async (req: any, res) => {
         me.id,
       );
 
-      // Clean up empty old group
       if (oldRemainingIds.length === 0) {
         await db.run('DELETE FROM groups_table WHERE id = ?', oldGroupId);
       }
@@ -191,20 +188,20 @@ groupsRouter.post('/:id/join', async (req: any, res) => {
       );
     }
 
-    emitGroupMembershipChanged(req.params.id, userIds);
-    res.json({ id: req.params.id, users: userIds });
+    const targetGroupId = req.params.id as string;
+    emitGroupMembershipChanged(targetGroupId, userIds);
+    res.json({ id: targetGroupId, users: userIds });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     res.status(500).json({ error: message });
   }
 });
 
-groupsRouter.post('/:id/leave', async (req: any, res) => {
+groupsRouter.post('/:id/leave', async (req: Request, res: Response) => {
   try {
-    const me = req.user as JwtPayload;
+    const me = (req as AuthenticatedRequest).user;
     const db = await getDB();
 
-    // Get remaining members before removing
     const membersBefore = await db.all(
       'SELECT user_id FROM group_members WHERE group_id = ? AND user_id != ?',
       req.params.id,
@@ -212,7 +209,6 @@ groupsRouter.post('/:id/leave', async (req: any, res) => {
     );
     const remainingIds = membersBefore.map((m: { user_id: string }) => m.user_id);
 
-    // Remove follow relationships between leaving user and remaining group members
     for (const otherId of remainingIds) {
       await db.run(
         'DELETE FROM followers WHERE follower_id = ? AND followed_id = ?',
@@ -232,13 +228,13 @@ groupsRouter.post('/:id/leave', async (req: any, res) => {
       me.id,
     );
 
-    // Clean up empty group if no members remain
     if (remainingIds.length === 0) {
       await db.run('DELETE FROM groups_table WHERE id = ?', req.params.id);
     }
 
-    emitGroupMembershipChanged(req.params.id, remainingIds);
-    res.json({ id: req.params.id, users: remainingIds });
+    const targetGroupId = req.params.id as string;
+    emitGroupMembershipChanged(targetGroupId, remainingIds);
+    res.json({ id: targetGroupId, users: remainingIds });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     res.status(500).json({ error: message });

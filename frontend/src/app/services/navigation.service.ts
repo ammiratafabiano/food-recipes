@@ -1,10 +1,16 @@
-import { inject, Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { inject, Injectable, signal } from '@angular/core';
+import {
+  NavigationCancel,
+  NavigationEnd,
+  NavigationError,
+  NavigationStart,
+  Router,
+} from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { LoggingService } from './logging.service';
 import { NavigationData } from '../models/navigation-data.model';
 import { NavigationStackElement } from '../models/navigation-stack-element.model';
-import { createNavigationData, createNavigationStackElement } from '../utils/model-factories';
+import { createNavigationStackElement } from '../utils/model-factories';
 
 @Injectable({
   providedIn: 'root',
@@ -15,23 +21,9 @@ export class NavigationService {
   private readonly navController = inject(NavController);
 
   private stack: NavigationStackElement[] = [];
-  private _navigationBusy = false;
 
-  /** Returns true if a navigation transition is currently in flight. */
-  get isNavigationBusy(): boolean {
-    return this._navigationBusy;
-  }
-
-  private setBusy(promise: Promise<unknown>): void {
-    this._navigationBusy = true;
-    promise.finally(() => {
-      // Delay to let Ionic finish the page transition animation.
-      // Ionic transitions are ~300ms; 500ms gives enough margin for slower devices.
-      setTimeout(() => {
-        this._navigationBusy = false;
-      }, 500);
-    });
-  }
+  readonly swipeBackEnabled = signal<boolean>(true);
+  private transitionTimer: ReturnType<typeof setTimeout> | null = null;
 
   public get currentUrl(): string {
     let url = this.router.parseUrl(this.router.url).toString();
@@ -44,17 +36,50 @@ export class NavigationService {
     return this.stack.length > 0;
   }
 
-  constructor() {}
+  constructor() {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        // Guard swipe-back gesture during navigation transition
+        this.setSwipeBackActive(false);
+        this.swipeBackEnabled.set(false);
+        if (this.transitionTimer) clearTimeout(this.transitionTimer);
+
+        // Keep stack in sync if user navigated back via browser/gesture (popstate)
+        if (event.navigationTrigger === 'popstate' && this.stack.length > 0) {
+          const top = this.stack[this.stack.length - 1];
+          if (top && this.currentUrl === top.to) {
+            this.stack.pop();
+          }
+        }
+      } else if (
+        event instanceof NavigationEnd ||
+        event instanceof NavigationCancel ||
+        event instanceof NavigationError
+      ) {
+        // Re-enable swipe-back safely after page transition completes
+        if (this.transitionTimer) clearTimeout(this.transitionTimer);
+        this.transitionTimer = setTimeout(() => {
+          this.setSwipeBackActive(true);
+          this.swipeBackEnabled.set(true);
+        }, 320);
+      }
+    });
+  }
+
+  private setSwipeBackActive(enabled: boolean) {
+    const outlet = document.querySelector('ion-router-outlet') as any;
+    if (outlet?.swipeHandler) {
+      if (!outlet._origCanStart) {
+        outlet._origCanStart = outlet.swipeHandler.canStart;
+      }
+      outlet.swipeHandler.canStart = () => enabled && outlet._origCanStart();
+    }
+  }
 
   /**
-   * @description Push a new component onto the current navigation stack. Pass additional information along as an object.
-   * This additional information is accessible through NavParams.
-   * @param path The relative url page.
-   * @param navigationData The navigation data (optional)
-   * @returns void
+   * @description Push a new component onto the current navigation stack.
    */
   push(path: string, navigationData?: NavigationData): Promise<void> {
-    if (this._navigationBusy) return Promise.resolve();
     this.logService.Info('NavigationService', 'push', 'page=' + JSON.stringify(path));
     const from = this.currentUrl.split('/');
     let to = [...from];
@@ -67,14 +92,14 @@ export class NavigationService {
       }
     }
     if (navigationData) {
-      let navigationStackElement = createNavigationStackElement({
+      const navigationStackElement = createNavigationStackElement({
         to: to.join('/'),
         from: from.join('/'),
         data: navigationData,
       });
       this.stack.push(navigationStackElement);
     }
-    const promise = this.navController
+    return this.navController
       .navigateForward(to, { queryParams: navigationData?.queryParams })
       .then((success) => {
         if (success) {
@@ -86,32 +111,26 @@ export class NavigationService {
           'values=' + JSON.stringify(this.stack.map((x) => x.to)),
         );
       });
-    this.setBusy(promise);
-    return promise;
   }
 
   /**
    * @description Call to navigate back from a current component.
-   * @param params The params from previous page (optional)
-   * @returns void
    */
   pop(params?: unknown): Promise<void> {
-    if (this._navigationBusy) return Promise.resolve();
     this.logService.Info('NavigationService', 'pop', '');
     const from = this.currentUrl.split('/');
     let toSegments = from.slice(0, from.length - 1);
     let navigationData: NavigationData | undefined;
 
-    const toRemoveIndex = this.stack.findIndex((x) => x.to == this.currentUrl.split('?')[0]);
+    const toRemoveIndex = this.stack.findIndex((x) => x.to === this.currentUrl.split('?')[0]);
     if (toRemoveIndex > -1) {
       const removedList = this.stack.splice(toRemoveIndex);
       navigationData = removedList && removedList[0] ? removedList[0].data : undefined;
-      // Navigate back to where we came from when this component was pushed!
-      let targetRoute = removedList[0].from;
+      const targetRoute = removedList[0].from;
       toSegments = targetRoute ? targetRoute.split('/') : toSegments;
     }
 
-    const promise = this.navController
+    return this.navController
       .navigateBack(['/', ...toSegments.filter((s) => s !== '')])
       .then(() => {
         navigationData?.dismissCallback && navigationData.dismissCallback(params);
@@ -121,18 +140,12 @@ export class NavigationService {
           'values=' + JSON.stringify(this.stack.map((x) => x.to)),
         );
       });
-    this.setBusy(promise);
-    return promise;
   }
 
   /**
    * @description Set the root for the current navigation stack.
-   * @param path The page url.
-   * @param navigationData The navigation data (optional)
-   * @returns void
    */
   setRoot(path: string | string[], navigationData?: NavigationData): Promise<void> {
-    if (this._navigationBusy) return Promise.resolve();
     this.logService.Info('NavigationService', 'setRoot', 'page=' + JSON.stringify(path));
     const from = this.currentUrl.split('/');
     const to = Array.isArray(path) ? path : [path];
@@ -141,7 +154,7 @@ export class NavigationService {
       queryParams: navigationData?.queryParams,
     };
     if (navigationData) {
-      let navigationStackElement = createNavigationStackElement({
+      const navigationStackElement = createNavigationStackElement({
         to: to.join('/'),
         from: from.join('/'),
         data: navigationData,
@@ -160,22 +173,18 @@ export class NavigationService {
         'values=' + JSON.stringify(this.stack.map((x) => x.to)),
       );
     };
-    let promise: Promise<boolean>;
-    if (navigationData?.animationDirection == 'forward') {
-      promise = this.navController.navigateForward(to, options);
-    } else if (navigationData?.animationDirection == 'back') {
-      promise = this.navController.navigateBack(to, options);
+
+    if (navigationData?.animationDirection === 'forward') {
+      return this.navController.navigateForward(to, options).then(successCallback);
+    } else if (navigationData?.animationDirection === 'back') {
+      return this.navController.navigateBack(to, options).then(successCallback);
     } else {
-      promise = this.navController.navigateRoot(to, options);
+      return this.navController.navigateRoot(to, options).then(successCallback);
     }
-    const voidPromise = promise.then(successCallback);
-    this.setBusy(voidPromise);
-    return voidPromise;
   }
 
   /**
    * @description Gets the params passed by the caller page.
-   * @returns T
    */
   getParams<T>(): T | undefined {
     const currentPage = this.getCurrentPage();
@@ -185,11 +194,8 @@ export class NavigationService {
 
   /**
    * @description Call to navigate to the previous page from a current component.
-   * @param params The params from previous page (optional)
-   * @returns void
    */
   goToPreviousPage(params?: unknown) {
-    if (this._navigationBusy) return;
     this.logService.Info('NavigationService', 'goToPreviousPage', '');
     if (this.stack.length > 0) {
       const lastStackElement = this.stack.pop();
@@ -204,7 +210,7 @@ export class NavigationService {
       }
 
       const toSegments = toPath.split('/').filter((s) => s !== '');
-      const promise = this.navController
+      this.navController
         .navigateBack(['/', ...toSegments], {
           queryParams: navigationData?.queryParams,
         })
@@ -216,16 +222,13 @@ export class NavigationService {
             'values=' + JSON.stringify(this.stack.map((x) => x.to)),
           );
         });
-      this.setBusy(promise);
     } else {
-      const promise = this.navController.navigateBack(['/']);
-      this.setBusy(promise);
+      this.navController.navigateBack(['/']);
     }
   }
 
   /**
    * @description Gets the current page navigation data.
-   * @returns NavigationData
    */
   private getCurrentPage(): NavigationStackElement {
     return this.stack[this.stack.length - 1];

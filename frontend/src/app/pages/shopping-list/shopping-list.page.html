@@ -25,10 +25,17 @@
   @if (shoppingList() !== undefined) { @if (shoppingList()!.length === 0) {
   <ion-label class="ion-padding"> {{ 'SHOPPING_LIST_PAGE.NO_DATA' | translate }} </ion-label>
   } @else {
-  <ion-list class="ion-margin-top">
+  <ion-list class="ion-margin-top shopping-items-list">
     @for (item of shoppingList(); track trackByIngredient($index, item)) {
-    <ion-item>
-      <ion-label> {{ item.name }} </ion-label>
+    <ion-item class="shopping-item" [class.item-checked]="checkedItems()[item.id || item.name]">
+      <ion-checkbox
+        slot="start"
+        [checked]="!!checkedItems()[item.id || item.name]"
+        (ionChange)="toggleCheck(item.id || item.name)"
+        aria-label="Acquisto completato"
+        class="shopping-checkbox"
+      ></ion-checkbox>
+      <ion-label class="shopping-item-name"> {{ item.name }} </ion-label>
       @if (item.quantity.value) {
       <ion-label class="quantity-label">
         {{ item.quantity.value | number:'1.0-1' }}{{ item.quantity.unit ? ('COMMON.WEIGHT_UNITS.' +

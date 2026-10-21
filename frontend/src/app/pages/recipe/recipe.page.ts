@@ -10,10 +10,7 @@ import { ActivatedRoute } from '@angular/router';
 import {
   IonButton,
   IonButtons,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
+  IonCheckbox,
   IonChip,
   IonContent,
   IonFooter,
@@ -67,10 +64,7 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
     IonLabel,
     IonItem,
     IonList,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
+    IonCheckbox,
     IonChip,
     IonInput,
     IonNote,
@@ -96,6 +90,9 @@ export class RecipePage implements OnInit {
   /** When true, ingredient quantities become editable inputs */
   readonly editMode = signal<boolean>(false);
 
+  /** Tracks completed/checked ingredients during cooking */
+  readonly checkedIngredients = signal<Record<number, boolean>>({});
+
   /**
    * Stores overridden ingredient values (index → new quantity).
    * Only populated when the user edits in editMode.
@@ -107,6 +104,14 @@ export class RecipePage implements OnInit {
   readonly hasStack = computed(() => this.navigationService.hasStack);
 
   refreshOnDismiss = false;
+
+  toggleIngredientCheck(index: number) {
+    if (this.editMode()) return;
+    this.checkedIngredients.update((map) => ({
+      ...map,
+      [index]: !map[index],
+    }));
+  }
 
   ngOnInit() {
     const recipeId = this.route.snapshot.queryParamMap.get('id');

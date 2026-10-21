@@ -3,11 +3,15 @@ import { keyStore, JwtPayload } from './key-store';
 
 export { JwtPayload } from './key-store';
 
+export interface AuthenticatedRequest extends Request {
+  user: JwtPayload;
+}
+
 /**
  * Express middleware — verifies the Bearer token using the RSA key store.
  * On success, attaches the decoded payload to `req.user`.
  */
-export function authenticateToken(req: any, res: Response, next: NextFunction) {
+export function authenticateToken(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers['authorization'];
   const token = authHeader?.split(' ')[1];
   if (!token) {
@@ -31,7 +35,7 @@ export function authenticateToken(req: any, res: Response, next: NextFunction) {
  * If a valid token is present, attaches the decoded payload to `req.user`.
  * If no token is provided, continues without setting `req.user`.
  */
-export function optionalAuthenticateToken(req: any, _res: Response, next: NextFunction) {
+export function optionalAuthenticateToken(req: Request, _res: Response, next: NextFunction) {
   const authHeader = req.headers['authorization'];
   const token = authHeader?.split(' ')[1];
   if (!token) {

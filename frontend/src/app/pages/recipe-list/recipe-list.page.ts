@@ -13,6 +13,7 @@ import {
   IonItemSliding,
   IonLabel,
   IonList,
+  IonNote,
   IonPopover,
   IonSearchbar,
   IonTitle,
@@ -35,6 +36,7 @@ import { DataService } from 'src/app/services/data.service';
 import { LoadingService } from 'src/app/services/loading.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { createRecipeTagFilter, createRecipeTypeFilter } from 'src/app/utils/model-factories';
+import { filterRecipesSmart } from 'src/app/utils/smart-search';
 import { trackById, trackByType } from 'src/app/utils/track-by';
 
 @Component({
@@ -61,6 +63,7 @@ import { trackById, trackByType } from 'src/app/utils/track-by';
     IonSearchbar,
     IonPopover,
     IonChip,
+    IonNote,
   ],
 })
 export class RecipeListPage {
@@ -76,58 +79,31 @@ export class RecipeListPage {
 
   readonly searchQuery = signal<string>('');
 
-  readonly displayRecipes = computed(() => {
-    const query = this.searchQuery().toLowerCase().trim();
-    const recipes = this.recipes();
+  private filterRecipeCollection(recipes: Recipe[] | undefined, excludeProducts = true): Recipe[] {
+    if (!recipes || recipes.length === 0) return [];
     const activeFilters = this.recipeTypeFilters()
       .filter((f) => f.enabled)
       .map((f) => f.type);
+    const query = this.searchQuery();
 
-    return recipes
-      ?.filter((x) => {
-        const matchQuery = query.length < 3 || x.name.toLowerCase().indexOf(query) > -1;
-        const matchFilter =
-          activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
-        const notProduct = x.type !== RecipeType.Product;
-        return matchQuery && matchFilter && notProduct;
-      })
-      .sort((a, b) => a.name.localeCompare(b.name));
-  });
+    let list = recipes;
+    if (excludeProducts) {
+      list = list.filter((x) => x.type !== RecipeType.Product);
+    }
+    if (activeFilters.length > 0) {
+      list = list.filter((x) => !!x.type && activeFilters.includes(x.type));
+    }
 
-  readonly displayOthersRecipes = computed(() => {
-    const query = this.searchQuery().toLowerCase().trim();
-    const recipes = this.othersRecipes();
-    const activeFilters = this.recipeTypeFilters()
-      .filter((f) => f.enabled)
-      .map((f) => f.type);
+    return filterRecipesSmart(list, query);
+  }
 
-    return recipes
-      ?.filter((x) => {
-        const matchQuery = query.length < 3 || x.name.toLowerCase().indexOf(query) > -1;
-        const matchFilter =
-          activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
-        const notProduct = x.type !== RecipeType.Product;
-        return matchQuery && matchFilter && notProduct;
-      })
-      .sort((a, b) => a.name.localeCompare(b.name));
-  });
-
-  readonly displayGroupRecipes = computed(() => {
-    const query = this.searchQuery().toLowerCase().trim();
-    const recipes = this.groupRecipes();
-    const activeFilters = this.recipeTypeFilters()
-      .filter((f) => f.enabled)
-      .map((f) => f.type);
-
-    return recipes
-      ?.filter((x) => {
-        const matchQuery = query.length < 3 || x.name.toLowerCase().indexOf(query) > -1;
-        const matchFilter =
-          activeFilters.length === 0 || (!!x.type && activeFilters.includes(x.type));
-        return matchQuery && matchFilter;
-      })
-      .sort((a, b) => a.name.localeCompare(b.name));
-  });
+  readonly displayRecipes = computed(() => this.filterRecipeCollection(this.recipes(), true));
+  readonly displayOthersRecipes = computed(() =>
+    this.filterRecipeCollection(this.othersRecipes(), true),
+  );
+  readonly displayGroupRecipes = computed(() =>
+    this.filterRecipeCollection(this.groupRecipes(), false),
+  );
 
   // Filters
   readonly recipeTypeFilters = signal<RecipeTypeFilter[]>([]);

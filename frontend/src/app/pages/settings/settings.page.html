@@ -17,32 +17,42 @@
 
   <div class="content">
     @if (userData(); as userData) {
-    <ion-card>
-      <ion-card-header>
-        <ion-avatar>
-          <img [src]="userData.avatar_url" referrerpolicy="no-referrer" />
+    <ion-card class="user-card">
+      <ion-card-header class="user-card-header">
+        <ion-avatar class="user-avatar">
+          <img [src]="userData.avatar_url" referrerpolicy="no-referrer" [alt]="userData.name" />
         </ion-avatar>
-        <ion-card-title>{{ userData.name }}</ion-card-title>
-        <ion-card-subtitle>{{ userData.email }}</ion-card-subtitle>
-      </ion-card-header>
-      <ion-card-content>
-        @if (userData.stats && dataService.socialEnabled()) {
-        <div class="stats-row">
-          <ion-label>
-            <h3>Followers</h3>
-            <p>{{ userData.stats.followers !== undefined ? userData.stats.followers : '/' }}</p>
-          </ion-label>
-          <ion-label>
-            <h3>Followed</h3>
-            <p>{{ userData.stats.followed !== undefined ? userData.stats.followed : '/' }}</p>
-          </ion-label>
-          <ion-label>
-            <h3>Saved</h3>
-            <p>{{ userData.stats.saved !== undefined ? userData.stats.saved : '/' }}</p>
-          </ion-label>
+        <div class="user-info">
+          <ion-card-title>{{ userData.name }}</ion-card-title>
+          <ion-card-subtitle>{{ userData.email }}</ion-card-subtitle>
         </div>
-        }
+      </ion-card-header>
+      @if (userData.stats && dataService.socialEnabled()) {
+      <ion-card-content class="user-card-content">
+        <div class="stats-row">
+          <div class="stat-box">
+            <span class="stat-number"
+              >{{ userData.stats.followers !== undefined ? userData.stats.followers : '0' }}</span
+            >
+            <span class="stat-label">{{ 'SETTINGS_PAGE.FOLLOWERS' | translate }}</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-box">
+            <span class="stat-number"
+              >{{ userData.stats.followed !== undefined ? userData.stats.followed : '0' }}</span
+            >
+            <span class="stat-label">{{ 'SETTINGS_PAGE.FOLLOWED' | translate }}</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-box">
+            <span class="stat-number"
+              >{{ userData.stats.saved !== undefined ? userData.stats.saved : '0' }}</span
+            >
+            <span class="stat-label">{{ 'SETTINGS_PAGE.SAVED' | translate }}</span>
+          </div>
+        </div>
       </ion-card-content>
+      }
     </ion-card>
     }
 
