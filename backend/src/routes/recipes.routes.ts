@@ -55,7 +55,15 @@ async function buildRecipesBatch(recipeRows: RecipeRow[], userId?: string, lang:
      ORDER BY ri.recipe_id, ri.sort_order`,
     ...recipeIds,
   );
-  const ingredientsByRecipe: Record<string, any[]> = {};
+  const ingredientsByRecipe: Record<
+    string,
+    {
+      id: string;
+      name: string;
+      quantity: { value: number | null; unit: string | null };
+      brand: string;
+    }[]
+  > = {};
   for (const ing of allIngredients) {
     if (!ingredientsByRecipe[ing.recipe_id]) ingredientsByRecipe[ing.recipe_id] = [];
     ingredientsByRecipe[ing.recipe_id].push({
@@ -71,7 +79,7 @@ async function buildRecipesBatch(recipeRows: RecipeRow[], userId?: string, lang:
     `SELECT * FROM recipe_steps WHERE recipe_id IN (${placeholders}) ORDER BY recipe_id, sort_order`,
     ...recipeIds,
   );
-  const stepsByRecipe: Record<string, any[]> = {};
+  const stepsByRecipe: Record<string, { text: string; imageUrl: string }[]> = {};
   for (const st of allSteps) {
     if (!stepsByRecipe[st.recipe_id]) stepsByRecipe[st.recipe_id] = [];
     stepsByRecipe[st.recipe_id].push({

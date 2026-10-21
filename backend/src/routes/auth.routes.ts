@@ -8,7 +8,6 @@ import {
   signRefreshToken,
   authenticateToken,
   AuthenticatedRequest,
-  JwtPayload,
 } from '../auth.middleware';
 import { keyStore } from '../key-store';
 import dotenv from 'dotenv';

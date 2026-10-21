@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { getDB } from '../db';
 import crypto from 'crypto';
 const uuidv4 = () => crypto.randomUUID();
-import { authenticateToken, AuthenticatedRequest, JwtPayload } from '../auth.middleware';
+import { authenticateToken, AuthenticatedRequest } from '../auth.middleware';
 import { emitGroupMembershipChanged } from '../socket';
 
 export const groupsRouter = express.Router();

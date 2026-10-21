@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { getDB } from '../db';
 import crypto from 'crypto';
 const uuidv4 = () => crypto.randomUUID();
-import { authenticateToken, AuthenticatedRequest, JwtPayload } from '../auth.middleware';
+import { authenticateToken, AuthenticatedRequest } from '../auth.middleware';
 import { emitPlanningChange, emitShoppingListInvalidate } from '../socket';
 import { GroupService } from '../services/group.service';
 import { ResolvedIngredient } from '../services/ingredient-resolver.service';
@@ -423,7 +423,7 @@ planningRouter.get('/:week/nutrition-summary', async (req: Request, res: Respons
     const placeholders = userIds.map(() => '?').join(',');
 
     let assignedFilter = '';
-    const params: any[] = [req.params.week, ...userIds];
+    const params: (string | number)[] = [req.params.week as string, ...userIds];
 
     if (assignedTo && assignedTo !== 'all') {
       assignedFilter = ` AND (p.assigned_to IS NULL OR p.assigned_to LIKE ?)`;
