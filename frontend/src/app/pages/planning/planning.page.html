@@ -11,10 +11,10 @@
     </ion-toolbar>
   </ion-header>
 
-  @if (dataLoaded() && group() && planning(); as p) {
+  @if (dataLoaded() && planning(); as p) {
   <div class="week-changer-container">
     <div class="week-nav-left">
-      <ion-button fill="clear" (click)="onPlanningBackClicked()">
+      <ion-button fill="clear" (click)="onPlanningBackClicked()" aria-label="Settimana precedente">
         <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
       </ion-button>
     </div>
@@ -25,20 +25,44 @@
       <span class="week-range">{{ weekLabel().range }}</span>
     </div>
     <div class="week-nav-right">
-      <ion-button fill="clear" (click)="onPlanningForwardClicked()">
+      <ion-button
+        fill="clear"
+        (click)="onPlanningForwardClicked()"
+        aria-label="Settimana successiva"
+      >
         <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
       </ion-button>
-      <ion-button fill="clear" class="nutrition-btn" (click)="onNutritionSummaryClicked()">
+      <ion-button
+        fill="clear"
+        class="nutrition-btn"
+        (click)="onNutritionSummaryClicked()"
+        aria-label="Riepilogo nutrizionale"
+      >
         <ion-icon slot="icon-only" name="bar-chart-outline"></ion-icon>
       </ion-button>
     </div>
   </div>
-  } @if (dataLoaded() && group()) {
+
+  @if (!group()) {
+  <div class="personal-mode-banner">
+    <div class="personal-mode-info">
+      <ion-icon name="person-circle-outline"></ion-icon>
+      <div class="personal-mode-texts">
+        <span class="personal-mode-title">Pianificazione Personale</span>
+        <span class="personal-mode-desc">I tuoi pasti settimanali sono visibili solo a te</span>
+      </div>
+    </div>
+    <ion-button fill="outline" size="small" (click)="onManageGroupClicked()" class="group-cta-btn">
+      <ion-icon slot="start" name="people-outline"></ion-icon>
+      Crea Gruppo
+    </ion-button>
+  </div>
+  }
+
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  @if (planning(); as p) {
   <ion-list class="ion-margin-top">
     <ion-reorder-group [disabled]="false" (ionItemReorder)="handleReorder($event)">
       @for (planned of p.recipes; track trackByPlanned($index, planned)) {
@@ -70,6 +94,7 @@
               <ion-label>{{ planned.servings || 1 }}</ion-label>
             </div>
           </div>
+          @if (group()) {
           <div
             class="assignees-container"
             slot="end"
@@ -81,6 +106,7 @@
             <ion-icon name="person" [style.color]="getUserColor(userId)"></ion-icon>
             } }
           </div>
+          }
           <ion-reorder slot="end"></ion-reorder>
           }
         </ion-item>
@@ -107,11 +133,9 @@
       }
     </ion-reorder-group>
   </ion-list>
-  } } @if (dataLoaded() && !group()) {
-  <p class="ion-padding">{{ 'COMMON.PLANNINGS.NO_GROUP_ERROR' | translate }}</p>
-  } @if (dataLoaded() && group()) {
+
   <ion-fab slot="fixed" vertical="bottom" horizontal="center">
-    <ion-fab-button (click)="onAddClicked()">
+    <ion-fab-button (click)="onAddClicked()" aria-label="Aggiungi piatto al planning">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>

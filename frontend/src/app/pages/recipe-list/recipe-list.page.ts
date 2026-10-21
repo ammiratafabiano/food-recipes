@@ -196,6 +196,10 @@ export class RecipeListPage {
   async onAddToPlanningClicked(recipe: Recipe) {
     if (!recipe) return;
 
+    if (!this.dataService.planningEnabled()) {
+      await this.dataService.setPlanningEnabled(true);
+    }
+
     const week = dayjs().add(1, 'week').startOf('week').format('YYYY-MM-DD');
     const group = await this.dataService.retrieveGroup();
     const res = await this.dataService.addToPlanning(recipe, week, undefined, undefined, group);
@@ -207,15 +211,7 @@ export class RecipeListPage {
     } else {
       this.alertService.presentAlertPopup(
         'COMMON.GENERIC_ALERT.ERROR_HEADER',
-        'COMMON.PLANNINGS.NO_GROUP_ERROR',
-        () => {
-          this.navigationService.setRoot([
-            NavigationPath.Base,
-            HomeNavigationPath.Settings,
-            SettingsNavigationPath.PlanningDetail,
-          ]);
-        },
-        'COMMON.PLANNINGS.GO_TO_GROUP_MANAGEMENT_BUTTON',
+        'COMMON.GENERIC_ALERT.ERROR_MESSAGE',
       );
     }
   }

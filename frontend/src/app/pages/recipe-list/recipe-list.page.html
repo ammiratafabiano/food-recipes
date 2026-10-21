@@ -29,16 +29,20 @@
           </div>
           @if (recipe.cuisine || recipe.difficulty) {
           <p class="recipe-meta-text">
-            @if (recipe.cuisine) { <span>{{ recipe.cuisine }}</span> } @if (recipe.cuisine &&
-            recipe.difficulty) { <span> · </span> } @if (recipe.difficulty) {
-            <span>{{ 'DIFFICULTIES.' + recipe.difficulty | translate }}</span> }
+            @if (recipe.cuisine) {
+            <span>{{ 'COMMON.CUISINE_TYPES.' + recipe.cuisine | translate }}</span> } @if
+            (recipe.cuisine && recipe.difficulty) { <span> · </span> } @if (recipe.difficulty) {
+            <span>{{ 'COMMON.DIFFICULTY_LEVEL.' + recipe.difficulty | translate }}</span> }
           </p>
           }
         </ion-label>
         @if (recipe.time && recipe.time.value) {
         <ion-note slot="end" class="recipe-time-note">
           <ion-icon name="time-outline"></ion-icon>
-          <span>{{ recipe.time.value }} {{ recipe.time.unit || 'm' }}</span>
+          <span
+            >{{ recipe.time.value }} {{ (recipe.time.unit ? ('COMMON.TIME_UNITS.' + recipe.time.unit
+            | translate) : 'm') }}</span
+          >
         </ion-note>
         }
       </ion-item>
@@ -68,16 +72,20 @@
           </div>
           @if (recipe.cuisine || recipe.difficulty) {
           <p class="recipe-meta-text">
-            @if (recipe.cuisine) { <span>{{ recipe.cuisine }}</span> } @if (recipe.cuisine &&
-            recipe.difficulty) { <span> · </span> } @if (recipe.difficulty) {
-            <span>{{ 'DIFFICULTIES.' + recipe.difficulty | translate }}</span> }
+            @if (recipe.cuisine) {
+            <span>{{ 'COMMON.CUISINE_TYPES.' + recipe.cuisine | translate }}</span> } @if
+            (recipe.cuisine && recipe.difficulty) { <span> · </span> } @if (recipe.difficulty) {
+            <span>{{ 'COMMON.DIFFICULTY_LEVEL.' + recipe.difficulty | translate }}</span> }
           </p>
           }
         </ion-label>
         @if (recipe.time && recipe.time.value) {
         <ion-note slot="end" class="recipe-time-note">
           <ion-icon name="time-outline"></ion-icon>
-          <span>{{ recipe.time.value }} {{ recipe.time.unit || 'm' }}</span>
+          <span
+            >{{ recipe.time.value }} {{ (recipe.time.unit ? ('COMMON.TIME_UNITS.' + recipe.time.unit
+            | translate) : 'm') }}</span
+          >
         </ion-note>
         }
       </ion-item>
@@ -101,16 +109,20 @@
           </div>
           @if (recipe.cuisine || recipe.difficulty) {
           <p class="recipe-meta-text">
-            @if (recipe.cuisine) { <span>{{ recipe.cuisine }}</span> } @if (recipe.cuisine &&
-            recipe.difficulty) { <span> · </span> } @if (recipe.difficulty) {
-            <span>{{ 'DIFFICULTIES.' + recipe.difficulty | translate }}</span> }
+            @if (recipe.cuisine) {
+            <span>{{ 'COMMON.CUISINE_TYPES.' + recipe.cuisine | translate }}</span> } @if
+            (recipe.cuisine && recipe.difficulty) { <span> · </span> } @if (recipe.difficulty) {
+            <span>{{ 'COMMON.DIFFICULTY_LEVEL.' + recipe.difficulty | translate }}</span> }
           </p>
           }
         </ion-label>
         @if (recipe.time && recipe.time.value) {
         <ion-note slot="end" class="recipe-time-note">
           <ion-icon name="time-outline"></ion-icon>
-          <span>{{ recipe.time.value }} {{ recipe.time.unit || 'm' }}</span>
+          <span
+            >{{ recipe.time.value }} {{ (recipe.time.unit ? ('COMMON.TIME_UNITS.' + recipe.time.unit
+            | translate) : 'm') }}</span
+          >
         </ion-note>
         }
       </ion-item>

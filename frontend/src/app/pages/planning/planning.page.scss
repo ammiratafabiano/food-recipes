@@ -76,23 +76,87 @@
 }
 
 .week-changer-container {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
-  padding: 4px 0;
+  padding: 4px 10px;
   background: rgba(var(--ion-color-medium-rgb), 0.05);
   border-bottom: 1px solid rgba(var(--ion-color-medium-rgb), 0.1);
   margin: 0 0 8px 0;
 
-  .week-nav-left,
+  .week-nav-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .week-title-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
   .week-nav-right {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
   }
 
   .nutrition-btn {
     border-left: 1px solid rgba(var(--ion-color-medium-rgb), 0.25);
     margin-left: 2px;
+  }
+}
+
+.personal-mode-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 16px 12px;
+  padding: 10px 14px;
+  background: rgba(var(--ion-color-primary-rgb), 0.07);
+  border: 1px solid rgba(var(--ion-color-primary-rgb), 0.18);
+  border-radius: 14px;
+
+  .personal-mode-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    ion-icon {
+      font-size: 26px;
+      color: var(--ion-color-primary);
+      flex-shrink: 0;
+    }
+
+    .personal-mode-texts {
+      display: flex;
+      flex-direction: column;
+
+      .personal-mode-title {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--ion-text-color);
+      }
+
+      .personal-mode-desc {
+        font-size: 0.74rem;
+        color: var(--ion-color-medium);
+        line-height: 1.2;
+      }
+    }
+  }
+
+  .group-cta-btn {
+    --border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin: 0;
   }
 }
 
@@ -151,5 +215,5 @@ ion-list {
 }
 
 ion-fab {
-  margin-bottom: 16px;
+  margin-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }

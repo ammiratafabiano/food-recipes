@@ -49,14 +49,21 @@ authRouter.post('/google', async (req: Request, res: Response) => {
     if (!user) {
       const id = uuidv4();
       await db.run(
-        'INSERT INTO users (id, name, email, avatar_url, google_id) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO users (id, name, email, avatar_url, google_id, planning_enabled, social_enabled) VALUES (?, ?, ?, ?, ?, 1, 1)',
         id,
         name || email!.split('@')[0],
         email,
         picture || '',
         googleId,
       );
-      user = { id, name: name || email!.split('@')[0], email, avatar_url: picture || '' };
+      user = {
+        id,
+        name: name || email!.split('@')[0],
+        email,
+        avatar_url: picture || '',
+        planning_enabled: 1,
+        social_enabled: 1,
+      };
     } else if (!user.google_id) {
       await db.run(
         "UPDATE users SET google_id = ?, avatar_url = COALESCE(NULLIF(avatar_url, ''), ?) WHERE id = ?",

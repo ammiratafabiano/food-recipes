@@ -4,6 +4,7 @@ import {
   computed,
   inject,
   OnDestroy,
+  OnInit,
   signal,
 } from '@angular/core';
 import { ActionSheetController, AlertController, ModalController } from '@ionic/angular';
@@ -41,7 +42,11 @@ import { WeekDay } from 'src/app/models/weekDay.enum';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { Meal } from 'src/app/models/meal.model';
 import { Group } from 'src/app/models/group.model';
-import { HomeNavigationPath } from 'src/app/models/navigation-path.enum';
+import {
+  HomeNavigationPath,
+  NavigationPath,
+  SettingsNavigationPath,
+} from 'src/app/models/navigation-path.enum';
 import { createPlanning } from 'src/app/utils/model-factories';
 import { LoadingService } from 'src/app/services/loading.service';
 import { AuthService } from 'src/app/services/auth.service';
@@ -76,7 +81,7 @@ import { PlanningAddResult } from './planning-add/planning-add.page';
     IonReorder,
   ],
 })
-export class PlanningPage implements OnDestroy {
+export class PlanningPage implements OnInit, OnDestroy {
   private readonly dataService = inject(DataService);
   private readonly loadingService = inject(LoadingService);
   private readonly navigationService = inject(NavigationService);
@@ -163,14 +168,15 @@ export class PlanningPage implements OnDestroy {
 
   constructor() {}
 
-  ngOnDestroy(): void {
-    this.realtimeSub?.unsubscribe();
-    this.membershipSub?.unsubscribe();
-    // Socket lives in the singleton SocketService —
-    // don't disconnect here, it would kill it for other pages too.
+  async ngOnInit() {
+    await this.initPlanning();
   }
 
   async ionViewDidEnter() {
+    await this.initPlanning();
+  }
+
+  private async initPlanning() {
     const week = this.navigationService.getParams<{ week: string }>()?.week;
     const targetStartDate = week || dayjs().add(1, 'week').startOf('week').format('YYYY-MM-DD');
 
@@ -185,6 +191,13 @@ export class PlanningPage implements OnDestroy {
 
     // Connect socket only if the user belongs to a group
     this.ensureRealtimeConnected();
+  }
+
+  ngOnDestroy(): void {
+    this.realtimeSub?.unsubscribe();
+    this.membershipSub?.unsubscribe();
+    // Socket lives in the singleton SocketService —
+    // don't disconnect here, it would kill it for other pages too.
   }
 
   private ensureRealtimeConnected() {
@@ -829,5 +842,13 @@ export class PlanningPage implements OnDestroy {
       },
     });
     await modal.present();
+  }
+
+  onManageGroupClicked() {
+    this.navigationService.setRoot([
+      NavigationPath.Base,
+      HomeNavigationPath.Settings,
+      SettingsNavigationPath.PlanningDetail,
+    ]);
   }
 }

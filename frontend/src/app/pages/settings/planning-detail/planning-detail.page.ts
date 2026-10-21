@@ -4,6 +4,11 @@ import { AlertController } from '@ionic/angular';
 import {
   IonButton,
   IonButtons,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
   IonContent,
   IonFooter,
   IonHeader,
@@ -40,63 +45,101 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-      <p>{{ 'PLANNING_DETAIL.DESCRIPTION' | translate }}</p>
+      <p class="description-text">{{ 'PLANNING_DETAIL.DESCRIPTION' | translate }}</p>
 
       @if (dataService.planningEnabled() && dataLoaded()) {
-        <h2>{{ 'GROUP_MANAGEMENT_PAGE.TITLE' | translate }}</h2>
+        <div class="group-section-container">
+          <h2 class="section-title">{{ 'GROUP_MANAGEMENT_PAGE.TITLE' | translate }}</h2>
 
-        @if (group(); as groupData) {
-          <ion-item lines="none" class="ion-margin-bottom">
-            <ion-label class="ion-text-wrap">
-              <h3>{{ 'GROUP_MANAGEMENT_PAGE.LEAVE_GROUP' | translate }}</h3>
-              <p>{{ 'GROUP_MANAGEMENT_PAGE.GROUP_ID' | translate }} {{ groupData.id }}</p>
-            </ion-label>
-          </ion-item>
-          <ion-list lines="inset" inset="true">
-            @for (user of groupData.users; track trackByUserId($index, user)) {
-              <ion-item>
-                <ion-label>{{ getUserName(user) }}</ion-label>
-              </ion-item>
-            }
-          </ion-list>
-          <div class="ion-margin-top" style="display: flex; gap: 8px;">
-            <ion-button size="small" color="danger" (click)="onLeaveGroupClicked()">
-              {{ 'GROUP_MANAGEMENT_PAGE.LEAVE_GROUP_BUTTON' | translate }}
-            </ion-button>
-            <ion-button size="small" (click)="onShareClicked()">
-              <ion-icon slot="icon-only" name="share-social-outline"></ion-icon>
-            </ion-button>
-          </div>
-        } @else {
-          <p>{{ 'COMMON.PLANNINGS.NO_GROUP_ERROR' | translate }}</p>
+          @if (group(); as groupData) {
+            <ion-card class="group-card">
+              <ion-card-header>
+                <div class="group-header-row">
+                  <div>
+                    <ion-card-title>{{
+                      'GROUP_MANAGEMENT_PAGE.LEAVE_GROUP' | translate
+                    }}</ion-card-title>
+                    <ion-card-subtitle
+                      >{{ 'GROUP_MANAGEMENT_PAGE.GROUP_ID' | translate }}
+                      {{ groupData.id }}</ion-card-subtitle
+                    >
+                  </div>
+                  <ion-button
+                    fill="clear"
+                    color="primary"
+                    (click)="onShareClicked()"
+                    aria-label="Condividi gruppo"
+                  >
+                    <ion-icon slot="icon-only" name="share-social-outline"></ion-icon>
+                  </ion-button>
+                </div>
+              </ion-card-header>
+              <ion-card-content>
+                <ion-list lines="inset" inset="true" class="members-list">
+                  @for (user of groupData.users; track trackByUserId($index, user)) {
+                    <ion-item>
+                      <ion-icon slot="start" name="person-outline" color="primary"></ion-icon>
+                      <ion-label>{{ getUserName(user) }}</ion-label>
+                    </ion-item>
+                  }
+                </ion-list>
+                <div class="group-actions ion-margin-top">
+                  <ion-button
+                    expand="block"
+                    fill="outline"
+                    color="danger"
+                    (click)="onLeaveGroupClicked()"
+                  >
+                    <ion-icon slot="start" name="log-out-outline"></ion-icon>
+                    {{ 'GROUP_MANAGEMENT_PAGE.LEAVE_GROUP_BUTTON' | translate }}
+                  </ion-button>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          } @else {
+            <ion-card class="group-card">
+              <ion-card-header>
+                <ion-card-title class="card-title-centered">{{
+                  'GROUP_MANAGEMENT_PAGE.CREATE_GROUP' | translate
+                }}</ion-card-title>
+                <ion-card-subtitle class="card-subtitle-centered"
+                  >Crea un gruppo per condividere il menu settimanale con la famiglia o
+                  coinquilini</ion-card-subtitle
+                >
+              </ion-card-header>
+              <ion-card-content class="ion-text-center">
+                <ion-button (click)="onCreateGroupClicked()" class="action-btn">
+                  <ion-icon slot="start" name="people-outline"></ion-icon>
+                  {{ 'GROUP_MANAGEMENT_PAGE.CREATE_GROUP_BUTTON' | translate }}
+                </ion-button>
 
-          <div class="ion-margin-top">
-            <p>{{ 'GROUP_MANAGEMENT_PAGE.CREATE_GROUP' | translate }}</p>
-            <ion-button size="small" (click)="onCreateGroupClicked()">
-              {{ 'GROUP_MANAGEMENT_PAGE.CREATE_GROUP_BUTTON' | translate }}
-            </ion-button>
-          </div>
+                <div class="divider-text ion-margin-vertical">
+                  <span>{{ 'GROUP_MANAGEMENT_PAGE.SEPARATOR' | translate }}</span>
+                </div>
 
-          <div class="ion-margin-top">{{ 'GROUP_MANAGEMENT_PAGE.SEPARATOR' | translate }}</div>
-
-          <div class="ion-margin-top">
-            <p>{{ 'GROUP_MANAGEMENT_PAGE.JOIN_GROUP' | translate }}</p>
-            <ion-input
-              type="text"
-              inputmode="text"
-              [placeholder]="'GROUP_MANAGEMENT_PAGE.GROUP_ID' | translate"
-              [(ngModel)]="newGroupId"
-            ></ion-input>
-            <ion-button
-              size="small"
-              class="ion-margin-top"
-              [disabled]="!newGroupId || newGroupId!.length < 8"
-              (click)="onJoinGroupClicked()"
-            >
-              {{ 'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON' | translate }}
-            </ion-button>
-          </div>
-        }
+                <div class="join-group-wrapper">
+                  <p class="join-label">{{ 'GROUP_MANAGEMENT_PAGE.JOIN_GROUP' | translate }}</p>
+                  <div class="input-button-row">
+                    <ion-input
+                      class="custom-code-input"
+                      type="text"
+                      inputmode="text"
+                      [placeholder]="'GROUP_MANAGEMENT_PAGE.GROUP_ID' | translate"
+                      [(ngModel)]="newGroupId"
+                    ></ion-input>
+                    <ion-button
+                      [disabled]="!newGroupId || newGroupId!.length < 8"
+                      (click)="onJoinGroupClicked()"
+                      class="join-btn"
+                    >
+                      {{ 'GROUP_MANAGEMENT_PAGE.JOIN_GROUP_BUTTON' | translate }}
+                    </ion-button>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          }
+        </div>
       }
     </ion-content>
     <ion-footer class="ion-padding">
@@ -113,6 +156,113 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
       </ion-toolbar>
     </ion-footer>
   `,
+  styles: [
+    `
+      .description-text {
+        color: var(--ion-color-medium);
+        font-size: 0.95rem;
+        line-height: 1.4;
+        margin-bottom: 20px;
+      }
+
+      .section-title {
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+      }
+
+      .group-card {
+        margin: 0 0 20px 0;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--ion-color-step-100, rgba(0, 0, 0, 0.06));
+      }
+
+      .group-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .card-title-centered {
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      .card-subtitle-centered {
+        font-size: 0.88rem;
+        margin-top: 4px;
+      }
+
+      .divider-text {
+        position: relative;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.82rem;
+        color: var(--ion-color-medium);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          width: 35%;
+          height: 1px;
+          background: var(--ion-color-step-150, #e0e0e0);
+        }
+
+        &::before {
+          left: 0;
+        }
+
+        &::after {
+          right: 0;
+        }
+      }
+
+      .join-group-wrapper {
+        text-align: left;
+      }
+
+      .join-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--ion-color-dark);
+        margin-bottom: 8px;
+      }
+
+      .input-button-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .custom-code-input {
+          flex: 1;
+          background: var(--ion-color-step-50, #f8f9fa);
+          border: 1px solid var(--ion-color-step-150, #e0e0e0);
+          border-radius: 12px;
+          padding: 4px 12px;
+          font-size: 0.95rem;
+        }
+
+        .join-btn {
+          --border-radius: 12px;
+          height: 42px;
+          margin: 0;
+          flex-shrink: 0;
+        }
+      }
+
+      .action-btn {
+        --border-radius: 12px;
+        height: 44px;
+        font-weight: 600;
+        margin: 8px 0;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
@@ -130,6 +280,11 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
     IonLabel,
     IonList,
     IonInput,
+    IonCard,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
   ],
 })
 export class PlanningDetailPage {

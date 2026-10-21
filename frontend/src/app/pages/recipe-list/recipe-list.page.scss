@@ -12,8 +12,23 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  width: 100%;
+
   ion-searchbar {
-    padding: 0 0 0 20px;
+    flex: 1;
+    padding: 0;
+    --box-shadow: none;
+    --border-radius: 12px;
+  }
+
+  ion-button {
+    margin: 0;
+    --padding-start: 8px;
+    --padding-end: 8px;
+    height: 40px;
+    flex-shrink: 0;
   }
 }
 

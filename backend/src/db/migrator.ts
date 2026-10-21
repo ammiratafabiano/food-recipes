@@ -177,6 +177,17 @@ const migrations: Migration[] = [
       `);
     },
   },
+  {
+    name: '012_default_enable_features',
+    run: async (db) => {
+      await db.run(
+        'UPDATE users SET planning_enabled = 1 WHERE planning_enabled IS NULL OR planning_enabled = 0',
+      );
+      await db.run(
+        'UPDATE users SET social_enabled = 1 WHERE social_enabled IS NULL OR social_enabled = 0',
+      );
+    },
+  },
 ];
 
 export async function runMigrations(db: Database): Promise<void> {

@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -49,7 +56,7 @@ import { Subscription } from 'rxjs';
     IonIcon,
   ],
 })
-export class ShoppingListPage implements OnDestroy {
+export class ShoppingListPage implements OnInit, OnDestroy {
   private readonly dataService = inject(DataService);
   private readonly loadingService = inject(LoadingService);
   private readonly translateService = inject(TranslateService);
@@ -72,8 +79,12 @@ export class ShoppingListPage implements OnDestroy {
 
   constructor() {}
 
-  ionViewDidEnter() {
-    this.getData();
+  async ngOnInit() {
+    await this.getData();
+  }
+
+  async ionViewDidEnter() {
+    await this.getData();
   }
 
   ngOnDestroy() {

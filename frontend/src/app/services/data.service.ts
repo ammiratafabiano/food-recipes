@@ -35,8 +35,16 @@ export class DataService {
 
   async loadUserSettings() {
     const profile = await this.getUserProfile();
-    this.planningEnabled.set(!!profile?.planning_enabled);
-    this.socialEnabled.set(!!profile?.social_enabled);
+    const planningOn =
+      profile?.planning_enabled !== undefined && profile?.planning_enabled !== null
+        ? !!profile.planning_enabled
+        : true;
+    const socialOn =
+      profile?.social_enabled !== undefined && profile?.social_enabled !== null
+        ? !!profile.social_enabled
+        : true;
+    this.planningEnabled.set(planningOn);
+    this.socialEnabled.set(socialOn);
   }
 
   async setPlanningEnabled(enabled: boolean) {
