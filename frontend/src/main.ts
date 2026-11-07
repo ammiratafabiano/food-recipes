@@ -21,6 +21,7 @@ import {
   bookmark,
   bookmarkOutline,
   calendar,
+  calendarOutline,
   chevronBackOutline,
   chevronForwardOutline,
   close,
@@ -59,6 +60,11 @@ import {
   cartOutline,
   camera,
   timeOutline,
+  basketOutline,
+  globeOutline,
+  logOutOutline,
+  trashOutline,
+  podiumOutline,
 } from 'ionicons/icons';
 
 import { AppComponent } from './app/app.component';
@@ -74,6 +80,7 @@ addIcons({
   bookmark,
   bookmarkOutline,
   calendar,
+  calendarOutline,
   chevronBackOutline,
   chevronForwardOutline,
   close,
@@ -112,6 +119,11 @@ addIcons({
   cartOutline,
   camera,
   timeOutline,
+  basketOutline,
+  globeOutline,
+  logOutOutline,
+  trashOutline,
+  podiumOutline,
 });
 
 export function createTranslateLoader(http: HttpClient) {

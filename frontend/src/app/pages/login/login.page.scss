@@ -1,8 +1,8 @@
 ion-content {
   --padding-top: 0;
-  --padding-start: 5%;
-  --padding-end: 5%;
-  --background: var(--ion-color-light);
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --background: transparent !important;
 }
 
 .login-wrapper {
@@ -10,8 +10,8 @@ ion-content {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  gap: 3rem;
+  min-height: 100%;
+  padding: 24px 0;
 }
 
 .splash-container {
@@ -19,26 +19,40 @@ ion-content {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  background: var(--glass-card-bg);
+  border: var(--glass-border-specular);
+  border-radius: 36px;
+  box-shadow: var(--glass-shadow-floating);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  padding: 44px 28px 36px;
+  width: 100%;
+  max-width: 380px;
 
   .app-logo {
-    width: 120px;
-    height: 120px;
-    border-radius: 24px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    width: 110px;
+    height: 110px;
+    border-radius: 28px;
+    box-shadow:
+      0 12px 32px rgba(var(--ion-color-primary-rgb), 0.25),
+      0 2px 8px rgba(0, 0, 0, 0.08);
     margin-bottom: 1.5rem;
+    border: 2px solid rgba(255, 255, 255, 0.8);
   }
 
   .app-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--ion-color-dark);
+    font-size: 2.1rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--ion-text-color);
     margin: 0 0 0.5rem 0;
   }
 
   .app-subtitle {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
+    font-weight: 500;
     color: var(--ion-color-medium);
-    margin: 0;
+    margin: 0 0 1.5rem 0;
   }
 }
 
@@ -48,11 +62,13 @@ ion-content {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  min-height: 80px;
+  margin-top: 24px;
+  width: 100%;
 }
 
 .login-hint {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
+  font-weight: 500;
   color: var(--ion-color-medium);
   text-align: center;
   margin: 0;

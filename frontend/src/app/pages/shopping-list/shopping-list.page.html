@@ -23,9 +23,12 @@
   </ion-refresher>
 
   @if (shoppingList() !== undefined) { @if (shoppingList()!.length === 0) {
-  <ion-label class="ion-padding"> {{ 'SHOPPING_LIST_PAGE.NO_DATA' | translate }} </ion-label>
+  <div class="empty-glass-state">
+    <ion-icon name="basket-outline"></ion-icon>
+    <p>{{ 'SHOPPING_LIST_PAGE.NO_DATA' | translate }}</p>
+  </div>
   } @else {
-  <ion-list class="ion-margin-top shopping-items-list">
+  <ion-list lines="inset" inset="true" class="shopping-items-list">
     @for (item of shoppingList(); track trackByIngredient($index, item)) {
     <ion-item class="shopping-item" [class.item-checked]="checkedItems()[item.id || item.name]">
       <ion-checkbox

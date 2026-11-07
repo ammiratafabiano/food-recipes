@@ -12,15 +12,26 @@
   </ion-header>
 
   @if (users() !== undefined) { @if (users() && users()!.length > 0) {
-  <p class="ion-padding">{{ 'DISCOVER_PAGE.USERS' | translate }}</p>
+  <div class="section-header-row">
+    <h2 class="section-title">{{ 'DISCOVER_PAGE.USERS' | translate }}</h2>
+  </div>
   } @if (users()!.length === 0) {
-  <ion-label class="ion-padding"> {{ 'DISCOVER_PAGE.NO_DATA' | translate }} </ion-label>
+  <div class="empty-glass-state">
+    <ion-icon name="people-outline"></ion-icon>
+    <p>{{ 'DISCOVER_PAGE.NO_DATA' | translate }}</p>
+  </div>
   } @else {
-  <ion-list>
+  <ion-list lines="inset" inset="true">
     @for (user of users(); track trackByUser($index, user)) {
-    <ion-item (click)="onUserClicked(user)">
-      <ion-avatar slot="start">
+    <ion-item button (click)="onUserClicked(user)" class="discover-user-item">
+      <ion-avatar slot="start" class="discover-avatar">
+        @if (user.avatar_url) {
         <img [src]="user.avatar_url" referrerpolicy="no-referrer" />
+        } @else {
+        <div class="avatar-placeholder">
+          <ion-icon name="person"></ion-icon>
+        </div>
+        }
       </ion-avatar>
       <ion-label> {{ user.name }} </ion-label>
     </ion-item>

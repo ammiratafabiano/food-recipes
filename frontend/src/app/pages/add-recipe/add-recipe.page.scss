@@ -1,37 +1,55 @@
 /* Time Row Styling */
 .time-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
   align-items: center;
-  margin-top: 4px;
+  margin-top: 6px;
 
   ion-input {
     flex: 1.2;
-    --background: var(--ion-color-step-50, #f9f9f9);
-    --padding-start: 10px;
-    --padding-end: 10px;
-    border-radius: 8px;
-    height: 38px;
+    --background: var(--glass-bg-subtle);
+    --padding-start: 12px;
+    --padding-end: 12px;
+    border-radius: 12px;
+    border: var(--glass-border);
+    height: 40px;
+    font-weight: 600;
   }
 
   ion-select {
     flex: 1;
-    --background: var(--ion-color-step-50, #f9f9f9);
-    border-radius: 8px;
-    height: 38px;
-    padding-left: 10px;
-    padding-right: 10px;
+    --background: var(--glass-bg-subtle);
+    border-radius: 12px;
+    border: var(--glass-border);
+    height: 40px;
+    padding-left: 12px;
+    padding-right: 12px;
+    font-weight: 600;
   }
 }
 
 /* Align Footer Buttons */
 ion-footer {
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
-  background: var(--ion-background-color, #fff);
+  box-shadow: none !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 16px 16px 16px;
 
   ion-toolbar {
     --background: transparent;
-    padding: 8px 16px;
+    --border-width: 0;
+    padding: 0;
+
+    ion-button {
+      --border-radius: 20px;
+      --box-shadow:
+        0 10px 28px -4px rgba(var(--ion-color-primary-rgb), 0.5),
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.4);
+      height: 48px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
   }
 }

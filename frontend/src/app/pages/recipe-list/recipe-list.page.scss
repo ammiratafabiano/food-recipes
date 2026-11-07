@@ -2,9 +2,70 @@
   opacity: 0.4;
 }
 
+.section-header-row {
+  padding: 18px 20px 8px;
+
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ion-text-color);
+    margin: 0;
+  }
+}
+
+.empty-glass-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  margin: 8px 16px 20px;
+  background: var(--glass-card-bg);
+  border: var(--glass-border);
+  border-radius: var(--glass-card-radius);
+  backdrop-filter: var(--glass-blur-subtle);
+  -webkit-backdrop-filter: var(--glass-blur-subtle);
+  box-shadow: var(--glass-shadow-sm);
+  color: var(--ion-color-medium);
+  gap: 8px;
+
+  ion-icon {
+    font-size: 32px;
+    opacity: 0.6;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+}
+
 .filter-button {
   ion-popover {
-    --width: 70%;
+    --width: 75%;
+    --backdrop-opacity: 0.25;
+  }
+}
+
+ion-footer {
+  --background: transparent;
+  background: transparent;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 16px;
+  position: absolute;
+  bottom: calc(98px + env(safe-area-inset-bottom, 0px)) !important;
+  margin-bottom: 0 !important;
+  left: 0;
+  right: 0;
+  z-index: 990;
+
+  ion-toolbar {
+    --background: transparent;
+    --border-width: 0;
+    padding: 0;
   }
 }
 
@@ -13,68 +74,111 @@
   flex-direction: row;
   align-items: center;
   gap: 8px;
-  padding: 4px 12px;
+  padding: 6px 10px;
   width: 100%;
+  background: var(--glass-bg);
+  border: var(--glass-border-specular);
+  border-radius: 24px;
+  box-shadow: var(--glass-shadow-floating);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 
   ion-searchbar {
     flex: 1;
     padding: 0;
     --box-shadow: none;
-    --border-radius: 12px;
+    --border-radius: 16px;
+    border: none;
   }
 
   ion-button {
     margin: 0;
     --padding-start: 8px;
     --padding-end: 8px;
-    height: 40px;
+    height: 38px;
     flex-shrink: 0;
+    --color: var(--ion-color-primary);
+
+    ion-icon {
+      font-size: 20px;
+    }
   }
 }
 
-.recipe-list-item {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --inner-padding-end: 12px;
+.bottom-scroll-spacer {
+  height: calc(160px + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+}
 
-  .recipe-title-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+.recipe-cards-list {
+  contain: paint;
 
-    .recipe-name {
-      font-size: 1.02rem;
+  .recipe-list-item {
+    --background: transparent !important;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --inner-padding-end: 12px;
+    transition: background 0.2s ease;
+
+    &:active {
+      --background: rgba(var(--ion-color-primary-rgb), 0.06) !important;
+    }
+
+    .recipe-title-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .recipe-name {
+        font-size: 1.02rem;
+        font-weight: 600;
+        letter-spacing: -0.015em;
+        color: var(--ion-text-color);
+      }
+
+      .wip-icon {
+        font-size: 0.95rem;
+      }
+    }
+
+    .recipe-meta-text {
+      font-size: 0.8rem;
+      color: var(--ion-color-medium);
+      margin-top: 4px;
+      margin-bottom: 0;
+      line-height: 1.25;
       font-weight: 500;
-      letter-spacing: -0.01em;
-      color: var(--ion-text-color);
     }
 
-    .wip-icon {
-      font-size: 0.95rem;
-    }
-  }
+    .recipe-time-note {
+      align-self: center !important;
+      margin: auto 0 !important;
+      margin-inline-start: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--ion-color-primary);
+      background: rgba(var(--ion-color-primary-rgb), 0.1);
+      border: 1px solid rgba(var(--ion-color-primary-rgb), 0.18);
+      padding: 5px 10px;
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
 
-  .recipe-meta-text {
-    font-size: 0.82rem;
-    color: var(--ion-color-medium);
-    margin-top: 3px;
-    margin-bottom: 0;
-    line-height: 1.2;
-  }
+      ion-icon {
+        font-size: 0.88rem;
+        display: block;
+        margin: 0;
+      }
 
-  .recipe-time-note {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: var(--ion-color-tertiary);
-    background: rgba(var(--ion-color-tertiary-rgb), 0.08);
-    padding: 4px 8px;
-    border-radius: 12px;
-
-    ion-icon {
-      font-size: 0.9rem;
+      span {
+        display: inline-block;
+        line-height: 1;
+      }
     }
   }
 }

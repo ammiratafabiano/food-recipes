@@ -8,6 +8,7 @@ import {
   IonList,
   IonTitle,
   IonToolbar,
+  IonIcon,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { LoadingService } from 'src/app/services/loading.service';
@@ -19,6 +20,7 @@ import { trackById } from 'src/app/utils/track-by';
 @Component({
   selector: 'app-discover',
   templateUrl: './discover.page.html',
+  styleUrls: ['./discover.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
@@ -31,6 +33,7 @@ import { trackById } from 'src/app/utils/track-by';
     IonList,
     IonItem,
     IonAvatar,
+    IonIcon,
   ],
 })
 export class DiscoverPage {

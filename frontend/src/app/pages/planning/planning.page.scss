@@ -1,8 +1,3 @@
-.delimiter {
-  margin-top: 1rem;
-  font-size: 2em;
-}
-
 .bar-container {
   display: flex;
   flex-direction: row;
@@ -10,84 +5,28 @@
   justify-content: space-between;
 }
 
-.servings-control {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 4px;
-
-  .clickable-servings {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    cursor: pointer;
-    padding: 3px 6px;
-    border-radius: 8px;
-    background: rgba(var(--ion-color-primary-rgb), 0.1);
-    color: var(--ion-color-primary);
-    font-weight: bold;
-    transition: background 0.2s;
-
-    &:active {
-      background: rgba(var(--ion-color-primary-rgb), 0.2);
-    }
-
-    ion-icon {
-      font-size: 14px;
-    }
-
-    ion-label {
-      min-width: 14px;
-      text-align: center;
-      font-size: 0.9em;
-    }
-  }
-}
-
-.assignees-container {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  margin-left: 4px;
-  cursor: pointer;
-  padding: 3px 6px;
-  border-radius: 8px;
-  background: rgba(var(--ion-color-medium-rgb), 0.05);
-  min-height: 28px;
-
-  &:hover,
-  &:active {
-    background: rgba(var(--ion-color-medium-rgb), 0.15);
-  }
-
-  ion-icon {
-    font-size: 18px;
-  }
-
-  .everyone-icon {
-    color: var(--ion-color-medium);
-    opacity: 0.7;
-  }
-}
-
-.excluded-from-shopping {
-  --background: rgba(var(--ion-color-primary-rgb), 0.06);
-  opacity: 0.7;
-}
-
 .week-changer-container {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: 4px 10px;
-  background: rgba(var(--ion-color-medium-rgb), 0.05);
-  border-bottom: 1px solid rgba(var(--ion-color-medium-rgb), 0.1);
-  margin: 0 0 8px 0;
+  padding: 6px 12px;
+  margin: 10px 16px 12px;
+  background: var(--glass-card-bg);
+  border: var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow-sm);
+  backdrop-filter: var(--glass-blur-subtle);
+  -webkit-backdrop-filter: var(--glass-blur-subtle);
 
   .week-nav-left {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+
+    ion-button {
+      --color: var(--ion-color-primary);
+      margin: 0;
+    }
   }
 
   .week-title-wrapper {
@@ -96,18 +35,43 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+    gap: 2px;
+
+    .week-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ion-color-primary);
+      background: rgba(var(--ion-color-primary-rgb), 0.12);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .week-range {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--ion-text-color);
+    }
   }
 
   .week-nav-right {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 4px;
+    gap: 2px;
+
+    ion-button {
+      --color: var(--ion-color-primary);
+      margin: 0;
+    }
   }
 
   .nutrition-btn {
-    border-left: 1px solid rgba(var(--ion-color-medium-rgb), 0.25);
-    margin-left: 2px;
+    border-left: 1px solid rgba(var(--ion-color-medium-rgb), 0.18);
+    margin-left: 4px;
+    padding-left: 4px;
   }
 }
 
@@ -116,11 +80,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: 4px 16px 12px;
-  padding: 10px 14px;
-  background: rgba(var(--ion-color-primary-rgb), 0.07);
-  border: 1px solid rgba(var(--ion-color-primary-rgb), 0.18);
-  border-radius: 14px;
+  margin: 0 16px 14px;
+  padding: 12px 16px;
+  background: var(--glass-card-bg);
+  border: 1px solid rgba(var(--ion-color-primary-rgb), 0.25);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow-sm);
+  backdrop-filter: var(--glass-blur-subtle);
+  -webkit-backdrop-filter: var(--glass-blur-subtle);
 
   .personal-mode-info {
     display: flex;
@@ -146,13 +113,15 @@
       .personal-mode-desc {
         font-size: 0.74rem;
         color: var(--ion-color-medium);
-        line-height: 1.2;
+        line-height: 1.25;
       }
     }
   }
 
   .group-cta-btn {
-    --border-radius: 10px;
+    --border-radius: 14px;
+    --color: var(--ion-color-primary);
+    --border-color: rgba(var(--ion-color-primary-rgb), 0.4);
     font-size: 0.78rem;
     font-weight: 600;
     flex-shrink: 0;
@@ -160,60 +129,194 @@
   }
 }
 
-.week-title-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+.planning-items-list {
+  background: transparent !important;
+  padding: 0 0 calc(130px + env(safe-area-inset-bottom, 0px));
+}
 
-  .week-badge {
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--ion-color-primary);
-    background: rgba(var(--ion-color-primary-rgb), 0.12);
-    padding: 2px 8px;
+.separator-sliding {
+  background: transparent !important;
+}
+
+.day-separator-item {
+  --background: transparent !important;
+  --min-height: 42px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --inner-padding-end: 0;
+  margin-top: 14px;
+  margin-bottom: 6px;
+  cursor: default;
+
+  .day-header-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 8px 14px;
+    background: var(--glass-card-bg);
+    border: var(--glass-border);
+    border-radius: 14px;
+    backdrop-filter: var(--glass-blur-subtle);
+    -webkit-backdrop-filter: var(--glass-blur-subtle);
+    box-shadow: var(--glass-shadow-sm);
+    transition: all 0.2s ease;
+
+    &.is-today {
+      background: rgba(var(--ion-color-primary-rgb), 0.1);
+      border: 1px solid rgba(var(--ion-color-primary-rgb), 0.35);
+      box-shadow: 0 4px 16px rgba(var(--ion-color-primary-rgb), 0.12);
+    }
+
+    .day-title-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .day-calendar-icon {
+        font-size: 16px;
+        color: var(--ion-color-primary);
+      }
+
+      .day-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        color: var(--ion-text-color);
+      }
+    }
+
+    .today-indicator {
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: #fff;
+      background: var(--ion-color-primary);
+      padding: 3px 9px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(var(--ion-color-primary-rgb), 0.35);
+    }
+  }
+}
+
+.recipe-plan-item {
+  --background: var(--glass-card-bg) !important;
+  border: var(--glass-border);
+  border-radius: 16px;
+  margin: 6px 16px;
+  box-shadow: var(--glass-shadow-sm);
+  backdrop-filter: var(--glass-blur-subtle);
+  -webkit-backdrop-filter: var(--glass-blur-subtle);
+  --padding-start: 16px;
+  --padding-end: 12px;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.985);
+  }
+
+  .recipe-info {
+    .recipe-name {
+      font-size: 0.98rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--ion-text-color);
+    }
+
+    .meal-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--ion-color-primary);
+      background: rgba(var(--ion-color-primary-rgb), 0.08);
+      padding: 2px 8px;
+      border-radius: 8px;
+      margin-top: 4px;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.servings-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+
+  .clickable-servings {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 8px;
     border-radius: 10px;
-  }
-
-  .week-range {
-    font-size: 0.95rem;
+    background: rgba(var(--ion-color-primary-rgb), 0.1);
+    border: 1px solid rgba(var(--ion-color-primary-rgb), 0.15);
+    color: var(--ion-color-primary);
     font-weight: 700;
-    color: var(--ion-text-color);
+    transition: all 0.2s ease;
+
+    &:active {
+      background: rgba(var(--ion-color-primary-rgb), 0.2);
+    }
+
+    ion-icon {
+      font-size: 14px;
+    }
+
+    ion-label {
+      min-width: 14px;
+      text-align: center;
+      font-size: 0.85rem;
+    }
   }
 }
 
-.separator-wrapper {
+.assignees-container {
   display: flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
+  gap: 3px;
+  margin-left: 4px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 10px;
+  background: rgba(var(--ion-color-medium-rgb), 0.08);
+  min-height: 28px;
+  transition: background 0.15s;
 
-  .delimiter {
-    margin-top: 1rem;
-    font-size: 1.8rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
+  &:active {
+    background: rgba(var(--ion-color-medium-rgb), 0.18);
   }
 
-  .today-indicator {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #fff;
-    background: var(--ion-color-primary);
-    padding: 2px 8px;
-    border-radius: 12px;
-    margin-top: 0.8rem;
-    letter-spacing: 0.03em;
+  ion-icon {
+    font-size: 16px;
+  }
+
+  .everyone-icon {
+    color: var(--ion-color-medium);
+    opacity: 0.7;
   }
 }
 
-ion-list {
-  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+.excluded-from-shopping {
+  opacity: 0.65;
+  filter: grayscale(0.2);
 }
 
 ion-fab {
-  margin-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  margin-bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+
+  ion-fab-button {
+    --background: var(--ion-color-primary);
+    --color: #ffffff;
+    --box-shadow:
+      0 10px 28px -4px rgba(var(--ion-color-primary-rgb), 0.5),
+      inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &:active {
+      transform: scale(0.92);
+    }
+  }
 }
