@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 import {
   AlertController,
   IonIcon,
@@ -35,11 +44,30 @@ export class HomePage implements OnInit {
 
   @ViewChild(IonTabs) tabs!: IonTabs;
 
+  readonly isSubPage = signal<boolean>(false);
   private initialTabLoaded = false;
 
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe((event) => {
+        this.checkIsSubPage(event.urlAfterRedirects || event.url);
+      });
+  }
+
   ngOnInit() {
+    this.checkIsSubPage(this.router.url);
     this.dataService.loadUserSettings();
     this.groupInviteService.handlePendingGroupInvite();
+  }
+
+  private checkIsSubPage(url: string) {
+    const cleanUrl = url.split('?')[0].replace(/^\//, '');
+    const segments = cleanUrl.split('/').filter(Boolean);
+    this.isSubPage.set(segments.length > 1);
   }
 
   onTabsDidChange() {

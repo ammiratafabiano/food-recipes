@@ -1,4 +1,11 @@
 {
+    "HOME_PAGE": {
+        "TAB_RECIPES": "Recipes",
+        "TAB_PLANNING": "Planning",
+        "TAB_SHOPPING": "Shopping",
+        "TAB_DISCOVER": "Discover",
+        "TAB_SETTINGS": "Settings"
+    },
     "LOGIN_PAGE": {
         "TITLE": "Login",
         "GOOGLE_LOGIN_BUTTON": "Google login",

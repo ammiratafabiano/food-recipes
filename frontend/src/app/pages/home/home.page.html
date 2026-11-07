@@ -1,32 +1,32 @@
 <ion-tabs (ionTabsDidChange)="onTabsDidChange()">
-  <ion-tab-bar slot="bottom">
+  <ion-tab-bar slot="bottom" [class.tab-bar-hidden]="isSubPage()">
     @if (dataService.socialEnabled()) {
     <ion-tab-button tab="discover">
       <ion-icon name="library"></ion-icon>
-      <ion-label>{{ 'DISCOVER_PAGE.TITLE' | translate }}</ion-label>
+      <ion-label>{{ 'HOME_PAGE.TAB_DISCOVER' | translate }}</ion-label>
     </ion-tab-button>
     }
 
     <ion-tab-button tab="recipe-list">
       <ion-icon name="pizza"></ion-icon>
-      <ion-label>{{ 'RECIPE_LIST_PAGE.TITLE' | translate }}</ion-label>
+      <ion-label>{{ 'HOME_PAGE.TAB_RECIPES' | translate }}</ion-label>
     </ion-tab-button>
 
     @if (dataService.planningEnabled()) {
     <ion-tab-button tab="planning">
       <ion-icon name="calendar"></ion-icon>
-      <ion-label>{{ 'PLANNING_PAGE.TITLE' | translate }}</ion-label>
+      <ion-label>{{ 'HOME_PAGE.TAB_PLANNING' | translate }}</ion-label>
     </ion-tab-button>
 
     <ion-tab-button tab="shopping-list">
       <ion-icon name="basket"></ion-icon>
-      <ion-label>{{ 'SHOPPING_LIST_PAGE.TITLE' | translate }}</ion-label>
+      <ion-label>{{ 'HOME_PAGE.TAB_SHOPPING' | translate }}</ion-label>
     </ion-tab-button>
     }
 
     <ion-tab-button tab="settings">
       <ion-icon name="cog"></ion-icon>
-      <ion-label>{{ 'SETTINGS_PAGE.TITLE' | translate }}</ion-label>
+      <ion-label>{{ 'HOME_PAGE.TAB_SETTINGS' | translate }}</ion-label>
     </ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>

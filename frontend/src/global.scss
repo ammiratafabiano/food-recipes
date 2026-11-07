@@ -55,18 +55,42 @@ ion-item-sliding {
 /* ── Apple Liquid Glass Ambient Canvas ── */
 ion-app {
   background:
-    radial-gradient(
-      ellipse 85% 55% at 15% -5%,
-      rgba(var(--ion-color-primary-rgb), 0.1) 0%,
-      transparent 65%
-    ),
-    radial-gradient(
-      ellipse 70% 45% at 90% 95%,
-      rgba(var(--ion-color-secondary-rgb), 0.08) 0%,
-      transparent 60%
-    ),
-    var(--ion-background-color, #f8f9fa);
+    radial-gradient(ellipse 75% 50% at 10% -2%, rgba(61, 122, 90, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 45% at 95% 15%, rgba(200, 109, 59, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 55% at 85% 95%, rgba(56, 142, 190, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 5% 85%, rgba(130, 80, 210, 0.14) 0%, transparent 55%),
+    var(--ion-background-color, #f6f7f9);
   background-attachment: fixed;
+}
+
+@media (prefers-color-scheme: dark) {
+  ion-app {
+    background:
+      radial-gradient(ellipse 75% 50% at 10% -2%, rgba(82, 163, 120, 0.25) 0%, transparent 60%),
+      radial-gradient(ellipse 65% 45% at 95% 15%, rgba(216, 130, 82, 0.2) 0%, transparent 55%),
+      radial-gradient(ellipse 80% 55% at 85% 95%, rgba(56, 142, 190, 0.22) 0%, transparent 60%),
+      var(--ion-background-color, #121513);
+    background-attachment: fixed;
+  }
+}
+
+/* ── Prevent opaque pages from blocking the ambient glass canvas ── */
+.ion-page,
+ion-router-outlet,
+ion-tabs {
+  background: transparent !important;
+}
+
+/* ── WebKit backdrop-filter & GPU compositing layer fixes ── */
+ion-tab-bar,
+ion-toolbar,
+ion-header,
+ion-card,
+ion-list,
+ion-item,
+.glass-list {
+  contain: none !important;
+  transform: translateZ(0);
 }
 
 /* ── Global Bottom Spacing & Content Flow ── */
@@ -122,7 +146,16 @@ ion-tab-bar {
   right: 0 !important;
   z-index: 1000 !important;
   padding: 4px 6px !important;
-  contain: layout style;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-around !important;
+  contain: none !important;
+  transform: translateZ(0);
+
+  &.tab-bar-hidden {
+    display: none !important;
+  }
 
   &::before {
     display: none !important;
@@ -132,22 +165,39 @@ ion-tab-bar {
     --background: transparent !important;
     --color: var(--ion-color-medium) !important;
     --color-selected: var(--ion-color-primary) !important;
-    border-radius: 22px !important;
-    margin: 2px 2px !important;
+    --padding-start: 0 !important;
+    --padding-end: 0 !important;
+    --padding-top: 2px !important;
+    --padding-bottom: 2px !important;
+    border-radius: 20px !important;
+    margin: 0 !important;
+    padding: 2px 0 !important;
+    flex: 1 1 0% !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    overflow: hidden !important;
+    contain: none !important;
     transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     ion-icon {
-      font-size: 22px;
+      font-size: 21px;
       transition:
         transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
         filter 0.25s ease;
     }
 
     ion-label {
-      font-size: 0.72rem;
+      font-size: 0.62rem !important;
       font-weight: 600;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.03em !important;
       margin-top: 2px;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      width: 100% !important;
+      text-align: center !important;
+      display: block !important;
     }
 
     &.tab-selected {
@@ -525,6 +575,44 @@ ion-searchbar {
       --padding-top: 2px;
       --padding-bottom: 2px;
       height: 24px;
+    }
+  }
+}
+
+/* ── Apple Liquid Glass Subpage Footers ── */
+ion-footer {
+  --background: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  z-index: 1001 !important;
+  padding: 0 16px calc(14px + env(safe-area-inset-bottom, 14px)) 16px !important;
+
+  &::before {
+    display: none !important;
+  }
+
+  ion-toolbar {
+    --background: transparent !important;
+    --border-width: 0 !important;
+    --border-color: transparent !important;
+    --padding-top: 0 !important;
+    --padding-bottom: 0 !important;
+    --padding-start: 0 !important;
+    --padding-end: 0 !important;
+    contain: none !important;
+  }
+
+  ion-button {
+    margin: 0 !important;
+    border-radius: var(--glass-pill-radius, 9999px) !important;
+    height: 48px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    box-shadow: 0 8px 24px -4px rgba(var(--ion-color-primary-rgb), 0.35) !important;
+
+    &[color='danger'] {
+      box-shadow: 0 8px 24px -4px rgba(var(--ion-color-danger-rgb), 0.35) !important;
     }
   }
 }

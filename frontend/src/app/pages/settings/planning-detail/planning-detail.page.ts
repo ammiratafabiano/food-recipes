@@ -142,7 +142,7 @@ import { shareOrCopy } from 'src/app/utils/clipboard';
         </div>
       }
     </ion-content>
-    <ion-footer class="ion-padding">
+    <ion-footer class="ion-no-border">
       <ion-toolbar>
         @if (dataService.planningEnabled()) {
           <ion-button expand="block" color="danger" (click)="onToggle()">

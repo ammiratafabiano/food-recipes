@@ -1,8 +1,8 @@
 {
   "name": "Recipes App",
   "short_name": "Recipes App",
-  "theme_color": "#f7f7f7",
-  "background_color": "#fafafa",
+  "theme_color": "#3d7a5a",
+  "background_color": "#f6f7f9",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
@@ -34,6 +34,12 @@
     {
       "src": "assets/icons/icon-152x152.png",
       "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "assets/icons/icon-180x180.png",
+      "sizes": "180x180",
       "type": "image/png",
       "purpose": "maskable any"
     },

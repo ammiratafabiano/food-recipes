@@ -147,7 +147,7 @@ import { NavigationService } from 'src/app/services/navigation.service';
       }
     </ion-content>
 
-    <ion-footer class="ion-padding">
+    <ion-footer class="ion-no-border">
       <ion-toolbar>
         <ion-button expand="block" [disabled]="!isValid()" (click)="onSave()">
           {{ 'PROFILE_SURVEY.SAVE' | translate }}

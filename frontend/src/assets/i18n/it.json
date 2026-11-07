@@ -1,4 +1,11 @@
 {
+    "HOME_PAGE": {
+        "TAB_RECIPES": "Ricette",
+        "TAB_PLANNING": "Planning",
+        "TAB_SHOPPING": "Spesa",
+        "TAB_DISCOVER": "Scopri",
+        "TAB_SETTINGS": "Impostazioni"
+    },
     "LOGIN_PAGE": {
         "TITLE": "Login",
         "GOOGLE_LOGIN_BUTTON": "Entra con Google",

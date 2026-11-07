@@ -29,7 +29,7 @@ import { NavigationService } from 'src/app/services/navigation.service';
     <ion-content class="ion-padding">
       <p>{{ 'SOCIAL_DETAIL.DESCRIPTION' | translate }}</p>
     </ion-content>
-    <ion-footer class="ion-padding">
+    <ion-footer class="ion-no-border">
       <ion-toolbar>
         @if (dataService.socialEnabled()) {
           <ion-button expand="block" color="danger" (click)="onToggle()">
