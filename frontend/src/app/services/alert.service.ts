@@ -1,5 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { AlertButton, AlertController, AlertInput, ToastController } from '@ionic/angular';
+import {
+  AlertButton,
+  AlertController,
+  AlertInput,
+  ToastController,
+} from '@ionic/angular/standalone';
 import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({

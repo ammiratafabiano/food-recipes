@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AlertController } from '@ionic/angular';
 import {
+  AlertController,
   IonButton,
   IonButtons,
   IonCard,

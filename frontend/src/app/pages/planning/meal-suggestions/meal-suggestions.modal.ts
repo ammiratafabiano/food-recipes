@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, Input, OnInit, signal } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import {
   IonButton,
   IonButtons,

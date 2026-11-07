@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, Platform } from '@ionic/angular';
-import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { AlertController, IonApp, IonRouterOutlet, Platform } from '@ionic/angular/standalone';
 import { TranslateService } from '@ngx-translate/core';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';

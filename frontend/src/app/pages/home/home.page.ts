@@ -1,7 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, NavController } from '@ionic/angular';
-import { IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs } from '@ionic/angular/standalone';
+import {
+  AlertController,
+  IonIcon,
+  IonLabel,
+  IonTabBar,
+  IonTabButton,
+  IonTabs,
+  NavController,
+} from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   HomeNavigationPath,

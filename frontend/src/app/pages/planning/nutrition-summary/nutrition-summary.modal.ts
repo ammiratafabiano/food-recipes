@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, Input, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { ModalController } from '@ionic/angular';
-import { NavController } from '@ionic/angular';
+import { ModalController, NavController } from '@ionic/angular/standalone';
 import {
   IonButton,
   IonButtons,

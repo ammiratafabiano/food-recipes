@@ -7,7 +7,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { ActionSheetController, AlertController, ModalController } from '@ionic/angular';
+import { ActionSheetController, AlertController, ModalController } from '@ionic/angular/standalone';
 import { ItemReorderEventDetail } from '@ionic/core';
 import {
   IonButton,

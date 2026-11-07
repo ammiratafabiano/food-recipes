@@ -6,7 +6,7 @@ import {
   NavigationStart,
   Router,
 } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { NavController } from '@ionic/angular/standalone';
 import { LoggingService } from './logging.service';
 import { NavigationData } from '../models/navigation-data.model';
 import { NavigationStackElement } from '../models/navigation-stack-element.model';
